@@ -33,21 +33,24 @@ if($auth == TRUE){
 		$user_id=$_GET['user'];
 		
 	if(is_numeric($user_id)){
-		$profile_user = new User($db, $user_id);
-		$smarty->assign("p_username", $profile_user->getUsername());
-		$smarty->assign("p_user_id", $profile_user->getUserID());
-		$smarty->assign("p_karma", $profile_user->getKarma());
-		$smarty->assign("good_karma", $profile_user->getGoodKarma());
-		$smarty->assign("bad_karma", $profile_user->getBadKarma());
-		$smarty->assign("created", $profile_user->getAccountCreated());
-		$smarty->assign("last_active", $profile_user->getLastActive());
-		$smarty->assign("signature", override\htmlentities($profile_user->getSignature()));
-		$smarty->assign("quote", override\htmlentities($profile_user->getQuote()));
-		$smarty->assign("instant_messaging", '');
-		$smarty->assign("public_email", '');
-		
-		$display = "profile.tpl";
-		require("includes/deinit.php");
+			$profile_user = new User($db, $user_id);
+			if($profile_user->doesExist()){
+			$smarty->assign("p_username", $profile_user->getUsername());
+			$smarty->assign("p_user_id", $profile_user->getUserID());
+			$smarty->assign("p_karma", $profile_user->getKarma());
+			$smarty->assign("good_karma", $profile_user->getGoodKarma());
+			$smarty->assign("bad_karma", $profile_user->getBadKarma());
+			$smarty->assign("created", $profile_user->getAccountCreated());
+			$smarty->assign("last_active", $profile_user->getLastActive());
+			$smarty->assign("signature", override\htmlentities($profile_user->getSignature()));
+			$smarty->assign("quote", override\htmlentities($profile_user->getQuote()));
+			$smarty->assign("instant_messaging", '');
+			$smarty->assign("public_email", '');
+			
+			$display = "profile.tpl";
+			require("includes/deinit.php");
+		}else
+			require("404.php");
 	}
 	else{
 		require("404.php");

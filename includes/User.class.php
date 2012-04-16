@@ -50,6 +50,8 @@ class User{
 	
 	private $timezone;
 	
+	private $exist;
+	
 	/**
 	 * @param db_connection Database connection object, passed by reference
 	*/
@@ -348,8 +350,12 @@ class User{
 				WHERE Users.user_id=?";
 		$statement = $this->pdo_conn->prepare($sql);
 		$statement->execute(array($this->user_id));
-		$statement->setFetchMode(PDO::FETCH_ASSOC);
-		$this->setUserData($statement->fetch());
+		if($statement->rowCount() == 1){
+			$this->exist = TRUE;
+			$statement->setFetchMode(PDO::FETCH_ASSOC);
+			$this->setUserData($statement->fetch());
+		}else
+			$this->exist = FALSE;
 	}
 	
 	public function getInventory(){
@@ -358,6 +364,10 @@ class User{
 		$statement = $this->pdo_conn->query($sql);
 		return $statement->fetchAll();
 		
+	}
+	
+	public function doesExist(){
+		return $this->exist;
 	}
 	
 	/**
@@ -446,6 +456,35 @@ class User{
 		return $statement->execute(array($aEmail));
 	}
 	
+	public function getNumberOfPosts(){
+		$sql = "SELECT COUNT(DISTINCT(Messages.message_id)) AS count FROM Messages WHERE Messages.user_id=$this->user_id";
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetch();
+		return $row['count'];
+	}
+	
+	public function getNumberOfTopics(){
+		$sql = "SELECT COUNT(topic_id) AS count FROM Topics WHERE Topics.user_id=$this->user_id";
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetch();
+		return $row['count'];
+	}
+	
+	public function getPostsInBestTopic(){
+		//$sql = "SELECT MAX(COUNT(DISTINCT(Messages.message_id))) AS count FROM Messages LEFT JOIN Topics USING(user_id) WHERE Topics.user_id=$this->user_id";
+		$sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) FROM Topics LEFT JOIN Messages using(topic_id) WHERE Topics.user_id=$this->user_id";
+		$sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) as count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE Topics.user_id=$this->user_id GROUP BY Topics.topic_id ORDER BY count DESC"; 
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetchAll();
+		return $row[0]['count'];
+	}
+	
+	public function getNoReplyTopics(){
+		$sql = "SELECT COUNT(Topics.topic_id) AS count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE Topics.user_id=$this->user_id GROUP BY Topics.topic_id HAVING COUNT(DISTINCT(Messages.Message_id))<2 ";
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetchAll();
+		return sizeof($row);
+	}
 	/**
 	 * Update the user's private email address.
 	 * @param $aPrivateEmail Private Email Address

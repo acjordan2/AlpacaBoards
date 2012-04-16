@@ -131,10 +131,10 @@
         //]]>
         {/literal}</script></a></td>
       </tr>
-{if $user_id == $p_user_id}
       <tr>
         <th colspan="2">More Options</th>
       </tr>
+{if $user_id == $p_user_id}
 <!--
       <tr>
         <td colspan="2"><a href="editprofile.php">Edit My Profile</a></td>
@@ -176,7 +176,7 @@
       </tr>
       
       <tr>
-        <td colspan="2"><a href="inventory.php">View Your Inventory</a></td>
+        <td colspan="2"><a href="inventory.php">View My Inventory</a></td>
       </tr>
 <!--
       <tr>
@@ -197,6 +197,9 @@
         <td colspan="2"><a href="imagemap.php">View My Image Map Entry</a></td>
       </tr>-->
     {/if}
+    <tr>
+        <td colspan="2"><a href="loser.php?user={$p_user_id}">View {if $user_id == $p_user_id}My{else}{$p_username}'s{/if} Stats</a></td>
+    </tr>
     </table><br />
     <br />
     {include file="footer.tpl"}

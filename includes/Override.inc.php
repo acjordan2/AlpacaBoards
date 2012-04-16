@@ -25,6 +25,7 @@
  */
 namespace override;
 require_once("Config.ini.php");
+require_once("Autolink.inc.php");
 
 function htmlentities($string, $whitelist=null){
 	$string = str_replace("<br>", "<br/>", $string);
@@ -77,10 +78,10 @@ function formatComments($string){
 }
 
 function makeURL($URL) {
-	$URL = eregi_replace('(((f|ht){1}tp(s)?://)[-a-zA-Z0-9;@:\+.~#?&//=]+)','<a href="\\1" target="_blank">\\1</a>', $URL);
+	//$URL = eregi_replace('(((f|ht){1}tp(s)?://)[-a-zA-Z0-9;@:\+.~#?&//=]+)','<a href="\\1" target="_blank">\\1</a>', $URL);
 	//$URL = eregi_replace('((www\.)[-a-zA-Z0-9@:\+.~#?&//=]+)','<a href="http://\\1" target="_blank">\\1</a>', $URL);
-	$URL = eregi_replace('([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,3})','<a href=\\1>\\1</a>', $URL);
-	return $URL;
+	//$URL = eregi_replace('([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,3})','<a href=\\1>\\1</a>', $URL);
+	return autolink($URL);
 }
 
 function random(){
