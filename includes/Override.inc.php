@@ -38,7 +38,12 @@ function htmlentities($string, $whitelist=null){
 			}
 			*/
 			for($i=0; $i<sizeof($whitelist['search']); $i++){
-				$encoded = preg_replace("/".\htmlentities($whitelist['search'][$i])."/", $whitelist['replace'][$i], $encoded);
+				if($i == 23454325){;
+					print $encoded;
+				}else
+					$encoded = preg_replace("/".\htmlentities($whitelist['search'][$i])."/", $whitelist['replace'][$i], $encoded, -1);
+				$encoded = str_replace("<!--\$height-->", 500, $encoded);
+				$encoded = str_replace("<!--\$width-->", 500, $encoded);
 			}
 	}
 	return $encoded;
@@ -84,12 +89,12 @@ function makeURL($URL) {
 	return autolink($URL);
 }
 
-function random(){
+function random($size=24){
 	$pr_bits = '';
 	// Unix/Linux platform?
 	$fp = @fopen('/dev/urandom','rb');
 	if ($fp !== FALSE) {
-		$pr_bits .= @fread($fp,24);
+		$pr_bits .= @fread($fp,$size);
 		@fclose($fp);
 	}
 	// MS-Windows platform?
@@ -113,6 +118,57 @@ function random(){
 		// pseudorandom generator is missing
 	}
 	return $pr_bits;
+}
+
+function validateURL($url) {
+	$urlregex = "^(https?|ftp)\:\/\/([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*(\:[0-9]{2,5})?(\/([a-z0-9+\$_-]\.?)+)*\/?(\?[a-z+&\$_.-][a-z0-9;:@/&%=+\$_.-]*)?(#[a-z_.-][a-z0-9+\$_.-]*)?\$";
+	if (strlen($url)<3)
+		return FALSE;
+	elseif(!eregi($urlregex, $url))
+		return FALSE;
+	else 
+		return TRUE;
+}
+
+function websafeEncode($text){
+	$search = array("+", "/", "=");
+	$replace = array("-", "_", "v");
+	$string = base64_encode($text);
+	return str_replace($search, $replace, $string);
+}
+
+function websafeDecode($text){
+	$search = array("-", "_", "v");
+	$replace = array("+", "/", "=");
+	$string = str_replace($search, $replace, $text); 
+	return base64_decode($string);
+}
+	
+function embedVideo($text) {
+    $text = preg_replace('~
+        # Match non-linked youtube URL in the wild. (Rev:20111012)
+        https?://         # Required scheme. Either http or https.
+        (?:[0-9A-Z-]+\.)? # Optional subdomain.
+        (?:               # Group host alternatives.
+          youtu\.be/      # Either youtu.be,
+        | youtube\.com    # or youtube.com followed by
+          \S*             # Allow anything up to VIDEO_ID,
+          [^\w\-\s]       # but char before ID is non-ID char.
+        )                 # End host alternatives.
+        ([\w\-]{11})      # $1: VIDEO_ID is exactly 11 chars.
+        (?=[^\w\-]|$)     # Assert next char is non-ID or EOS.
+        (?!               # Assert URL is not pre-linked.
+          [?=&+%\w]*      # Allow URL (query) remainder.
+          (?:             # Group pre-linked alternatives.
+            [\'"][^<>]*>  # Either inside a start tag,
+          | </a>          # or inside <a> element text contents.
+          )               # End recognized pre-linked alts.
+        )                 # End negative lookahead assertion.
+        [?=&+%\w-]*        # Consume any URL (query) remainder.
+        ~ix', 
+        '<iframe width="560" height="315" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
+        $text);
+    return $text;
 }
 
 ?>

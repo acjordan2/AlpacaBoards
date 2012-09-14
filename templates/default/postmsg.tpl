@@ -48,6 +48,13 @@ Save The Internet - http://act2.freepress.net/letter/two_million/
       To create a new topic, enter a title for the topic below and create the first message.<br />
 		<input type="text" name="title" value="" maxlength="80" size="60" /><br />
     (Between 5 and 80 characters in length)<br /><br />
+      {elseif $is_link == TRUE}
+      <b>Current Link:</b> 
+      <a href="linkme.php?l={$link_id}" 
+				target="_blank">{$link_title}</a><br />
+      (Click to open a new window with the current messages)<br />
+      <br />
+      <input type="hidden" name="link" value="{$link_id}" />
       {else}
       <b>Current Topic:</b> 
       <a href="showmessages.php?topic={$topic_id}&amp;board={$board_id}" 

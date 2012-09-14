@@ -10,7 +10,6 @@
   "//static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
   <link rel="stylesheet" type="text/css" href=
   "/templates/default/css/nblue.css?18" />
-  <!--<script type="text/javascript" src="https://static.endoftheinter.net/base.js?27">~-->
     <script type="text/javascript" src="templates/default/js/base.js?27"></script>
 </script>
 </head>
@@ -65,10 +64,10 @@
 	 <tr>
         <td>
 			<a href=
-        "//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}"><b>{$table.title}</b></a></td>
+        "//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}"><b><div class="sticky">{$table.title}</div></b></a></td>
         <td><a href="//{$domain}/profile.php?user={$table.user_id}">{$table.username}</a></td>
 
-        <td>{$table.number_of_posts}</td>
+        <td>{$table.number_of_posts}{if $table.history > 0} (<a href="//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}#m{$table.last_message}">+{$table.history}</a>){/if}</td>
 
         <td>{$table.posted|date_format:$dateformat}</td>
       </tr>
@@ -81,19 +80,19 @@
         "//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}">{$table.title}</a></td>
         <td><a href="//{$domain}/profile.php?user={$table.user_id}">{$table.username}</a></td>
 
-        <td>{$table.number_of_posts}</td>
+        <td>{$table.number_of_posts}{if $table.history > 0} (<a href="//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}#m{$table.last_message}">+{$table.history}</a>){/if}</td>
 
         <td>{$table.posted|date_format:$dateformat}</td>
       </tr>
 {/foreach}
     </table>
 
-    <div class="infobar">Page: {assign var="i" value=1}{while $i < $page_count}
-      {if $i == $current_page}{$i} |{else}<a href="/showtopics.php?board=42&amp;page={$i}">{$i}</a> {if $i < $page_count-1}| {/if}{/if}{assign var="i" value=$i+1}{/while}
+    <div class="infobar">Page: {assign var="i" value=1}{while $i <= $page_count}
+      {if $i == $current_page}{$i} {if $i<$page_count}|{/if}{else}<a href="/showtopics.php?board=42&amp;page={$i}">{$i}</a> {if $i < $page_count}| {/if}{/if}{assign var="i" value=$i+1}{/while}
     </div>
 
     <div class="infobar">
-      There is currently 1 person reading this board.
+      There {if $num_readers < 2}is{else}are{/if} currently {$num_readers} {if $num_readers < 2}person{else}people{/if} reading this board.
     </div><br />
     <br />
 	{include file="footer.tpl"}

@@ -28,6 +28,14 @@ require_once("User.class.php");
 require_once("Smarty.class.php");
 require_once("Override.inc.php");
 
+$ls = gmdate("D, d M Y H:i:s") . " GMT";
+$es =  gmdate("D, d M Y H:i:s", 1)." GMT";
+
+header("Expires: $es");
+header("Last-Modified: $ls");
+header("Pragma: no-cache");
+header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
+
 #Initiate database connection
 try{ 
 	$db = new PDO(DATABASE_TYPE.":host=".DATABASE_HOST.";dbname=".DATABASE_NAME,
@@ -54,6 +62,7 @@ try{
 
 	}
 } catch(PDOException $e){
-	print $e->getMessage();
+	#print $e->getMessage();
+	print "Error :(";
 }
 ?>

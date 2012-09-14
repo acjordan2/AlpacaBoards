@@ -29,17 +29,32 @@ class CSRFGuard{
 	private $pdo_conn;
 	
 	function __construct(){
+		session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
 		session_start();
 		if(!isset($_SESSION['csrf_token']))	
 			$_SESSION['csrf_token'] = override\random(24);
 	}
 	
+	private function websafeEncode($text){
+		$search = array("+", "/", "=");
+		$replace = array("-", "_", ".");
+		$string = base64_encode($text);
+		return str_replace($search, $replace, $string);
+	}
+	
+	private function websafeDecode($text){
+		$search = array("-", "_", ".");
+		$replace = array("+", "/", "=");
+		$string = str_replace($search, $replace, $text); 
+		return base64_decode($string);
+	}
+	
 	public function getToken(){
-		return base64_encode($_SESSION['csrf_token']);
+		return $this->websafeEncode($_SESSION['csrf_token']);
 	}
 	
 	public function validateToken($request){
-		if(base64_decode($request) == $_SESSION['csrf_token'])
+		if($this->websafeDecode($request) == $_SESSION['csrf_token'])
 			return TRUE;
 		else 
 			return FALSE;

@@ -15,7 +15,7 @@
 
 	####################################################################
 
-	function autolink($text, $limit=40, $tagfill=''){
+	function autolink($text, $limit=40, $tagfill=' target="_blank"'){
 
 		$text = autolink_do($text, 'https://',	$limit, $tagfill);
 		$text = autolink_do($text, 'http://',	$limit, $tagfill);

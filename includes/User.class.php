@@ -52,6 +52,8 @@ class User{
 	
 	private $exist;
 	
+	public static $page_count;
+	
 	/**
 	 * @param db_connection Database connection object, passed by reference
 	*/
@@ -214,6 +216,25 @@ class User{
 		$this->account_created = $user_data['account_created'];
 	}
 	
+	public function changePassword($aPassword1, $aPassword2, $reset=FALSE){
+		$sql = "SELECT Users.password FROM Users WHERE Users.username='$this->username'";
+		$statement = $this->pdo_conn->query($sql);
+		if($statement->rowCount() == 1){
+			$row = $statement->fetch();
+			$salted_password = explode("\$", $row['password']);
+			$salt = $salted_password[1];
+			$password = $salted_password[2];
+			if(strcmp($row['password'], $this->generatePasswordHash($aPassword1, $salt)) == 0 || $reset==TRUE){
+				$newPassword = $this->generatePasswordHash($aPassword2);
+				$sql2 = "UPDATE Users SET Users.password='$newPassword' WHERE Users.username='$this->username'";
+				$this->pdo_conn->query($sql2);
+				return TRUE;
+			}
+			else
+				return FALSE;
+		}
+	}
+	
 	/**
 	 * Generate a hash from a supplied password and salt. If no salt is
 	 * provided, one is created.
@@ -262,7 +283,7 @@ class User{
 	 * @param $aEmail Email address to validate
 	 * @return TRUE if email is valid
 	 */
-	private function validateEmail($aEmail){
+	public function validateEmail($aEmail){
 		if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $aEmail)){
 			return FALSE;
 		}
@@ -485,6 +506,49 @@ class User{
 		$row = $statement->fetchAll();
 		return sizeof($row);
 	}
+	
+	public function getNumberOfLinks(){
+		$sql = "SELECT COUNT(Links.link_id) AS count FROM Links WHERE user_id=$this->user_id";
+		$statement = $this->pdo_conn->query($sql);
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetchAll();
+		return $row[0]['count'];
+	}
+	
+	public function getNumberOfVotes(){
+		$sql = "SELECT COUNT(LinkVotes.vote) as count FROM LinkVotes 
+					LEFT JOIN Links USING(link_id) 
+					WHERE Links.user_id = $this->user_id";
+		$statement = $this->pdo_conn->query($sql);
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetchAll();
+		return $row[0]['count'];
+	}
+	
+	public function getVoteAverage(){
+		$sql = "SELECT SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) as average
+					FROM LinkVotes LEFT JOIN Links USING(link_id) WHERE Links.user_id=$this->user_id 
+					GROUP BY LinkVotes.link_id";
+		$statement = $this->pdo_conn->query($sql);
+		$statement= $this->pdo_conn->query($sql);
+		$row = $statement->fetchAll();
+		return $row[0]['average'];
+	}
+	
+	public static function getUserList(&$db, $page=1){
+		$offset = 50 * ($page-1);
+		$sql = "SELECT Users.username, Users.user_id, Users.account_created, Users.last_active, SUM(Karma.value) as value1, SUM(ShopTransactions.value) as value2
+					FROM Users LEFT Join Karma using (user_id) LEFT JOIN ShopTransactions USING (user_id) GROUP BY Users.user_id ORDER BY User_id ASC LIMIT 50 OFFSET ?";
+		$statement = $db->prepare($sql);
+		$statement->execute(array($offset));
+		$sql2 = "SELECT COUNT(Users.user_id) as count FROM Users";
+		$statement2 = $db->query($sql2);
+		$row = $statement2->fetch();
+		self::$page_count = intval($row['count']/50);
+		if(self::$page_count % 50 != 0)
+			self::$page_count++;
+		return $statement->fetchAll();
+	}
 	/**
 	 * Update the user's private email address.
 	 * @param $aPrivateEmail Private Email Address
@@ -531,6 +595,117 @@ class User{
 	 */
 	public function setTimezone($aTimezone){
 		
+	}
+	
+	public function checkInvite($invite_code){
+		$sql = "SELECT invited_by FROM InviteTree WHERE invite_code 
+				COLLATE latin1_general_cs = ? and invited_user IS NULL and created > ".(time()-(60*60*72));
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($invite_code));
+		$rows = $statement->rowCount();
+		if($statement->rowCount() != 1){
+			$url = "http://boards.endoftheinter.net/scripts/login.php?username=".urlencode($invite_code)."&ip=".$_SERVER['REMOTE_ADDR'];
+			$curl = curl_init();
+			curl_setopt($curl, CURLOPT_URL, $url);
+			curl_setopt($curl, CURLOPT_REFERER, "");
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+			$output = curl_exec($curl);
+			if($output == ("1:". $request['username']))
+				return true;
+			else return false;
+		}else{
+			return true;
+		}
+	}
+	
+	public function registerUser($request){
+		if(!preg_match('/[^A-z0-9.\-_\ ]/', $request['username'])){
+			$sql = "SELECT Users.user_id FROM Users where Users.username=?";
+			$statement = $this->pdo_conn->prepare($sql);
+			$statement->execute(array($request['username']));
+			if($statement->rowCount() == 1)
+				return -1;
+			else{
+				if(!$this->checkInvite($request['invite_code']))
+					return -2;
+				else{
+					$sql2 = "INSERT INTO Users (username, private_email, password, account_created)
+								VALUES (?, ?, ?, ".time().")";
+					$statement2 = $this->pdo_conn->prepare($sql2);
+					$data = array($request['username'], 
+								  $request['email'], 
+								  $this->generatePasswordHash($request['password']));
+					$statement2->execute($data);
+					$sql3 = "UPDATE InviteTree SET invited_user=".$this->pdo_conn->lastInsertId()." WHERE invite_code=?";
+					$statement3 = $this->pdo_conn->prepare($sql3);
+					$statement3->execute(array($request['invite_code']));
+					if($statement2->rowCount())
+						return 1;
+				}
+			}
+		}
+	}
+	
+	public function checkInventory($class_id=NULL){
+		$sql = "SELECT DISTINCT ShopItems.name FROM ShopItems LEFT JOIN ShopTransactions USING(item_id) 
+													 LEFT JOIN Inventory USING (transaction_id)
+													 WHERE Inventory.user_id=$this->user_id
+													 AND ShopItems.item_id=5";
+		$statement = $this->pdo_conn->query($sql);
+		
+		
+		return $statement->fetchAll();
+	}
+	
+	public function getCommentHistory(){
+		$sql = "SELECT DISTINCT Topics.topic_id, Boards.title as board_title, 
+		Topics.title, Topics.board_id, MAX(Messages.posted) as u_last_posted 
+			FROM Topics 
+			LEFT JOIN Messages USING(topic_id)
+			LEFT JOIN Boards USING(board_id) 
+			WHERE Messages.user_id=$this->user_id AND Messages.revision_no=0
+			GROUP BY Topics.topic_id ORDER BY Messages.posted DESC";
+		$statement = $this->pdo_conn->query($sql);
+		for($i=0; $topic_data_array = $statement->fetch(); $i++){
+			
+			$topic_data[$i]['board_title'] = $topic_data_array['board_title'];
+			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
+			$topic_data[$i]['u_last_posted'] = $topic_data_array['u_last_posted'];
+			$topic_data[$i]['last_post'] = $topic_data_array['last_post'];
+			$topic_data[$i]['title'] = override\htmlentities($topic_data_array['title']);
+			$topic_data[$i]['username'] = $topic_data_array['username'];
+			$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
+			
+			$sql2 = "SELECT MAX(Messages.posted) as last_post FROM Messages
+						WHERE Messages.topic_id=".$topic_data_array['topic_id'].
+						" AND Messages.revision_no=0";
+			$statement2 = $this->pdo_conn->query($sql2);
+			$last_post = $statement2->fetchAll();
+			
+			$sql3 = "SELECT COUNT(Messages.message_id) as count FROM Messages
+						WHERE Messages.topic_id=".$topic_data_array['topic_id'].
+						" AND Messages.revision_no=0";
+			$statement3 = $this->pdo_conn->query($sql3);
+			$msg_count = $statement3->fetchAll();
+			# Inefficient - Find if another way is possible
+			/**
+			$get_count = $this->pdo_conn->prepare("SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
+													WHERE topic_id = ?");
+			$get_count->execute(array($topic_data[$i]['topic_id']));
+			$statement2->execute(array($topic_data[$i]['topic_id']));
+			
+			$msg_count = $get_count->fetchAll();
+			$history_count = $statement2->fetchAll();
+			**/
+			$topic_data[$i]['last_post'] = $last_post[0][0];
+			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
+			$topic_data[$i]['history'] = $history_count[0]['count'];
+			$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+
+													
+		}
+		return $topic_data;
 	}
 }
 

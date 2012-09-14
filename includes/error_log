@@ -1,0 +1,91 @@
+[15-Feb-2012 23:49:29] PHP Warning:  require(config.php) [<a href='function.require'>function.require</a>]: failed to open stream: No such file or directory in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:49:29] PHP Fatal error:  require() [<a href='function.require'>function.require</a>]: Failed opening required 'config.php' (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:49:43] PHP Warning:  require(config.ini.php) [<a href='function.require'>function.require</a>]: failed to open stream: No such file or directory in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:49:43] PHP Fatal error:  require() [<a href='function.require'>function.require</a>]: Failed opening required 'config.ini.php' (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:49:45] PHP Warning:  require(config.ini.php) [<a href='function.require'>function.require</a>]: failed to open stream: No such file or directory in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:49:45] PHP Fatal error:  require() [<a href='function.require'>function.require</a>]: Failed opening required 'config.ini.php' (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:51:23] PHP Warning:  require(config.ini.php) [<a href='function.require'>function.require</a>]: failed to open stream: No such file or directory in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:51:23] PHP Fatal error:  require() [<a href='function.require'>function.require</a>]: Failed opening required 'config.ini.php' (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home3/discovg7/public_html/dev2/includes/init.php on line 2
+[15-Feb-2012 23:55:37] PHP Parse error:  syntax error, unexpected ']' in /home3/discovg7/public_html/dev2/includes/Config.ini.php on line 4
+[16-Feb-2012 00:11:46] PHP Parse error:  syntax error, unexpected '=' in /home3/discovg7/public_html/dev2/includes/init.php on line 11
+[16-Feb-2012 00:12:43] PHP Fatal error:  Cannot redeclare User::$avatar in /home3/discovg7/public_html/dev2/includes/User.class.php on line 23
+[16-Feb-2012 00:21:45] PHP Parse error:  syntax error, unexpected '(', expecting T_STRING or T_VARIABLE or '{' or '$' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 34
+[16-Feb-2012 00:22:27] PHP Parse error:  syntax error, unexpected T_STRING, expecting T_VARIABLE in /home3/discovg7/public_html/dev2/includes/User.class.php on line 33
+[16-Feb-2012 00:29:45] PHP Parse error:  syntax error, unexpected T_STRING, expecting T_VARIABLE in /home3/discovg7/public_html/dev2/includes/User.class.php on line 33
+[16-Feb-2012 00:31:03] PHP Parse error:  syntax error, unexpected '(', expecting T_STRING or T_VARIABLE or '{' or '$' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 33
+[16-Feb-2012 00:34:37] PHP Warning:  Missing argument 2 for User::checkAuthentication(), called in /home3/discovg7/public_html/dev2/includes/User.class.php on line 29 and defined in /home3/discovg7/public_html/dev2/includes/User.class.php on line 32
+[16-Feb-2012 00:34:37] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 00:34:39] PHP Warning:  Missing argument 2 for User::checkAuthentication(), called in /home3/discovg7/public_html/dev2/includes/User.class.php on line 29 and defined in /home3/discovg7/public_html/dev2/includes/User.class.php on line 32
+[16-Feb-2012 00:34:39] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 00:35:32] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 00:35:35] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 00:35:58] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 00:42:52] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 00:44:16] PHP Fatal error:  Call to a member function execute() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 35
+[16-Feb-2012 18:38:12] PHP Fatal error:  Cannot re-assign $this in /home3/discovg7/public_html/dev2/includes/User.class.php on line 27
+[16-Feb-2012 18:49:54] PHP Fatal error:  Cannot re-assign $this in /home3/discovg7/public_html/dev2/includes/User.class.php on line 27
+[16-Feb-2012 18:50:45] PHP Fatal error:  Cannot re-assign $this in /home3/discovg7/public_html/dev2/includes/User.class.php on line 27
+[16-Feb-2012 18:51:19] PHP Fatal error:  Cannot re-assign $this in /home3/discovg7/public_html/dev2/includes/User.class.php on line 27
+[16-Feb-2012 18:53:18] PHP Fatal error:  Call to a member function prepare() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 33
+[16-Feb-2012 21:09:16] PHP Fatal error:  Cannot redeclare User::$email in /home3/discovg7/public_html/dev2/includes/User.class.php on line 13
+[16-Feb-2012 21:09:54] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 38
+[16-Feb-2012 21:09:59] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 38
+[16-Feb-2012 21:11:42] PHP Parse error:  syntax error, unexpected '{' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 81
+[16-Feb-2012 21:12:09] PHP Parse error:  syntax error, unexpected ';', expecting ')' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 128
+[16-Feb-2012 21:12:49] PHP Parse error:  syntax error, unexpected ']' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 129
+[16-Feb-2012 21:47:50] PHP Fatal error:  Call to undefined method User::generatePassword() in /home3/discovg7/public_html/dev2/includes/User.class.php on line 81
+[16-Feb-2012 21:47:53] PHP Fatal error:  Call to undefined method User::generatePassword() in /home3/discovg7/public_html/dev2/includes/User.class.php on line 81
+[16-Feb-2012 21:47:57] PHP Fatal error:  Call to undefined method User::generatePassword() in /home3/discovg7/public_html/dev2/includes/User.class.php on line 81
+[16-Feb-2012 22:00:19] PHP Fatal error:  Call to undefined function setcooke() in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:00:22] PHP Fatal error:  Call to undefined function setcooke() in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:01:08] PHP Fatal error:  Call to undefined function setcooke() in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:01:13] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/init.php:10) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 90
+[16-Feb-2012 22:01:13] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/init.php:10) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 92
+[16-Feb-2012 22:03:57] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/init.php:10) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 90
+[16-Feb-2012 22:03:57] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/init.php:10) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 92
+[16-Feb-2012 22:03:57] PHP Catchable fatal error:  Object of class PDOStatement could not be converted to string in /home3/discovg7/public_html/dev2/includes/User.class.php on line 99
+[16-Feb-2012 22:04:00] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/init.php:10) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 90
+[16-Feb-2012 22:04:00] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/init.php:10) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 92
+[16-Feb-2012 22:04:00] PHP Catchable fatal error:  Object of class PDOStatement could not be converted to string in /home3/discovg7/public_html/dev2/includes/User.class.php on line 99
+[16-Feb-2012 22:06:45] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:06:45] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 91
+[16-Feb-2012 22:07:49] PHP Parse error:  syntax error, unexpected '=' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 134
+[16-Feb-2012 22:07:52] PHP Parse error:  syntax error, unexpected '=' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 134
+[16-Feb-2012 22:08:04] PHP Parse error:  syntax error, unexpected '=' in /home3/discovg7/public_html/dev2/includes/User.class.php on line 134
+[16-Feb-2012 22:08:42] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:08:42] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 91
+[16-Feb-2012 22:08:45] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:08:45] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 91
+[16-Feb-2012 22:09:38] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:09:38] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 91
+[16-Feb-2012 22:10:05] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:10:05] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 91
+[16-Feb-2012 22:10:07] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 89
+[16-Feb-2012 22:10:07] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home3/discovg7/public_html/dev2/includes/User.class.php:68) in /home3/discovg7/public_html/dev2/includes/User.class.php on line 91
+[16-Feb-2012 22:10:15] PHP Fatal error:  Call to a member function bindParam() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 53
+[16-Feb-2012 22:10:18] PHP Fatal error:  Call to a member function bindParam() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 53
+[16-Feb-2012 22:10:23] PHP Fatal error:  Call to a member function bindParam() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 53
+[16-Feb-2012 22:10:26] PHP Fatal error:  Call to a member function bindParam() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 53
+[16-Feb-2012 22:11:56] PHP Fatal error:  Call to a member function bindParam() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 51
+[16-Feb-2012 22:12:44] PHP Fatal error:  Call to a member function bindParam() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 51
+[16-Feb-2012 22:39:35] PHP Fatal error:  Call to a member function fetch() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 57
+[16-Feb-2012 22:39:37] PHP Fatal error:  Call to a member function fetch() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 57
+[16-Feb-2012 22:39:38] PHP Fatal error:  Call to a member function fetch() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 57
+[16-Feb-2012 22:39:54] PHP Fatal error:  Call to a member function fetch() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 57
+[16-Feb-2012 22:40:10] PHP Fatal error:  Call to a member function fetch() on a non-object in /home3/discovg7/public_html/dev2/includes/User.class.php on line 57
+[17-Feb-2012 17:20:47] PHP Warning:  PDOStatement::execute() expects parameter 1 to be array, string given in /home3/discovg7/public_html/dev2/includes/User.class.php on line 286
+[17-Feb-2012 17:20:56] PHP Warning:  PDOStatement::execute() expects parameter 1 to be array, string given in /home3/discovg7/public_html/dev2/includes/User.class.php on line 286
+[17-Feb-2012 17:20:58] PHP Warning:  PDOStatement::execute() expects parameter 1 to be array, string given in /home3/discovg7/public_html/dev2/includes/User.class.php on line 286
+[17-Feb-2012 17:20:59] PHP Warning:  PDOStatement::execute() expects parameter 1 to be array, string given in /home3/discovg7/public_html/dev2/includes/User.class.php on line 286
+[17-Feb-2012 21:13:28] PHP Parse error:  syntax error, unexpected $end in /home3/discovg7/public_html/dev2/includes/init.php on line 18
+[17-Feb-2012 21:13:30] PHP Parse error:  syntax error, unexpected $end in /home3/discovg7/public_html/dev2/includes/init.php on line 19
+[17-Feb-2012 21:13:34] PHP Parse error:  syntax error, unexpected $end in /home3/discovg7/public_html/dev2/includes/init.php on line 19
+[17-Feb-2012 21:15:46] PHP Parse error:  syntax error, unexpected ',' in /home3/discovg7/public_html/dev2/includes/init.php on line 22
+[17-Feb-2012 21:15:48] PHP Parse error:  syntax error, unexpected ',' in /home3/discovg7/public_html/dev2/includes/init.php on line 22
+[17-Feb-2012 21:16:05] PHP Parse error:  syntax error, unexpected ',' in /home3/discovg7/public_html/dev2/includes/init.php on line 22
+[17-Feb-2012 21:16:15] PHP Parse error:  syntax error, unexpected ',' in /home3/discovg7/public_html/dev2/includes/init.php on line 22
+[17-Feb-2012 21:16:20] PHP Parse error:  syntax error, unexpected ',' in /home3/discovg7/public_html/dev2/includes/init.php on line 22
+[17-Feb-2012 21:16:24] PHP Parse error:  syntax error, unexpected ',' in /home3/discovg7/public_html/dev2/includes/init.php on line 22
+[17-Feb-2012 21:20:58] PHP Parse error:  syntax error, unexpected $end in /home3/discovg7/public_html/dev2/includes/init.php on line 18
+[17-Feb-2012 21:21:04] PHP Parse error:  syntax error, unexpected $end in /home3/discovg7/public_html/dev2/includes/init.php on line 18
+[17-Feb-2012 21:21:17] PHP Parse error:  syntax error, unexpected $end in /home3/discovg7/public_html/dev2/includes/init.php on line 18

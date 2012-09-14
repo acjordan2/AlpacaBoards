@@ -31,16 +31,22 @@ if($auth=TRUE){
 			$revision_no = intval($_GET['r']);
 		else
 			$revision_no = 0;
+		if(@$_GET['link'] == 1)
+			$link = TRUE;
+		else
+			$link = FALSE;
 		$message_id = intval($_GET['id']);
 		$topic_id = intval($_GET['topic']);
-		$message = new MessageRevision($db, $message_id, $revision_no);
+		$message = new MessageRevision($db, $message_id, $revision_no, $link);
 		if($message->doesExist()){
 			$smarty->assign("message", override\formatComments(override\makeURL(override\closeTags(
 													str_replace("\n", "<br/>", 
 														override\htmlentities($message->getMessage(), $allowed_tags))))));
+			$smarty->assign("link", $link);
 			$smarty->assign("posted", $message->getPosted());
 			$smarty->assign("revision_history", $message->getRevisions());
 			$smarty->assign("topic_title", override\htmlentities($message->getTopicTitle()));
+			$smarty->assign("link_title", override\htmlentities($message->getLinkTitle()));
 			$smarty->assign("board_title", override\htmlentities($message->getBoardTitle()));
 			$smarty->assign("topic_id", $topic_id);
 			$smarty->assign("board_id", $message->getBoardID());

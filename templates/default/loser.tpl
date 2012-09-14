@@ -38,19 +38,19 @@
       <tr>
         <td>Links added</td>
 
-        <td>0</td>
+        <td>{$num_links}</td>
       </tr>
 
       <tr>
         <td>Votes accumulated</td>
 
-        <td></td>
+        <td>{$num_votes}</td>
       </tr>
 
       <tr>
         <td>Average link rating</td>
 
-        <td>?</td>
+        <td>{$vote_avg|string_format:"%.2f"}</td>
       </tr>
 
       <tr>

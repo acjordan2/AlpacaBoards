@@ -96,7 +96,8 @@ class Board{
 													USING(topic_id)
 												LEFT JOIN
 													StickiedTopics ON StickiedTopics.topic_id = Topics.topic_id 
-												WHERE Topics.board_id = ? AND StickiedTopics.topic_id IS NULL
+												WHERE Topics.board_id = ? AND (StickiedTopics.topic_id IS NULL OR StickiedTopics.created  < ".(time()-(60*60*24)).")
+												 AND Messages.revision_no = 0
 												GROUP BY topic_id ORDER BY posted DESC LIMIT 50 OFFSET ?;");
 		 //$this->pdo_conn->query("SHOW STATUS LIKE '%qcache%'");
 		//do_conn->query("SHOW STATUS LIKE '%qcache%'");
@@ -107,6 +108,12 @@ class Board{
 		$this->page_count = intval($topic_count/50);
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
+		
+		$sql2 = "SELECT COUNT(Messages.message_id) as count, TopicHistory.message_id as last_message FROM Messages 
+					LEFT JOIN TopicHistory Using(topic_id)
+					WHERE Messages.topic_id=? AND Messages.message_id > TopicHistory.message_id AND TopicHistory.user_id=$this->user_id";
+		$statement2 = $this->pdo_conn->prepare($sql2);
+		
 		for($i=0; $topic_data_array = $statement->fetch(); $i++){
 			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
 			$topic_data[$i]['posted'] = $topic_data_array['posted'];
@@ -117,7 +124,15 @@ class Board{
 			$get_count = $this->pdo_conn->prepare("SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
 													WHERE topic_id = ?");
 			$get_count->execute(array($topic_data[$i]['topic_id']));
-			$topic_data[$i]['number_of_posts'] = $get_count->fetchColumn();								
+			$statement2->execute(array($topic_data[$i]['topic_id']));
+			
+			$msg_count = $get_count->fetchAll();
+			$history_count = $statement2->fetchAll();
+
+			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
+			$topic_data[$i]['history'] = $history_count[0]['count'];
+			$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+
 													
 		}
 		return $topic_data;
@@ -160,11 +175,19 @@ class Board{
 												RIGHT JOIN
 													StickiedTopics ON StickiedTopics.topic_id = Topics.topic_id 
 														AND StickiedTopics.topic_id IS NOT NULL
-												WHERE Topics.board_id = ? 
-												GROUP BY topic_id ORDER BY posted DESC;");
-												
+												WHERE Topics.board_id = ? AND 
+												(StickiedTopics.created  > ".(time()-(60*60*24))." OR StickiedTopics.mod=1)
+												GROUP BY topic_id ORDER BY posted DESC;");	
+									
 		$statement->execute(array($this->board_id));
 		$statement->setFetchMode(PDO::FETCH_ASSOC);
+		
+				
+		$sql2 = "SELECT COUNT(Messages.message_id) as count, TopicHistory.message_id as last_message FROM Messages 
+			LEFT JOIN TopicHistory Using(topic_id)
+			WHERE Messages.topic_id=? AND Messages.message_id > TopicHistory.message_id AND TopicHistory.user_id=$this->user_id";
+		$statement2 = $this->pdo_conn->prepare($sql2);
+		
 		for($i=0; $topic_data_array = $statement->fetch(); $i++){
 			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
 			$topic_data[$i]['posted'] = $topic_data_array['posted'];
@@ -173,10 +196,18 @@ class Board{
 			$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
 			# Inefficient - Find if another way is possible
 			$get_count = $this->pdo_conn->prepare("SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
-													WHERE topic_id = ?");
+													WHERE topic_id = ?");			
+			
 			$get_count->execute(array($topic_data[$i]['topic_id']));
-			$topic_data[$i]['number_of_posts'] = $get_count->fetchColumn();								
-													
+			$statement2->execute(array($topic_data[$i]['topic_id']));
+			
+			$msg_count = $get_count->fetchAll();
+			$history_count = $statement2->fetchAll();
+
+			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
+			$topic_data[$i]['history'] = $history_count[0]['count'];
+			$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+																
 		}
 		return $topic_data;
 
@@ -226,6 +257,13 @@ class Board{
 	
 	public static function getBoardsList(){
 		
+	}
+	
+	public function getReaders(){
+		$sql = "SELECT COUNT(user_id) FROM Users WHERE last_active > ".(time() - 60*15);
+		$statement = $this->pdo_conn->query($sql);
+		$row = $statement->fetch();
+		return $row[0];
 	}
 	
 }

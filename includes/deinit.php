@@ -30,3 +30,4 @@ $smarty->assign("load_time", $load_time);
 $smarty->display($display);
 exit();
 ?>
+

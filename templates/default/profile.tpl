@@ -171,12 +171,24 @@
         <td colspan="2"><a href="loser.php?userid=18026">View My Stats</a></td>
       </tr>
 -->
+      
+      <tr>
+        <td colspan="2"><a href="editpass.php">Edit My Password</a></td>
+      </tr>
+      
+      <tr>
+        <td colspan="2"><a href="history.php">View My Posted Messages</a></td>
+      </tr>
+      
       <tr>
         <td colspan="2"><a href="shop.php">Enter The Token Shop</a></td>
       </tr>
       
       <tr>
         <td colspan="2"><a href="inventory.php">View My Inventory</a></td>
+      </tr>
+      <tr>
+		<td colspan="2"><a href="invite.php">Invite a User</a></td>
       </tr>
 <!--
       <tr>

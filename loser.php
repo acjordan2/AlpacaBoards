@@ -40,6 +40,9 @@ if($auth == TRUE){
 			$smarty->assign("topics_created", $stat_user->getNumberOfTopics());
 			$smarty->assign("posts_best", $stat_user->getPostsInBestTopic());
 			$smarty->assign("no_reply", $stat_user->getNoReplyTopics());
+			$smarty->assign("num_links", $stat_user->getNumberOfLinks());
+			$smarty->assign("num_votes", $stat_user->getNumberOfVotes());
+			$smarty->assign("vote_avg", $stat_user->getVoteAverage());
 			$display = "loser.tpl";
 			require("includes/deinit.php");
 		}else

@@ -3,14 +3,13 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>{$sitename} - {$topic_title}
-  service</title>
+  <title>{$sitename} - {$topic_title}</title>
   <link rel="icon" href="//static.endoftheinter.net/images/dealwithit.ico" type=
   "image/x-icon" />
   <link rel="apple-touch-icon-precomposed" href=
   "//static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
   <link rel="stylesheet" type="text/css" href=
-  "https://static.endoftheinter.net/style/nblue.css?18" />
+  "templates/default/css/nblue.css?18" />
   <!--<script type="text/javascript" src="https://static.endoftheinter.net/base.js?27"></script>-->
   <script type="text/javascript" src="templates/default/js/base.js?27"></script>
 </head>
@@ -27,7 +26,7 @@
     <h1>{$board_title}</h1>
 
     <h2>{$topic_title}</h2>
-
+	{if $status_message != NULL}<br /><h3 style="text-align:center"><em>{$status_message}</em></h3><br />{/if}
     <div class="userbar">
       <a href="/profile.php?user={$user_id}">{$username} ({$karma})</a>: <span id=
       "userbar_pms" style="display:none"><a href="/inbox.php">Private Messages (<span id=
@@ -37,6 +36,7 @@
       "//boards.endoftheinter.net/showmessages.php?board=42&amp;topic=7758474&amp;h=76f03"
       onclick="return !tagTopic(this, 7758474, true)">Tag</a> | <a href=
       "//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
+      {if $action != NULL} | <a href="/showmessages.php?board={$board_id}&topic={$topic_id}&sticky=1&token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">{$action[0].name}</a>{/if}
     </div><script type="text/javascript">
     {literal}
 //<![CDATA[
@@ -47,7 +47,7 @@
 
     <div class="infobar" id="u0_2">
       {if $current_page > 1} <span><a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page=1">First Page</a> |</span>{/if}
-	  {if $current_page > 2}<span><a href="/showmesssages.php?board=42&amp;topic={$topic_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
+	  {if $current_page > 2}<span><a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
       Page {$current_page} of <span>{$page_count}</span> 
       {if $current_page < $page_count - 1}<span>| <a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$current_page + 1}">Next Page</a></span> {/if}
       {if $current_page < $page_count}<span>| <a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$page_count}">Last Page</a></span>{/if}
@@ -69,7 +69,7 @@
 
         <table class="message-body">
           <tr>
-            <td msgid="t,{$topic_id},{$table.message_id}@{$table.revision_id}" class="message">{$table.message}</td>
+            <td msgid="t,{$topic_id},{$table.message_id}@{$table.revision_id}" class="message">{$table.message|replace:"<!--\$i-->":$i++}</td>
 
             <td class="userpic">
               <div class="userpic-holder">
@@ -82,7 +82,7 @@
                 onDOMContentLoaded(function(){new ImageLoader($("u0_{/literal}{$i}{literal}"), "/templates/default/images/LUEshi.jpg", 150, 131)})
                 //]]>
                 {/literal}
-                </script></a>
+                </script></a>{if $table.user_id == 1016}<br /><em><b>Glorious Super Admin Master Race</b></em>{/if}
               </div>
             </td>
           </tr>
@@ -90,14 +90,13 @@
       </div>
  {$i = $i+1}
 {/foreach}
-   
-    <div class="infobar" id="u0_3">Page: {assign var="i" value=1}{while $i <= $page_count}
-      {if $i == $current_page}{$i} |{else}<a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$i}">{$i}</a> {if $i < $page_count-1}| {/if}{/if}{assign var="i" value=$i+1}{/while}
+    <div class="infobar" id="u0_3">Page: {assign var="k" value=1}{while $k <= $page_count}
+      {if $k == $current_page}{$k} {if $k<$page_count}|{/if}{else}<a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$k}">{$k}</a> {if $k < $page_count}| {/if}{/if}{assign var="k" value=$k+1}{/while}
     </div>
 
     <div class="infobar" id="u0_4">
       <!--There are currently 2 people reading this topic.-->
-      There is currently no hit counter for this topic
+      There {if $num_readers < 2}is{else}are{/if} currently {$num_readers} {if $num_readers < 2}person{else}people{/if} reading this topic
     </div><!--<script type="text/javascript">
     {literal}
 //<![CDATA[
@@ -108,34 +107,34 @@
     </script>--><br />
     <br />
 	{include file="footer.tpl"}
-    <form method="post" action="/postmsg.php" class="quickpost" id="u0_49" name="u0_49">
+    <form method="post" action="/postmsg.php" class="quickpost" id="u0_{$i+1}" name="u0_{$i+1}">
       <input type="hidden" name="topic" value="{$topic_id}" /><input type="hidden" name="h"
-      value="76f03" /><a href="#" class="quickpost-nub" id="u0_50" name=
-      "u0_50"><span class="open">+</span><span class="close">-</span></a>
+      value="76f03" /><a href="#" class="quickpost-nub" id="u0_{$i+2}" name=
+      "u0_{$i+2}"><span class="open">+</span><span class="close">-</span></a>
 
       <div class="quickpost-canvas">
-        <div id="u0_55"></div>
+        <div id="u0_{$i+6}"></div>
 
         <div class="quickpost-body">
           <b>Your Message</b><br />
-          <textarea id="u0_56" name="message">
+          <textarea id="u0_{$i+7}" name="message">
 
 {$p_signature}
 </textarea>
 <script type="text/javascript">
 {literal}
 //<![CDATA[
-          $("u0_56").value = "\n---\n{/literal}"+unescape("{$signature}");{literal}
+          $("u0_{/literal}{$i+7}{literal}").value = "\n---\n{/literal}"+unescape("{$signature}");
           //]]>
           </script><br />
-          <!--<input type="submit" value="Preview Message" id="u0_51" name="preview" />-->
-          <input type="submit" value="Post Message" id="u0_52" name="submit" />
-          <!--<input type="button" value="Upload Image" id="u0_54" />-->
+          <!--<input type="submit" value="Preview Message" id="u0_{$i+3}" name="preview" />-->
+          <input type="submit" value="Post Message" id="u0_{$i+4}" name="submit" />
+          <!--<input type="button" value="Upload Image" id="u0_{$i+5}" />-->
         </div>
-      </div><a href="#" class="quickpost-grip" id="u0_53" name=
-      "u0_53">&nbsp;</a><script type="text/javascript">
+      </div><a href="#" class="quickpost-grip" id="u0_{$i+4}" name=
+      "u0_{$i+4}">&nbsp;</a><script type="text/javascript">
 //<![CDATA[
-      onDOMContentLoaded(function(){new QuickPost(7758474, $("u0_49"), {/literal}unescape("{$signature}"){literal}, $("u0_50"), $("u0_51"), $("u0_52"), $("u0_53"), $("u0_54"), $("u0_55"))})
+      {literal}onDOMContentLoaded(function(){new QuickPost(7758474, $("u0_{/literal}{$i+1}"), unescape("{$signature}"){literal}, $("u0_{/literal}{$i+2}{literal}"), $("u0_{/literal}{$i+3}{literal}"), $("u0_{/literal}{$i+4}{literal}"), $("u0_{/literal}{$i+5}{literal}"), $("u0_{/literal}{$i+6}{literal}"), $("u0_{/literal}{$i+7}{literal}"))})
       //]]>
       {/literal}
       </script>

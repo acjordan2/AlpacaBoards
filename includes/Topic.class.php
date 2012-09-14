@@ -80,26 +80,41 @@ class Topic{
 												WHERE
 													Messages.topic_id = ?
 												GROUP BY Messages.message_id DESC 
-												ORDER BY posted ASC LIMIT 49 OFFSET ?");
+												ORDER BY posted ASC LIMIT 50 OFFSET ?");
 		$statement->execute(array($this->topic_id, $offset));
 		$statement->setFetchMode(PDO::FETCH_ASSOC);
 		$getMessageCount = $this->pdo_conn->prepare("SELECT DISTINCT(message_id) FROM Messages WHERE Messages.topic_id = ?;");
 		$getMessageCount->execute(array($this->topic_id));
 		$topic_count = $getMessageCount->rowCount();
 		$this->page_count = intval($topic_count/50);
-		if($topic_count % 49 != 0)
+		if($topic_count % 50 != 0)
 			$this->page_count += 1;
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
+			/**
+			if(preg_match_all("/<quote msgid=\"t,(\d+),(\d+)@(\d+)\">/", $message_data_array['message'], $info)){
+				$sql2 = "SELECT Users.username, Messages.posted FROM Messages LEFT JOIN Users USING(user_id) 
+					WHERE Messages.message_id = ? AND Messages.revision_no = 0";
+				$statement2 = $this->pdo_conn->prepare($sql2);
+				for($k=0; $k<sizeof($info[0]); $k++){
+					$statement2->execute(array($info[2][$k]));
+					$row = $statement2->fetchAll();
+					$pattern[$k] = "/<quote msgid=\"t,(\d+),(\d+)@(\d+)\">/";
+					$test[$k] = "<quote msgid=\"t,$1,$2@$3\" from=\"".@$row[0]['username']."\" posted=\"".@$row[0]['posted']."\">";
+					$message_data_array['message'] = preg_replace($pattern[$k], $test[$k], $message_data_array['message'], 1);
+				}
+				//$message_data_array['message'] = preg_replace($pattern, $test, $message_data_array['message'], 1);
+			}**/
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
-			$message_data[$i]['message'] = $this->formatComments(override\makeURL(override\closeTags(
-												str_replace("\n", "<br/>", 
+			$message_data[$i]['message'] = override\makeURL(override\embedVideo(override\closeTags(
+												str_replace("\n", "<br/>\n", 
 													override\htmlentities($message_data_array['message'], $allowed_tags)))));
+			$message_data[$i]['message'] = str_replace("</quote>", "</div>", $message_data[$i]['message']);
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_id'] = $message_data_array['revision_id'];
 		}
-		
+		$this->updateHistory($message_data[sizeof($message_data)-1]['message_id']);
 		return $message_data;
 	}
 	
@@ -158,7 +173,18 @@ class Topic{
 		}							
 	}
 	
-	public function formatComments($string){
+	public function updateHistory($last_message){
+		if(!is_null($last_message)){
+		$sql = "INSERT INTO TopicHistory (topic_id, user_id, message_id, date)
+			VALUES (?, $this->user_id, $last_message, ".time().")
+			ON DUPLICATE KEY UPDATE message_id= IF(message_id < $last_message, $last_message, message_id), date=".time();
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->topic_id));
+		return TRUE;
+	}	
+	}
+	
+	public function formatComments($string){	
 		$string = preg_replace("/\<quote /", "<div class=\"quoted-message\" ", $string);
 		/*
 		$attr = explode("\"", $string);
@@ -201,6 +227,22 @@ class Topic{
 	
 	public function getBoardID(){
 		return $this->board_id;
+	}
+	
+	public function getReaders(){
+		$sql = "SELECT COUNT(topic_id) FROM TopicHistory
+					WHERE topic_id=? AND date >= ".(time() - 60*15);
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->topic_id));
+		$row = $statement->fetch();
+		return $row[0];
+	}
+	
+	public function pinTopic(){
+		$sql = "INSERT INTO StickiedTopics (topic_id, user_id, created)
+				VALUES(?, ?, ".time().")";
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->topic_id, $this->user_id));
 	}
 
 }
