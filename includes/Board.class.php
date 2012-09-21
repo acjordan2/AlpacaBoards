@@ -96,7 +96,7 @@ class Board{
 													USING(topic_id)
 												LEFT JOIN
 													StickiedTopics ON StickiedTopics.topic_id = Topics.topic_id 
-												WHERE Topics.board_id = ? AND (StickiedTopics.topic_id IS NULL OR StickiedTopics.created  < ".(time()-(60*60*24)).")
+												WHERE Topics.board_id = ? AND (StickiedTopics.topic_id IS NULL OR (StickiedTopics.created  < ".(time()-(60*60*24))." AND StickiedTopics.mod != 1))
 												 AND Messages.revision_no = 0
 												GROUP BY topic_id ORDER BY posted DESC LIMIT 50 OFFSET ?;");
 		 //$this->pdo_conn->query("SHOW STATUS LIKE '%qcache%'");
