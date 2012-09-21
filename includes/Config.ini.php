@@ -37,12 +37,12 @@ define("DATABASE_USER", "andrew");
 define("DATABASE_PASS", "xC4sL7p8");
 
 ##Sitewide Settings
-define("DOMAIN", "dev.sper.gs");
+define("DOMAIN", "sper.gs");
 define("SITENAME", "Sper.gs");
 
 ##Security Settings
 define("SALT_SIZE", 16);
-define("USE_SSL", FALSE);
+define("USE_SSL", TRUE);
 define("SITE_KEY", "12JHA85FBlFmI@cw*hKqj9cM0fwo!h%0A7ey0u3oEUP@znM#"); //DO NOT CHANGE ONCE SITE GOES LIVE
 define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
 $allowed_tags =  array("\<b\>","\<\/b\>",
