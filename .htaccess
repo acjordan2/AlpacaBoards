@@ -6,3 +6,5 @@ RewriteEngine On
 RewriteRule ^includes($|/) 404.php [L,R=404]
 RewriteRule ^templates/default/(.+).tpl($|/) 404.php [L,R=404]
 RewriteRule ^templates/default/main.html($|/) 404.php [L,R=404]
+RewriteRule (.*/)?\\.git+ - [F,L]
+
