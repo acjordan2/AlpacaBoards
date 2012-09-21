@@ -67,7 +67,7 @@
         "//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}"><b><div class="sticky">{$table.title}</div></b></a></td>
         <td><a href="//{$domain}/profile.php?user={$table.user_id}">{$table.username}</a></td>
 
-        <td>{$table.number_of_posts}{if $table.history > 0} (<a href="//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}#m{$table.last_message}">+{$table.history}</a>){/if}</td>
+        <td>{$table.number_of_posts}{if $table.history > 0} (<a href="//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}{if $table.page > 0}&amp;page={$table.page}{/if}#m{$table.last_message}">+{$table.history}</a>){/if}</td>
 
         <td>{$table.posted|date_format:$dateformat}</td>
       </tr>
@@ -80,7 +80,7 @@
         "//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}">{$table.title}</a></td>
         <td><a href="//{$domain}/profile.php?user={$table.user_id}">{$table.username}</a></td>
 
-        <td>{$table.number_of_posts}{if $table.history > 0} (<a href="//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}#m{$table.last_message}">+{$table.history}</a>){/if}</td>
+        <td>{$table.number_of_posts}{if $table.history > 0} (<a href="//{$domain}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}{if $table.page > 1}&amp;page={$table.page}{/if}#m{$table.last_message}">+{$table.history}</a>){/if}</td>
 
         <td>{$table.posted|date_format:$dateformat}</td>
       </tr>

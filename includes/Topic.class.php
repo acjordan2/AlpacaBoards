@@ -114,7 +114,7 @@ class Topic{
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_id'] = $message_data_array['revision_id'];
 		}
-		$this->updateHistory($message_data[sizeof($message_data)-1]['message_id']);
+		$this->updateHistory($message_data[sizeof($message_data)-1]['message_id'], $page);
 		return $message_data;
 	}
 	
@@ -173,13 +173,14 @@ class Topic{
 		}							
 	}
 	
-	public function updateHistory($last_message){
+	public function updateHistory($last_message, $page){
 		if(!is_null($last_message)){
-		$sql = "INSERT INTO TopicHistory (topic_id, user_id, message_id, date)
-			VALUES (?, $this->user_id, $last_message, ".time().")
-			ON DUPLICATE KEY UPDATE message_id= IF(message_id < $last_message, $last_message, message_id), date=".time();
+		$sql = "INSERT INTO TopicHistory (topic_id, user_id, message_id, date, page)
+			VALUES (:topic_id, $this->user_id, $last_message, ".time().", :page)
+			ON DUPLICATE KEY UPDATE message_id= IF(message_id < $last_message, $last_message, message_id), date=".time().", page= IF(page < :page2, :page3, page)";
 		$statement = $this->pdo_conn->prepare($sql);
-		$statement->execute(array($this->topic_id));
+		#PDO limitimation: cant call the same named place holder more than once per query
+		$statement->execute(array('topic_id' => $this->topic_id, 'page'=>$page, 'page2'=>$page, 'page3'=>$page));
 		return TRUE;
 	}	
 	}

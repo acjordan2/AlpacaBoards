@@ -109,7 +109,7 @@ class Board{
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
 		
-		$sql2 = "SELECT COUNT(Messages.message_id) as count, TopicHistory.message_id as last_message FROM Messages 
+		$sql2 = "SELECT COUNT(Messages.message_id) as count, TopicHistory.message_id as last_message, TopicHistory.page as page FROM Messages 
 					LEFT JOIN TopicHistory Using(topic_id)
 					WHERE Messages.topic_id=? AND Messages.message_id > TopicHistory.message_id AND TopicHistory.user_id=$this->user_id";
 		$statement2 = $this->pdo_conn->prepare($sql2);
@@ -128,9 +128,9 @@ class Board{
 			
 			$msg_count = $get_count->fetchAll();
 			$history_count = $statement2->fetchAll();
-
 			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
 			$topic_data[$i]['history'] = $history_count[0]['count'];
+			$topic_data[$i]['page'] = $history_count[0]['page'];
 			$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
 
 													
@@ -183,7 +183,7 @@ class Board{
 		$statement->setFetchMode(PDO::FETCH_ASSOC);
 		
 				
-		$sql2 = "SELECT COUNT(Messages.message_id) as count, TopicHistory.message_id as last_message FROM Messages 
+		$sql2 = "SELECT COUNT(Messages.message_id) as count, TopicHistory.message_id as last_message, TopicHistory.page FROM Messages 
 			LEFT JOIN TopicHistory Using(topic_id)
 			WHERE Messages.topic_id=? AND Messages.message_id > TopicHistory.message_id AND TopicHistory.user_id=$this->user_id";
 		$statement2 = $this->pdo_conn->prepare($sql2);
@@ -206,6 +206,7 @@ class Board{
 
 			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
 			$topic_data[$i]['history'] = $history_count[0]['count'];
+			$topic_data[$i]['page'] = $history_count[0]['page'];
 			$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
 																
 		}
