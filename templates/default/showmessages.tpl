@@ -3,15 +3,13 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
   <title>{$sitename} - {$topic_title}</title>
-  <link rel="icon" href="//static.endoftheinter.net/images/dealwithit.ico" type=
-  "image/x-icon" />
-  <link rel="apple-touch-icon-precomposed" href=
-  "//static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
-  <link rel="stylesheet" type="text/css" href=
-  "templates/default/css/nblue.css?18" />
-  <!--<script type="text/javascript" src="https://static.endoftheinter.net/base.js?27"></script>-->
-  <script type="text/javascript" src="templates/default/js/base.js?27"></script>
+  <link rel="icon" href="//static.endoftheinter.net/images/dealwithit.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon-precomposed" href="//static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
+  <link rel="stylesheet" type="text/css" href="templates/default/css/nblue.css?18" />
+  <script type="text/javascript" src="templates/default/js/jquery.min.js" charset="utf-8"></script>
 </head>
 
 <body class="regular">
@@ -40,7 +38,7 @@
     </div><script type="text/javascript">
     {literal}
 //<![CDATA[
-    onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
+    //onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
     //]]>
     {/literal}
     </script>
@@ -73,14 +71,16 @@
 
             <td class="userpic">
               <div class="userpic-holder">
-                <a href=
-                "/templates/default/images/LUEshi.jpg">
-                <span class="img-placeholder" style="width:150px;height:131px" id=
-                "u0_{$i}"></span><script type="text/javascript">
+               
+               <!-- <span class="img-placeholder" style="width:150px;height:131px" id=
+                "u0_{$i}"></span> -->
+                <img src="/templates/default/images/grey.gif" data-original="https://i.sper.gs/i/t/7805f50352da7b2b878b645408ed669f/lueshi.jpg" width="150" height="156" />
+                <script type="text/javascript">
 					{literal}
-//<![CDATA[
+				/*
+				//<![CDATA[
                 onDOMContentLoaded(function(){new ImageLoader($("u0_{/literal}{$i}{literal}"), "/templates/default/images/LUEshi.jpg", 150, 131)})
-                //]]>
+                //]]>*/
                 {/literal}
                 </script></a>{if $table.user_id == 1016}<br /><em><b>Glorious Super Admin Master Race</b></em>{/if}
               </div>
@@ -100,45 +100,28 @@
     </div><!--<script type="text/javascript">
     {literal}
 //<![CDATA[
-    onDOMContentLoaded(function(){new TopicManager(7758474, 1, 471, $("u0_1"), [new uiPagerBrowser($("u0_2"), "\/\/boards.endoftheinter.net\/showmessages.php?board=42&topic=7758474", 471, 1), new uiPagerEnum($("u0_3"), "\/\/boards.endoftheinter.net\/showmessages.php?board=42&topic=7758474", 471, 1)], $("u0_4"), ["144115188083614346",471], 0)})
+    //onDOMContentLoaded(function(){new TopicManager(7758474, 1, 471, $("u0_1"), [new uiPagerBrowser($("u0_2"), "\/\/boards.endoftheinter.net\/showmessages.php?board=42&topic=7758474", 471, 1), new uiPagerEnum($("u0_3"), "\/\/boards.endoftheinter.net\/showmessages.php?board=42&topic=7758474", 471, 1)], $("u0_4"), ["144115188083614346",471], 0)})
     //]]>
 
     {/literal}
     </script>--><br />
     <br />
 	{include file="footer.tpl"}
-    <form method="post" action="/postmsg.php" class="quickpost" id="u0_{$i+1}" name="u0_{$i+1}">
-      <input type="hidden" name="topic" value="{$topic_id}" /><input type="hidden" name="h"
-      value="76f03" /><a href="#" class="quickpost-nub" id="u0_{$i+2}" name=
-      "u0_{$i+2}"><span class="open">+</span><span class="close">-</span></a>
-
-      <div class="quickpost-canvas">
-        <div id="u0_{$i+6}"></div>
-
-        <div class="quickpost-body">
-          <b>Your Message</b><br />
-          <textarea id="u0_{$i+7}" name="message">
-
-{$p_signature}
-</textarea>
-<script type="text/javascript">
-{literal}
-//<![CDATA[
-          $("u0_{/literal}{$i+7}{literal}").value = "\n---\n{/literal}"+unescape("{$signature}");
-          //]]>
-          </script><br />
-          <!--<input type="submit" value="Preview Message" id="u0_{$i+3}" name="preview" />-->
-          <input type="submit" value="Post Message" id="u0_{$i+4}" name="submit" />
-          <!--<input type="button" value="Upload Image" id="u0_{$i+5}" />-->
-        </div>
-      </div><a href="#" class="quickpost-grip" id="u0_{$i+4}" name=
-      "u0_{$i+4}">&nbsp;</a><script type="text/javascript">
-//<![CDATA[
-      {literal}onDOMContentLoaded(function(){new QuickPost(7758474, $("u0_{/literal}{$i+1}"), unescape("{$signature}"){literal}, $("u0_{/literal}{$i+2}{literal}"), $("u0_{/literal}{$i+3}{literal}"), $("u0_{/literal}{$i+4}{literal}"), $("u0_{/literal}{$i+5}{literal}"), $("u0_{/literal}{$i+6}{literal}"), $("u0_{/literal}{$i+7}{literal}"))})
-      //]]>
-      {/literal}
-      </script>
-    </form>
-  </div>
+<a id="qptoggle" href="#">
+	<span id="open">+</span>
+	<span id="close" style="display:none">-</span>
+</a>
+<div id="pageexpander" style="height:280px;display:none;"></div>
+<div id="quickpost" style="display:none;">
+	<form method="POST" action="/postmsg.php" name="quickposts" id="quickposts">
+			<input type="hidden" name="topic" value="{$topic_id}" />
+			<input type="hidden" name="h" value="76f03" />
+			<b>Your Message:</b><br />
+			<textarea id="qpmessage" name="message">{$p_signature}</textarea><br />
+			<input type="submit" value="Post Message" name="submit"/>Test
+	</form>
+</div> 
+  <script type="text/javascript" src="templates/default/js/jquery.lazyload.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="templates/default/js/jquery.base.js" charset="utf-8"></script>
 </body>
 </html>

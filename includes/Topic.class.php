@@ -104,13 +104,55 @@ class Topic{
 				}
 				//$message_data_array['message'] = preg_replace($pattern, $test, $message_data_array['message'], 1);
 			}**/
+			
+			
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
 			$message_data[$i]['message'] = override\makeURL(override\embedVideo(override\closeTags(
 												str_replace("\n", "<br/>\n", 
 													override\htmlentities($message_data_array['message'], $allowed_tags)))));
-			$message_data[$i]['message'] = str_replace("</quote>", "</div>", $message_data[$i]['message']);
+			libxml_use_internal_errors(true);
+			$doc = new DomDocument();
+			$doc->loadHTML($message_data[$i]['message']);
+			$sql3 = "SELECT Users.user_id, Users.username, Messages.posted
+										FROM Messages LEFT JOIN Users Using(user_id)
+										WHERE Messages.topic_id = ? AND Messages.message_id=? 
+										AND Messages.revision_no = 0";
+			$statement3 = $this->pdo_conn->prepare($sql3);
+			foreach($doc->getElementsByTagName('quote') as $quote){
+				$msgid = $quote->getAttribute('msgid');
+				$msgid_array = explode(",", $msgid);
+				$statement3->execute(array($msgid_array[1], $msgid_array[2]));
+				$row = $statement3->fetch();
+				
+				$divnode = $doc->createElement("div", $quote->nodeValue);
+				$divnode->setAttribute("class", "quoted-message");
+				$divnode->setAttribute("msgid", $msgid);
+				
+				$quote->parentNode->replaceChild($divnode, $quote);
+				//$doc->replaceChild($divnode, $quote);
+				//$quote->setAttribute(new DOMAttr('class', "quoted-message"));
+				
+				$message_top = $doc->createElement("div");
+				$message_top->setAttribute("class", "message-top");
+				$message_top->appendChild($doc->createTextNode('text'));
+				
+				$doc->insertBefore($message_top, $quote->firstElement);
+				
+				$rawHTML = $doc->saveHTML();
+				
+				$content = preg_replace(array("/^\<\!DOCTYPE.*?<html><body>/si",
+                                  "!</body></html>$!si"),
+                            "",
+                            $rawHTML);
+                //print $content;
+                $message_data[$i]['message'] = $content;
+				
+			}
+			libxml_use_internal_errors(false);
+			
+			//$message_data[$i]['message'] = str_replace("</quote>", "</div>", $message_data[$i]['message']);
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_id'] = $message_data_array['revision_id'];
 		}

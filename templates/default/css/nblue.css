@@ -442,8 +442,8 @@ table.message-body td.userpic div.userpic-holder {
   overflow: hidden;
   text-align: center;
 }
-
-/* quickpost nub */
+/*
+/* quickpost nub 
 .quickpost {
   background: #CFCFCF;
   position: fixed;
@@ -543,6 +543,8 @@ table.message-body td.userpic div.userpic-holder {
   display: block;
 }
 
+*/
+
 /* pretty shadows */
 .quoter-bottom {
   height: 16px;
@@ -635,3 +637,43 @@ a.quoter-button:visited {
 .quoter-button sup {
   top: -1px;
 }
+
+#qptoggle {
+	height: 25px;
+	width: 25px;
+	border: 1px solid #000000;
+	border-width: 1px 0px 0px 1px;
+	background: #ccc;
+	position: fixed;
+	bottom: 0px;
+	right: 0px;
+	z-index: 2;
+	font-size: 18px;
+	color: #333;
+	text-align: center;
+	line-height: 25px;
+	font-family: Arial;
+	text-decoration: none;
+}
+
+
+#quickpost {
+	width:100%;
+	position:fixed;
+	bottom:0px;
+	left:0px;
+	margin-top: 250px;
+	height:250px;
+	background:#ddd;
+	border-top:1px solid black;
+	padding-left: 10px;
+	padding-top: 7px;
+	font-size: 12px;
+}
+
+#quickpost textarea {
+	height: 200px;
+	margin-top: 5px;
+	width: 700px;
+}
+
