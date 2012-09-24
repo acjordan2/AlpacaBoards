@@ -132,23 +132,18 @@ class Topic{
 				
 				$quote->parentNode->replaceChild($divnode, $quote);
 				//$doc->replaceChild($divnode, $quote);
-				//$quote->setAttribute(new DOMAttr('class', "quoted-message"));
-				
-				$message_top = $doc->createElement("div");
-				$message_top->setAttribute("class", "message-top");
-				$message_top->appendChild($doc->createTextNode('text'));
-				
-				$doc->insertBefore($message_top, $quote->firstElement);
-				
+				//$quote->setAttribute(new DOMAttr('class', "quoted-message"));											
 				$rawHTML = $doc->saveHTML();
 				
 				$content = preg_replace(array("/^\<\!DOCTYPE.*?<html><body>/si",
                                   "!</body></html>$!si"),
                             "",
                             $rawHTML);
-                //print $content;
+                $quote_header = "<div class=\"message-header\">From: <a href=\"/profile.php?id=".$row['user_id']."\">".$row['username']."</a> | Posted: ".date("m/d/Y H:i:s", $row['posted'])."</div>";
+                $pattern = "<div class=\"quoted-message\" msgid=\"".$msgid_array[0].",".$msgid_array[1].",".$msgid_array[2]."\">";
+                
+                $content = preg_replace("/$pattern/", $pattern.$quote_header, $content);
                 $message_data[$i]['message'] = $content;
-				
 			}
 			libxml_use_internal_errors(false);
 			
