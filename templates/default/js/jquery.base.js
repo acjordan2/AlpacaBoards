@@ -6,6 +6,7 @@ $(function() {
 			$("#open").toggle();
 			$("#close").toggle();
 			if ($("#pageexpander").is(":visible")) $("#message").focus()
+			return false;
 		});
 
 });

@@ -118,7 +118,7 @@
 			<input type="hidden" name="h" value="76f03" />
 			<b>Your Message:</b><br />
 			<textarea id="qpmessage" name="message">{$p_signature}</textarea><br />
-			<input type="submit" value="Post Message" name="submit"/>Test
+			<input type="submit" value="Post Message" name="submit"/>
 	</form>
 </div> 
   <script type="text/javascript" src="templates/default/js/jquery.lazyload.min.js" charset="utf-8"></script>
