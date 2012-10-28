@@ -78,8 +78,10 @@ if($auth == TRUE){
 		elseif(@$_POST['submit'] == "Post Message"){
 			if(is_numeric($message_id))
 				$message_id = intval(@$_REQUEST['id']);
-			if($topic->postMessage($_POST['message'], $message_id))
-				header("Location: /showmessages.php?board=".$board_id."&topic=".$topic_id);
+			if($topic->postMessage($_POST['message'], $message_id)){
+				$topic->getMessages();
+				header("Location: /showmessages.php?board=".$board_id."&topic=".$topic_id."&page=".$topic->getPageCount());
+			}
 		}
 		if(!is_null(@$_POST['message']))
 			$smarty->assign("e_message", (override\htmlentities(@$_POST['message'])));

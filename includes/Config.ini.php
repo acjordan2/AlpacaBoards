@@ -37,7 +37,7 @@ define("DATABASE_USER", "andrew");
 define("DATABASE_PASS", "xC4sL7p8");
 
 ##Sitewide Settings
-define("DOMAIN", "sper.gs");
+define("DOMAIN", "dev.sper.gs");
 define("SITENAME", "Sper.gs");
 
 ##Security Settings

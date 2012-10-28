@@ -39,23 +39,40 @@ if($auth=TRUE){
 		$topic_id = intval($_GET['topic']);
 		$message = new MessageRevision($db, $message_id, $revision_no, $link);
 		if($message->doesExist()){
-			$smarty->assign("message", override\formatComments(override\makeURL(override\closeTags(
+			
+			$message_content = override\formatComments(override\makeURL(override\closeTags(
 													str_replace("\n", "<br/>", 
-														override\htmlentities($message->getMessage(), $allowed_tags))))));
-			$smarty->assign("link", $link);
-			$smarty->assign("posted", $message->getPosted());
-			$smarty->assign("revision_history", $message->getRevisions());
-			$smarty->assign("topic_title", override\htmlentities($message->getTopicTitle()));
-			$smarty->assign("link_title", override\htmlentities($message->getLinkTitle()));
-			$smarty->assign("board_title", override\htmlentities($message->getBoardTitle()));
-			$smarty->assign("topic_id", $topic_id);
-			$smarty->assign("board_id", $message->getBoardID());
-			$smarty->assign("revision_no", $message->getRevisionID());
-			$smarty->assign("message_id", $message_id);
-			$smarty->assign("m_user_id", $message->getUserID());
-			$smarty->assign("m_username", $message->getUsername());
-			$display = "message.tpl";
-			require("includes/deinit.php");
+														override\htmlentities($message->getMessage(), $allowed_tags)))));
+			
+			$signature = explode("---", $message_content);
+			
+			if($_GET['output'] == "json"){
+				$signature = explode("---", $message->getMessage());
+
+				$content = array("id" => $message_id,
+								 "topic" => $topic_id,
+								 "r" => $message->getRevisionID(),
+								 "message" => $signature[0],
+								 "signature" => $signature[1]);
+				header("Content-Type: application/json");
+				print json_encode($content);
+			}else{
+				$smarty->assign("message", $message_content);
+				$smarty->assign("link", $link);
+				$smarty->assign("posted", $message->getPosted());
+				$smarty->assign("revision_history", $message->getRevisions());
+				$smarty->assign("topic_title", override\htmlentities($message->getTopicTitle()));
+				$smarty->assign("link_title", override\htmlentities($message->getLinkTitle()));
+				$smarty->assign("board_title", override\htmlentities($message->getBoardTitle()));
+				$smarty->assign("topic_id", $topic_id);
+				$smarty->assign("board_id", $message->getBoardID());
+				$smarty->assign("revision_no", $message->getRevisionID());
+				$smarty->assign("message_id", $message_id);
+				$smarty->assign("m_user_id", $message->getUserID());
+				$smarty->assign("m_username", $message->getUsername());
+				$display = "message.tpl";
+				require("includes/deinit.php");
+			}
 		}else
 			require("404.php");
 	}else

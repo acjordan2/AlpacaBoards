@@ -42,6 +42,7 @@ try{
 						DATABASE_USER, DATABASE_PASS);
 	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$db->setAttribute(PDO::ATTR_EMULATE_PREPARES,false);
+	$db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	$smarty = new Smarty();
 	$smarty->template_dir = TEMPLATE_DIR."/default";
 	$smarty->compile_dir = TEMPLATE_COMPILE;

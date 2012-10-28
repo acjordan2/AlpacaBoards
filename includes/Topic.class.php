@@ -1,6 +1,6 @@
 <?php
 /*
- * Board.class.php
+ * Topic.class.php
  * 
  * Copyright (c) 2012 Andrew Jordan
  * 
@@ -90,22 +90,7 @@ class Topic{
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
-			/**
-			if(preg_match_all("/<quote msgid=\"t,(\d+),(\d+)@(\d+)\">/", $message_data_array['message'], $info)){
-				$sql2 = "SELECT Users.username, Messages.posted FROM Messages LEFT JOIN Users USING(user_id) 
-					WHERE Messages.message_id = ? AND Messages.revision_no = 0";
-				$statement2 = $this->pdo_conn->prepare($sql2);
-				for($k=0; $k<sizeof($info[0]); $k++){
-					$statement2->execute(array($info[2][$k]));
-					$row = $statement2->fetchAll();
-					$pattern[$k] = "/<quote msgid=\"t,(\d+),(\d+)@(\d+)\">/";
-					$test[$k] = "<quote msgid=\"t,$1,$2@$3\" from=\"".@$row[0]['username']."\" posted=\"".@$row[0]['posted']."\">";
-					$message_data_array['message'] = preg_replace($pattern[$k], $test[$k], $message_data_array['message'], 1);
-				}
-				//$message_data_array['message'] = preg_replace($pattern, $test, $message_data_array['message'], 1);
-			}**/
-			
-			
+
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
@@ -120,25 +105,47 @@ class Topic{
 										WHERE Messages.topic_id = ? AND Messages.message_id=? 
 										AND Messages.revision_no = 0";
 			$statement3 = $this->pdo_conn->prepare($sql3);
+			
 			foreach($doc->getElementsByTagName('quote') as $quote){
 				$msgid = $quote->getAttribute('msgid');
 				$msgid_array = explode(",", $msgid);
 				$statement3->execute(array($msgid_array[1], $msgid_array[2]));
 				$row = $statement3->fetch();
+				$statement3->closeCursor();
 				
-				$divnode = $doc->createElement("div", $quote->nodeValue);
+				$innerHTML= ''; 
+				$children = $quote->childNodes; 
+				foreach ($children as $child) { 
+					$innerHTML .= $child->ownerDocument->saveXML($child);
+				}
+				$innerHTML = str_replace("<span class=\"spoiler_closed\" id=\"s0_&lt;!--\$i--&gt;\"><span class=\"spoiler_on_close\"><a class=\"caption\" href=\"#\"><b>&lt;spoiler /&gt;</b></a></span><span class=\"spoiler_on_open\"><a class=\"caption\" href=\"#\">&lt;spoiler&gt;</a>", "<spoiler>", $innerHTML);
+				$innerHTML = str_replace("<a class=\"caption\" href=\"#\">&lt;/spoiler&gt;</a></span></span><script type=\"text/javascript\"><![CDATA[$(document).ready(function(){llmlSpoiler($(\"#s0_<!--\$i-->\"));});]]></script>", "</spoiler>", $innerHTML);
+				
+				if($innerHTML == "<br/>") $innerHTML = "[quoted text omitted]";
+				
+				$quote_headers = $doc->createElement("div", "");
+				$quote_headers->setAttribute("class", "message-header");
+				$quote->appendChild($quote_headers);
+		
+				$divnode = $doc->createElement("div", $innerHTML);
 				$divnode->setAttribute("class", "quoted-message");
 				$divnode->setAttribute("msgid", $msgid);
-				
-				$quote->parentNode->replaceChild($divnode, $quote);
-				//$doc->replaceChild($divnode, $quote);
-				//$quote->setAttribute(new DOMAttr('class', "quoted-message"));											
+				$quote->parentNode->replaceChild($divnode, $quote);	
+														
 				$rawHTML = $doc->saveHTML();
-				
+				//$rawHTML = $doc->saveXML();
 				$content = preg_replace(array("/^\<\!DOCTYPE.*?<html><body>/si",
                                   "!</body></html>$!si"),
                             "",
                             $rawHTML);
+                            
+                $content = str_replace("<div class=\"quoted-message\"", "<quote", $content);
+                $content = str_replace("</div>", "</quote>", $content);
+                $content = html_entity_decode($content);
+                $content = override\htmlentities($content, $allowed_tags);
+                $content = str_replace("<quote", "<div class=\"quoted-message\"", $content);
+                $content = str_replace("</quote>", "</div>", $content);
+                
                 $quote_header = "<div class=\"message-header\">From: <a href=\"/profile.php?id=".$row['user_id']."\">".$row['username']."</a> | Posted: ".date("m/d/Y H:i:s", $row['posted'])."</div>";
                 $pattern = "<div class=\"quoted-message\" msgid=\"".$msgid_array[0].",".$msgid_array[1].",".$msgid_array[2]."\">";
                 
@@ -151,6 +158,7 @@ class Topic{
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_id'] = $message_data_array['revision_id'];
 		}
+		$statement->closeCursor();
 		$this->updateHistory($message_data[sizeof($message_data)-1]['message_id'], $page);
 		return $message_data;
 	}
@@ -218,6 +226,7 @@ class Topic{
 		$statement = $this->pdo_conn->prepare($sql);
 		#PDO limitimation: cant call the same named place holder more than once per query
 		$statement->execute(array('topic_id' => $this->topic_id, 'page'=>$page, 'page2'=>$page, 'page3'=>$page));
+		$statement->closeCursor();
 		return TRUE;
 	}	
 	}

@@ -61,8 +61,8 @@
           "/showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;u={$table.user_id}">
           Filter</a> | <a href=
           "/message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail{if $table.revision_id > 1} ({$table.revision_id} edits){elseif $table.revision_id == 1} ({$table.revision_id} edit){/if}</a> |
-          <a href="/postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}"><!--onclick=
-          "return QuickPost.publish('quote', this); return false;"-->Quote</a>
+          <a href="/postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}" onclick=
+          "return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
         </div>
 
         <table class="message-body">
@@ -117,7 +117,11 @@
 			<input type="hidden" name="topic" value="{$topic_id}" />
 			<input type="hidden" name="h" value="76f03" />
 			<b>Your Message:</b><br />
-			<textarea id="qpmessage" name="message">{$p_signature}</textarea><br />
+			<textarea id="qpmessage" name="message">
+
+---
+				{$p_signature}
+			</textarea><br />
 			<input type="submit" value="Post Message" name="submit"/>
 	</form>
 </div> 
