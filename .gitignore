@@ -1,2 +1,2 @@
 .Trash-1000/*
-includes/smarty/templates_c/*
+includes/smarty/templates_c/*.tpl.php
