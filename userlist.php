@@ -30,11 +30,12 @@ if($auth == TRUE){
 		$current_page = 1;
 	else
 		$current_page = intval($_GET['page']);
-	
-	$userlist = User::getUserList($db, $current_page);
+	$query = @$_GET['user'];
+	$userlist = User::getUserList($db, $current_page,$query);
 	$smarty->assign("userlist", $userlist);
 	$smarty->assign("page_count", User::$page_count);
 	$smarty->assign("current_page", $current_page);	$display = "userlist.tpl";
+	$smarty->assign("user_search", override\htmlentities($query));
 	require("includes/deinit.php");
 
 }else

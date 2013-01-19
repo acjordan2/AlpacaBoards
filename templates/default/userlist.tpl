@@ -24,7 +24,10 @@
     </div>
 
     <h1>User List</h1>
-
+<form method="GET" action="">
+	<input type="text" name="user" value="{$user_search}" />
+	<input type="submit" value="Search" />
+</form><br />
     <div class="userbar">
       <a href="/profile.php?user={$user_id}">{$username} ({$karma})</a>: <span id=
       "userbar_pms" style="display:none"><a href="/inbox.php">Private Messages (<span id=
@@ -38,7 +41,6 @@
     //]]>
     </script>
 {/literal}
-
     <div class="infobar">
       {if $current_page > 1} <span><a href="/userlist.php?page=1">First Page</a> |</span>{/if}
 	  {if $current_page > 2}<span><a href="/userlist.php?page={$current_page - 1}">Prev Page</a> |</span>{/if}

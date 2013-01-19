@@ -149,8 +149,6 @@ class User{
 					$salted_password = explode("\$", $user_data['password']);
 					$salt = $salted_password[1];
 					$password = $salted_password[2];
-					print $salt."\$".$password."<br />";
-					print $this->generatePasswordHash($aPassword, $salt);
 					if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) == 0)
 						$new_pass_auth = TRUE;
 				}
@@ -539,12 +537,21 @@ class User{
 		return $row[0]['average'];
 	}
 	
-	public static function getUserList(&$db, $page=1){
+	public static function getUserList(&$db, $page=1, $query=NULL){
 		$offset = 50 * ($page-1);
+		if(!is_null($query)){
+			if(strlen($query) == 1)
+				$query = str_replace("%", "", $query);
+			$query = "%".$query."%";
+			$user_search = "WHERE Users.username LIKE ?";
+		}
 		$sql = "SELECT Users.username, Users.user_id, Users.account_created, Users.last_active, SUM(Karma.value) as value1, SUM(ShopTransactions.value) as value2
-					FROM Users LEFT Join Karma using (user_id) LEFT JOIN ShopTransactions USING (user_id) GROUP BY Users.user_id ORDER BY User_id ASC LIMIT 50 OFFSET ?";
+					FROM Users LEFT Join Karma using (user_id) LEFT JOIN ShopTransactions USING (user_id) $user_search GROUP BY Users.user_id ORDER BY User_id ASC LIMIT 50 OFFSET ?";
 		$statement = $db->prepare($sql);
-		$statement->execute(array($offset));
+		if(!is_null($query))
+			$statement->execute(array($query, $offset));
+		else
+			$statement->execute(array($offset));
 		$sql2 = "SELECT COUNT(Users.user_id) as count FROM Users";
 		$statement2 = $db->query($sql2);
 		$row = $statement2->fetch();
