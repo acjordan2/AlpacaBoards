@@ -2,14 +2,10 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
   <title>{$sitename} - {$link_data.title}</title>
-  <link rel="icon" href="https://static.endoftheinter.net/images/dealwithit.ico" type=
-  "image/x-icon" />
-  <link rel="apple-touch-icon-precomposed" href=
-  "https://static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
-  <link rel="stylesheet" type="text/css" href=
-  "/templates/default/css/nblue.css?18" />
-    <script type="text/javascript" src="templates/default/js/base.js?27"></script>
-</script>
+  <link rel="icon" href="https://static.endoftheinter.net/images/dealwithit.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon-precomposed" href="https://static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
+  <link rel="stylesheet" type="text/css" href="/templates/default/css/nblue.css?18" />
+  <script type="text/javascript" src="templates/default/js/jquery.min.js" charset="utf-8"></script>
 </head>
 
 <body class="regular">
@@ -76,7 +72,7 @@
         "/message.php?id={$table.message_id}&amp;topic={$link_id}&amp;r={$table.revision_no}&amp;link=1">
         Message Detail{if $table.revision_no > 1} ({$table.revision_id} edits){elseif $table.revision_no == 1} ({$table.revision_no} edit){/if}</a> | <a href=
         "/postmsg.php?link={$link_id}&amp;quote={$table.message_id}"
-        onclick="return QuickPost.publish('quote', this);">Quote</a>
+        onclick="return quickpost_quote('l,{$link_data.link_id},{$table.message_id}@{$table.revision_no}');">Quote</a>
       </div>
 
       <table class="message-body">
@@ -107,41 +103,25 @@
     <br />
     <br />
 	{include file="footer.tpl"}
+<a id="qptoggle" href="#">
+	<span id="open">+</span>
+	<span id="close" style="display:none">-</span>
+</a>
+<div id="pageexpander" style="height:280px;display:none;"></div>
+<div id="quickpost" style="display:none;">
+	<form method="POST" action="/postmsg.php" name="quickposts" id="quickposts">
+			<input type="hidden" name="link" value="{$link_data.link_id}" />
+			<input type="hidden" name="h" value="76f03" />
+			<b>Your Message:</b><br />
+			<textarea id="qpmessage" name="message">
 
-        <form method="post" action="/postmsg.php" class="quickpost" id="u0_{$i+1}" name="u0_{$i+1}">
-      <input type="hidden" name="topic" value="{$topic_id}" /><input type="hidden" name="h"
-      value="76f03" /><a href="#" class="quickpost-nub" id="u0_{$i+2}" name=
-      "u0_{$i+2}"><span class="open">+</span><span class="close">-</span></a>
-
-      <div class="quickpost-canvas">
-        <div id="u0_{$i+6}"></div>
-
-        <div class="quickpost-body">
-          <b>Your Message</b><br />
-          <textarea id="u0_{$i+7}" name="message">
-
-{$p_signature}
-</textarea>
-<script type="text/javascript">
-{literal}
-//<![CDATA[
-          $("u0_{/literal}{$i+7}{literal}").value = "\n---\n{/literal}"+unescape("{$signature}");
-          //]]>
-          </script><br />
-          <!--<input type="submit" value="Preview Message" id="u0_{$i+3}" name="preview" />-->
-          <input type="submit" value="Post Message" id="u0_{$i+4}" name="submit" />
-          <!--<input type="button" value="Upload Image" id="u0_{$i+5}" />-->
-        </div>
-      </div><a href="#" class="quickpost-grip" id="u0_{$i+4}" name=
-      "u0_{$i+4}">&nbsp;</a><script type="text/javascript">
-//<![CDATA[
-      {literal}onDOMContentLoaded(function(){new QuickPost(7758474, $("u0_{/literal}{$i+1}"), unescape("{$signature}"){literal}, $("u0_{/literal}{$i+2}{literal}"), $("u0_{/literal}{$i+3}{literal}"), $("u0_{/literal}{$i+4}{literal}"), $("u0_{/literal}{$i+5}{literal}"), $("u0_{/literal}{$i+6}{literal}"), $("u0_{/literal}{$i+7}{literal}"))})
-      //]]>
-      {/literal}
-      </script>
-    </form>
-  </div>
-
-  <div style="display: none;" id="hiddenlpsubmitdiv"></div>
+---
+				{$p_signature}
+			</textarea><br />
+			<input type="submit" value="Post Message" name="submit"/>
+	</form>
+</div> 
+  <script type="text/javascript" src="templates/default/js/jquery.lazyload.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="templates/default/js/jquery.base.js" charset="utf-8"></script>
 </body>
 </html>

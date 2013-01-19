@@ -28,16 +28,18 @@ function quickpost(){
 
 function quickpost_quote(message_id){
 	if (!$("#pageexpander").is(":visible")) quickpost();
-	data = message_id.split(",");
-	id = data[2].split("@");
-	req = "/message.php?id="+id[0]+"&topic="+data[1]+"&r="+id[1]+"&output=json";
-	$.ajax({url:"/message.php", dataType:"json", data:"id="+id[0]+"&topic="+data[1]+"&r="+id[1]+"&output=json", success:function(result){
+	quote_data = message_id.split(",");
+	id = quote_data[2].split("@");
+	req = "id="+id[0]+"&topic="+quote_data[1]+"&r="+id[1]+"&output=json";
+	if(quote_data[0] == "l")
+		req += "&link=1";
+	$.ajax({url:"/message.php", dataType:"json", data:req, success:function(result){
 		message_body = $("#qpmessage").val();
 		message_split = $('#qpmessage').val().split("---");
 
 		message_body = message_split[0];
 		sig = message_split[message_split.length-1];
-		$("#qpmessage").val(message_body+"<quote msgid=\""+data[0]+","+data[1]+","+data[2]+"\">"+result['message']+"</quote>\n"+"---"+sig);
+		$("#qpmessage").val(message_body+"<quote msgid=\""+quote_data[0]+","+quote_data[1]+","+quote_data[2]+"\">"+result['message']+"</quote>\n"+"---"+sig);
 	}});
 	return false;
 }
