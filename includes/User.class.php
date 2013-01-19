@@ -149,6 +149,8 @@ class User{
 					$salted_password = explode("\$", $user_data['password']);
 					$salt = $salted_password[1];
 					$password = $salted_password[2];
+					print $salt."\$".$password."<br />";
+					print $this->generatePasswordHash($aPassword, $salt);
 					if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) == 0)
 						$new_pass_auth = TRUE;
 				}
@@ -252,7 +254,7 @@ class User{
 			while($i--)
 				$hash = hash_hmac("sha256", $aSalt.$hash, SITE_KEY, TRUE);
 			$hash = hash_hmac("sha256", $aSalt.$hash, SITE_KEY, FALSE);
-			$final_hash = "\$".$aSalt."\$".$hash;
+			$final_hash = "\$".base64_encode($aSalt)."\$".$hash;
 		}
 		else{
 			/**$salt = "";

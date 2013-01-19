@@ -8,7 +8,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `spergs`
+-- Database: `spergs2`
 --
 
 -- --------------------------------------------------------
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `Karma` (
   `created` int(11) NOT NULL,
   PRIMARY KEY (`karma_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=991 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=992 ;
 
 -- --------------------------------------------------------
 
@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `LinkHistory` (
   PRIMARY KEY (`link_history_id`),
   UNIQUE KEY `link_id` (`link_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2568 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2569 ;
 
 -- --------------------------------------------------------
 
@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS `Sessions` (
   `useragent` varchar(256) NOT NULL,
   PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2734 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2735 ;
 
 -- --------------------------------------------------------
 
@@ -377,7 +377,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `email` varchar(45) DEFAULT NULL,
   `private_email` varchar(45) DEFAULT NULL,
   `instant_messaging` varchar(45) DEFAULT NULL,
-  `password` varchar(82) NOT NULL,
+  `password` varchar(90) NOT NULL,
   `old_password` varchar(32) DEFAULT NULL,
   `account_created` int(11) DEFAULT NULL,
   `last_active` int(11) DEFAULT NULL,
