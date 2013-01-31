@@ -31,19 +31,19 @@ set_include_path(get_include_path().PATH_SEPARATOR.$_SERVER['DOCUMENT_ROOT']."/i
 
 ##Database Settings
 define("DATABASE_TYPE", "mysql");
-define("DATABASE_HOST", "127.0.0.1");
-define("DATABASE_NAME", "spergs2");
-define("DATABASE_USER", "andrew");
-define("DATABASE_PASS", "xC4sL7p8");
+define("DATABASE_HOST", "");
+define("DATABASE_NAME", "");
+define("DATABASE_USER", "");
+define("DATABASE_PASS", "");
 
 ##Sitewide Settings
-define("DOMAIN", "127.0.1.1");
-define("SITENAME", "Sper.gs");
+define("DOMAIN", "");
+define("SITENAME", "");
 
 ##Security Settings
 define("SALT_SIZE", 16);
 define("USE_SSL", FALSE);
-define("SITE_KEY", "12JHA85FBlFmI@cw*hKqj9cM0fwo!h%0A7ey0u3oEUP@znM#"); //DO NOT CHANGE ONCE SITE GOES LIVE
+define("SITE_KEY", "<put lots of random letters, numbers, and symobls here>"); //DO NOT CHANGE ONCE SITE GOES LIVE
 define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
 $allowed_tags =  array("\<b\>","\<\/b\>",
 					 "\<strong\>","\<\/strong\>",
