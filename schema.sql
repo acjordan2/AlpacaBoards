@@ -7,13 +7,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
---
--- Database: `spergs2`
---
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `ArchivedMessages`
 --
 
@@ -26,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `ArchivedMessages` (
   PRIMARY KEY (`message_id`),
   KEY `user_id` (`user_id`),
   KEY `topic_id` (`topic_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -43,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `ArchivedTopics` (
   PRIMARY KEY (`topic_id`),
   KEY `user_id` (`user_id`),
   KEY `board_id` (`board_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -55,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `BoardCategories` (
   `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(45) NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -70,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `Boards` (
   `description` varchar(45) NOT NULL,
   PRIMARY KEY (`board_id`),
   KEY `category_id` (`category_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=755 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -85,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `Inventory` (
   PRIMARY KEY (`inventory_id`),
   KEY `user_id` (`user_id`),
   KEY `transaction_id` (`transaction_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -101,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `InviteCodes` (
   `created` int(11) unsigned NOT NULL,
   PRIMARY KEY (`invite_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -120,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `InviteTree` (
   KEY `invited_by` (`invited_by`),
   KEY `Invited_user` (`Invited_user`),
   KEY `invite_code` (`invite_code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -132,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `ItemClass` (
   `class_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(12) NOT NULL,
   PRIMARY KEY (`class_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -147,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `Karma` (
   `created` int(11) NOT NULL,
   PRIMARY KEY (`karma_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=992 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -159,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `LinkCategories` (
   `category_id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `name` text NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=15 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -175,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `LinkHistory` (
   PRIMARY KEY (`link_history_id`),
   UNIQUE KEY `link_id` (`link_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2569 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -193,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `LinkMessages` (
   PRIMARY KEY (`message_id`,`revision_no`),
   KEY `link_id` (`link_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=38 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -211,7 +204,7 @@ CREATE TABLE IF NOT EXISTS `Links` (
   `active` tinyint(1) NOT NULL,
   PRIMARY KEY (`link_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=101 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -226,7 +219,7 @@ CREATE TABLE IF NOT EXISTS `LinksCategorized` (
   PRIMARY KEY (`link_cat_id`),
   KEY `link_id` (`link_id`,`category_id`),
   KEY `category_id` (`category_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=201 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -260,7 +253,7 @@ CREATE TABLE IF NOT EXISTS `Messages` (
   PRIMARY KEY (`message_id`,`revision_no`),
   KEY `user_id` (`user_id`),
   KEY `topic_id` (`topic_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=57000 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -279,7 +272,7 @@ CREATE TABLE IF NOT EXISTS `Sessions` (
   `useragent` varchar(256) NOT NULL,
   PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2735 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -295,7 +288,7 @@ CREATE TABLE IF NOT EXISTS `ShopItems` (
   `active` tinyint(1) NOT NULL,
   `class_id` int(4) unsigned NOT NULL,
   PRIMARY KEY (`item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -312,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `ShopTransactions` (
   PRIMARY KEY (`transaction_id`),
   KEY `user_id` (`user_id`),
   KEY `item_id` (`item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -329,7 +322,7 @@ CREATE TABLE IF NOT EXISTS `StickiedTopics` (
   PRIMARY KEY (`sticky_id`),
   KEY `topic_id` (`topic_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=47 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -363,7 +356,7 @@ CREATE TABLE IF NOT EXISTS `Topics` (
   PRIMARY KEY (`topic_id`),
   KEY `user_id` (`user_id`),
   KEY `board_id` (`board_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2158 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -388,7 +381,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `timezone` varchar(45) NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2181 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 --
 -- Constraints for dumped tables
