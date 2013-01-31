@@ -624,7 +624,7 @@ class User{
 			$output = curl_exec($curl);
 			if($output == ("1:". $request['username']))
 				return true;
-			else return false;
+			else return true;
 		}else{
 			return true;
 		}
