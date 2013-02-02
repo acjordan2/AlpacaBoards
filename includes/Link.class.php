@@ -84,6 +84,7 @@ class Link{
 	}
 	
 	public function getLink(){
+		global $allowed_tags;
 		$sql = "SELECT Users.username, Links.user_id, Links.title, Links.url, Links.description, Links.created,
 		COUNT(LinkVotes.vote) AS NumberOfVotes, SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) AS rating  
 		FROM Links LEFT JOIN LinkVotes using(link_id) LEFT JOIN Users ON Links.user_id=Users.user_id WHERE link_id = ?";
@@ -100,7 +101,9 @@ class Link{
 			$row = $statement->fetch();
 			$row['url2'] = override\htmlentities($row['url']);
 			$row['url'] = override\makeURL(override\htmlentities($row['url']));
-			$row['description'] = override\makeURL(override\htmlentities($row['description']));
+			$row['description'] = override\makeURL(override\embedVideo(override\closeTags(
+												str_replace("\n", "<br/>\n", 
+													override\htmlentities($row['description'], $allowed_tags)))));
 			$row['code'] = dechex($this->link_id);
 			$row['link_id'] = $this->link_id;
 			$row['hits'] = $this->getHits();
