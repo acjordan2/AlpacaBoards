@@ -65,23 +65,30 @@ class Topic{
 		}
 	}
 	
-	public function getMessages($page=1){
+	public function getMessages($page=1, $p_user_id=NULL){
 		global $allowed_tags;
 		$offset = 50*($page-1);
-		$statement = $this->pdo_conn->prepare("SELECT Messages.message_id, 
-													MAX(Messages.revision_no) as revision_id,
-													Messages.user_id,
-													Users.username,
-													Messages.message,
-													MIN(Messages.posted) as posted
-												FROM Messages
-												LEFT JOIN Users
-													USING(user_id)
-												WHERE
-													Messages.topic_id = ?
-												GROUP BY Messages.message_id DESC 
-												ORDER BY posted ASC LIMIT 50 OFFSET ?");
-		$statement->execute(array($this->topic_id, $offset));
+		if(!is_null($p_user_id) and is_numeric($p_user_id))
+			$filter_by_user = " AND Messages.user_id = ? ";
+		$sql = "SELECT Messages.message_id, 
+				MAX(Messages.revision_no) as revision_id,
+				Messages.user_id,
+				Users.username,
+				Messages.message,
+				MIN(Messages.posted) as posted
+			FROM Messages
+			LEFT JOIN Users
+				USING(user_id)
+			WHERE
+				Messages.topic_id = ?".
+				@$filter_by_user."
+			GROUP BY Messages.message_id DESC 
+			ORDER BY posted ASC LIMIT 50 OFFSET ?";
+		$statement = $this->pdo_conn->prepare($sql);
+		if(!is_null($p_user_id) and is_numeric($p_user_id))
+			$statement->execute(array($this->topic_id, $p_user_id, $offset));
+		else
+			$statement->execute(array($this->topic_id, $offset));
 		$statement->setFetchMode(PDO::FETCH_ASSOC);
 		$getMessageCount = $this->pdo_conn->prepare("SELECT DISTINCT(message_id) FROM Messages WHERE Messages.topic_id = ?;");
 		$getMessageCount->execute(array($this->topic_id));
@@ -89,6 +96,7 @@ class Topic{
 		$this->page_count = intval($topic_count/50);
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
+		print_r($statement->rowCount());
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
 
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];

@@ -68,7 +68,9 @@ if($auth == TRUE){
 				}
 				$smarty->assign("status_message", $status_message);
 			}
-			$messages = $topic->getMessages($current_page);
+			$messages = $topic->getMessages($current_page, @$_GET['u']);
+			if(isset($_GET['u']) and is_numeric($_GET['u']))
+				$smarty->assign("filter", true);
 			$smarty->assign("messages", $messages);
 			$smarty->assign("signature", (str_replace("\r\n", "\\n", addslashes(str_replace("+", " ", ($authUser->getSignature()))))));
 			$smarty->assign("p_signature", override\htmlentities($authUser->getSignature()));

@@ -24,7 +24,7 @@
     <h1>{$board_title}</h1>
 
     <h2>{$topic_title}</h2>
-	{if $status_message != NULL}<br /><h3 style="text-align:center"><em>{$status_message}</em></h3><br />{/if}
+	{if isset($status_message) && $status_message != NULL}<br /><h3 style="text-align:center"><em>{$status_message}</em></h3><br />{/if}
     <div class="userbar">
       <a href="/profile.php?user={$user_id}">{$username} ({$karma})</a>: <span id=
       "userbar_pms" style="display:none"><a href="/inbox.php">Private Messages (<span id=
@@ -57,9 +57,11 @@
       <div class="message-container" id="m{$table.message_id}">
         <div class="message-top">
           <b>From:</b> <a href="/profile.php?user={$table.user_id}">
-          {$table.username}</a> | <b>Posted:</b> {$table.posted|date_format:$dateformat} | <a href=
+          {$table.username}</a> | <b>Posted:</b> {$table.posted|date_format:$dateformat} | {if isset($filter)}<a href=
+          "/showmessages.php?board={$board_id}&amp;topic={$topic_id}">
+          Unfilter{else}<a href=
           "/showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;u={$table.user_id}">
-          Filter</a> | <a href=
+          Filter</a>{/if} | <a href=
           "/message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail{if $table.revision_id > 1} ({$table.revision_id} edits){elseif $table.revision_id == 1} ({$table.revision_id} edit){/if}</a> |
           <a href="/postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}" onclick=
           "return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
