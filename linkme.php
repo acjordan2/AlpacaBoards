@@ -51,7 +51,13 @@ if($auth == TRUE){
 			$display = "linkme.tpl";
 			require("includes/deinit.php");
 		}else require("404.php");
-	}else
+	}elseif($link_id="random"){
+		$sql = "SELECT Links.link_id FROM Links WHERE Links.active=0";
+		$links = $db->query($sql);		
+		$links_data = $links->fetchAll();
+		header("Location: ./linkme.php?l=".$links_data[mt_rand(0, sizeof($links_data)-1)][0]);
+	}
+	else
 		require("404.php");
 
 }else
