@@ -90,11 +90,9 @@ class User{
 												 WHERE 
 													Sessions.session_key1=:session_key1 
 													AND Sessions.session_key2=:session_key2
-													AND Sessions.ip=:ip
 													AND Sessions.useragent=:useragent");
 			$session_data = array("session_key1" => $_COOKIE[AUTH_KEY1],
 								  "session_key2" => $_COOKIE[AUTH_KEY2],
-								  "ip" => $_SERVER['REMOTE_ADDR'],
 								  "useragent" => $_SERVER['HTTP_USER_AGENT']);
 			$statement->execute($session_data);
 			
