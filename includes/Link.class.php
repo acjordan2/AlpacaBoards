@@ -323,5 +323,42 @@ class Link{
 		else
 			return FALSE;
 	}
+	
+	public function addToFavorites(){
+		$sql = "INSERT INTO LinkFavorites (link_id, user_id, created)
+				VALUES (? , $this->user_id, ".time().")
+				ON DUPLICATE KEY UPDATE user_id = user_id";
+		$statement = $this->pdo_conn->prepare($sql);
+		if($statement->execute(array($this->link_id)))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	
+	public function getFavorites(){
+		$sql = "SELECT Users.username, Links.link_id, Links.user_id, Links.title, Links.url, COUNT(LinkVotes.vote) AS NumberOfVotes, 
+				SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) AS rating, 
+				Links.created 
+				FROM Users LEFT JOIN
+				Links USING(user_id) 
+				LEFT JOIN LinkVotes USING(link_id)
+				LEFT JOIN LinkFavorites USING(link_id) 
+				WHERE LinkFavorites.user_id = $this->user_id
+				GROUP BY link_id";
+		$statement = $this->pdo_conn->query($sql);
+		for($i=0; $link_data_array=$statement->fetch(); $i++){
+			if($link_data_array['link_id'] != null){
+				$link_data[$i]['link_id'] = $link_data_array['link_id'];
+				$link_data[$i]['user_id'] = $link_data_array['user_id'];
+				$link_data[$i]['title'] = override\htmlentities($link_data_array['title']);
+				$link_data[$i]['created'] = $link_data_array['created'];
+				$link_data[$i]['NumberOfVotes'] = $link_data_array['NumberOfVotes'];
+				$link_data[$i]['rank'] = $link_data_array['rank'];
+				$link_data[$i]['rating'] = $link_data_array['rating'];
+				$link_data[$i]['username'] = $link_data_array['username'];
+			}
+		}
+		return $link_data;			   
+	}
 }
 ?>

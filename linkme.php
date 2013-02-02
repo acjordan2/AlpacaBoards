@@ -34,12 +34,16 @@ if($auth == TRUE){
 		if($link->doesExist()){
 			$link_data = $link->getLink();
 			$csrf = new CSRFGuard();
-			if(is_numeric($_GET['v']) && $_GET['v'] >= 0 && $_GET['v'] <= 10 && $link_data['user_id']!=$authUser->getUserID()){
+			if(is_numeric(@$_GET['v']) && @$_GET['v'] >= 0 && @$_GET['v'] <= 10 && $link_data['user_id']!=$authUser->getUserID()){
 				if($csrf->validateToken(@$_REQUEST['token'])){
 					$link->vote($_GET['v']);
 					$link_data = $link->getLink();
 					$smarty->assign("message", "Vote Added!");
 				}
+			}
+			if(@$_GET['f'] == 1 && $csrf->validateToken(@$_REQUEST['token'])){
+				if($link->addToFavorites())
+					$smarty->assign("message", "Added to Favorites!");
 			}
 			$messages = $link->getMessages();
 			$smarty->assign("link_data", $link_data);
@@ -51,7 +55,7 @@ if($auth == TRUE){
 			$display = "linkme.tpl";
 			require("includes/deinit.php");
 		}else require("404.php");
-	}elseif($link_id="random"){
+	}elseif($link_id=="random"){
 		$sql = "SELECT Links.link_id FROM Links WHERE Links.active=0";
 		$links = $db->query($sql);		
 		$links_data = $links->fetchAll();

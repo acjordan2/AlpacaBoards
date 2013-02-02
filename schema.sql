@@ -7,6 +7,8 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
+
+--
 -- Table structure for table `ArchivedMessages`
 --
 
@@ -153,6 +155,21 @@ CREATE TABLE IF NOT EXISTS `LinkCategories` (
   `name` text NOT NULL,
   PRIMARY KEY (`category_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `LinkFavorites`
+--
+
+CREATE TABLE IF NOT EXISTS `LinkFavorites` (
+  `link_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned NOT NULL,
+  `created` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`link_id`,`user_id`),
+  KEY `link_id` (`link_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -432,6 +449,13 @@ ALTER TABLE `InviteTree`
 --
 ALTER TABLE `Karma`
   ADD CONSTRAINT `Karma_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
+
+--
+-- Constraints for table `LinkFavorites`
+--
+ALTER TABLE `LinkFavorites`
+  ADD CONSTRAINT `LinkFavorites_ibfk_1` FOREIGN KEY (`link_id`) REFERENCES `Links` (`link_id`),
+  ADD CONSTRAINT `LinkFavorites_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
 
 --
 -- Constraints for table `LinkHistory`

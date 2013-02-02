@@ -29,17 +29,18 @@
     <b>Rank:</b> {$link_data.rank|string_format:"%.0f"}<br />
     <b>Share:</b> <a href="/ss.php?l={$link_data.code}">{$domain}/ss.php?l=SS{$link_data.code}</a><br /><br />
     <b>Categories:</b> {$link_data.categories}<br />
-    {if $user_id == $link_data.user_id}
-    <!--
     <b>Options:</b> <a href=
-    "https://links.endoftheinter.net/linkme.php?h=53178&amp;f=1&amp;l=332364">Add to
-    favorites</a> | <a href="/add.php?edit=$link_data.link_id">Edit
-    link</a> | <a href="/linkreport.php?l={$link_data.link_id}">Report
-    Link</a>--><br />
+    "./linkme.php?f=1&amp;l={$link_data.link_id}&amp;token={$token}">Add to
+    Favorites</a> | <a href="./linkreport.php?l={$link_data.link_id}">Report
+    Link</a>
+    {if $user_id == $link_data.user_id}
+    | <a href="/add.php?edit={$link_data.link_id}">Edit
+    link</a> 
     {else}
-    <b>Vote:</b> {for $i=0; $i<11; $i++}<a href="/linkme.php?l={$link_data.link_id}&v={$i}&token={$token}">{$i}</a> {/for}<br />
-   	<br /><b>{$message}</b><br />
+    <br /><br /><b>Vote:</b> {for $i=0; $i<11; $i++}<a href="./linkme.php?l={$link_data.link_id}&v={$i}&token={$token}">{$i}</a> {/for}<br />
+   	<br />{if isset($message)}<b>{$message}</b>{/if}<br />
     {/if}
+    <br />
     <br />
     <b>Description:</b> {$link_data.description}
 	<br />

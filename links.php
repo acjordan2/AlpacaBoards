@@ -27,8 +27,8 @@
 require("includes/init.php");
 require("includes/Link.class.php");
 if($auth == TRUE){
-	$links = new Link($db);
-	switch($_GET['mode']){
+	$links = new Link($db, $authUser->getUserID());
+	switch(@$_GET['mode']){
 		case "topvoted":
 			$order=1;
 			break;
@@ -41,7 +41,10 @@ if($auth == TRUE){
 		default:
 			$order=4;
 	}
-	$smarty->assign("links", $links->getLinkList($order));
+	if(@$_GET['mode']=="fav")
+			$smarty->assign("links", $links->getFavorites());
+	else
+		$smarty->assign("links", $links->getLinkList($order));
 	$display = "links.tpl";
 	require("includes/deinit.php");
 }else
