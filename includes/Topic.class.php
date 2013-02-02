@@ -96,7 +96,6 @@ class Topic{
 		$this->page_count = intval($topic_count/50);
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
-		print_r($statement->rowCount());
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
 
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
