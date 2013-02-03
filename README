@@ -1,0 +1,17 @@
+# REQUIREMENTS
+WebServer running PHP 5.3+
+MySQL
+Sphinx Search 
+*Note this has only been tested on Linux
+
+# INSTALLATION INSTRUCTIONS
+1. Extract Files and put them in your web directory
+2. Point your web root to /path/to/sper.gs/www
+3. Edit ./www/includes/Config.ini.php with your Database and Sphinx settings
+4. Edit ./sphinx/sphinx.conf with your database settings and config paths
+5. Import the schema.sql and baseline.sql files into your database
+	-baseline.sql contains the basic data to get the web app running since there is no installer at this point.
+		-The default user is admin with a password of password1, obviously change this after first login at ./editPass.php
+6. Run php ./sphinx/start_sphinx.
+
+*Please note that currently it is not possible to run this in a subdirectory. It should be located in your webroot. 
