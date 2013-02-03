@@ -48,10 +48,10 @@ if($auth == TRUE){
 		$mail->IsHTML(true);                                  // set email format to HTML
 
 		$mail->Subject = "You have been invited to Spergs";
-		$mail->Body    = "The user ".$authUser->getUsername()." has invited you to join Spergs and has specified this address ("
+		$mail->Body    = "The user ".$authUser->getUsername()." has invited you to join ".SITENAME." and has specified this address ("
 						  .$email.") as your email. If you do not know this person, please disregard.<br /><br />".
 						  "<br />To confirm your invite, click on the folowing link:<br /><br /> ".
-						  "http://sper.gs/register.php?code=$invite_code<br /><br />".
+						  "http://".DOMAIN."/register.php?code=$invite_code<br /><br />".
 						  "After you register, you will be able to use your account. Please take note that if you do not ".
 						  "use this invite in the next 3 days, it will expire.";
 		$mail->AltBody = "This is the body in plain text for non-HTML mail clients";
