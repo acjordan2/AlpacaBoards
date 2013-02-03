@@ -25,7 +25,7 @@
 
     <h1>Token Shop</h1>
 
-    <h2>You have <b>{$karma}</b> karma tokens available to spend</h2>
+    <h2>You have <b>{$credits}</b> credits tokens available to spend</h2>
 
     <table class="grid">
       <tr>

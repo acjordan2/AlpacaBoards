@@ -33,13 +33,15 @@ if($auth == TRUE){
 		$user_id=$_GET['user'];
 		
 	if(is_numeric($user_id)){
-			$profile_user = new User($db, $user_id);
-			if($profile_user->doesExist()){
+		$profile_user = new User($db, $user_id);
+		if($profile_user->doesExist()){
 			$smarty->assign("p_username", $profile_user->getUsername());
 			$smarty->assign("p_user_id", $profile_user->getUserID());
 			$smarty->assign("p_karma", $profile_user->getKarma());
 			$smarty->assign("good_karma", $profile_user->getGoodKarma());
 			$smarty->assign("bad_karma", $profile_user->getBadKarma());
+			$smarty->assign("contribution_karma", $profile_user->getContributionKarma());
+			$smarty->assign("credit", $profile_user->getCredits());
 			$smarty->assign("created", $profile_user->getAccountCreated());
 			$smarty->assign("last_active", $profile_user->getLastActive());
 			$smarty->assign("signature", override\htmlentities($profile_user->getSignature()));

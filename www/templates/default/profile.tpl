@@ -78,9 +78,15 @@
         <td><a href="links.php?mode=user&amp;userid={$p_user_id}&amp;type=3">Contribution
         Karma</a></td>
 
-        <td>0</td>
+        <td>{$contribution_karma}</td>
       </tr>
+	{if $user_id == $p_user_id}
+		<tr>
+        <td>Avaible Credits</td>
 
+        <td>{$credit}</td>
+      </tr>
+	{/if}
       <tr>
         <td>Account Created</td>
 

@@ -344,13 +344,17 @@ class User{
 	}
 	
 	public function getKarma(){
+		return ($this->getGoodKarma() + $this->getContributionKarma()) - $this->getBadKarma();
+	}
+	
+	public function getCredits(){
 		$sql = "SELECT SUM(Karma.value) as value1, (SELECT SUM(ShopTransactions.value) FROM ShopTransactions WHERE user_id=$this->user_id) as value2
 				FROM Karma 
 				WHERE Karma.user_id=$this->user_id
 				GROUP BY user_id";
 		$statement = $this->pdo_conn->query($sql);
 		$row = $statement->fetch();
-		return intval($row['value1']-$row['value2']);
+		return intval($row['value1']-$row['value2']) + $this->getContributionKarma();
 	}
 	
 	public function getGoodKarma(){
@@ -359,6 +363,17 @@ class User{
 	
 	public function getBadKarma(){
 		return 0;
+	}
+	
+	public function getContributionKarma(){
+		$sql = "SELECT SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank
+				FROM LinkVotes
+				LEFT JOIN Links USING (link_id)
+				WHERE Links.user_id = $this->user_id";
+		$statement = $this->pdo_conn->query($sql);
+		$rank = $statement->fetch();
+		$contributionKarma = (int)($rank[0]/30);
+		return $contributionKarma;
 	}
 	
 	private function getUserByID(){
@@ -662,8 +677,6 @@ class User{
 													 WHERE Inventory.user_id=$this->user_id
 													 AND ShopItems.item_id=5";
 		$statement = $this->pdo_conn->query($sql);
-		
-		
 		return $statement->fetchAll();
 	}
 	

@@ -30,14 +30,15 @@ require("includes/CSRFGuard.class.php");
 if($auth == TRUE){
 	$item_id = @$_GET['item'];
 	$shop = new Shop($db, $authUser->getUserID());
+	$smarty->assign("credits", $authUser->getCredits());
 	if(is_numeric($item_id)){
 		$item = $shop->getItem($item_id);
 		$smarty->assign("item", $item);
 		$csrf = new CSRFGuard();
 		$smarty->assign("csrf_token", $csrf->getToken());
-		if(@$_POST['submit'] == "Purchase" && is_numeric(@$_POST['item']) && $csrf->validateToken(@$_POST['token']) && $authUser->getKarma() > $item['price'])
+		if(@$_POST['submit'] == "Purchase" && is_numeric(@$_POST['item']) && $csrf->validateToken(@$_POST['token']) && $authUser->getCredits() > $item['price'])
 			if($shop->purchaseItem($item_id))
-				header("Location: /inventory.php");
+				header("Location: ./inventory.php");
 		$display = "item.tpl";
 	}
 	elseif($item_id != '')
