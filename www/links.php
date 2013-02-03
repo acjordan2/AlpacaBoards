@@ -44,7 +44,7 @@ if($auth == TRUE){
 	}
 	if(@$_GET['mode']=="fav")
 			$link_list = $links->getFavorites();
-	if(@$_GET['mode']=="search"){
+	elseif(@$_GET['mode']=="search"){
 		$display = "search.tpl";
 		if(isset($_GET['q']) && strlen(@$_GET['q']) >= 3){
 			require "includes/sphinxapi.php";
