@@ -552,6 +552,7 @@ class User{
 	
 	public static function getUserList(&$db, $page=1, $query=NULL){
 		$offset = 50 * ($page-1);
+		$user_search  = "";
 		if(!is_null($query)){
 			if(strlen($query) == 1)
 				$query = str_replace("%", "", $query);
