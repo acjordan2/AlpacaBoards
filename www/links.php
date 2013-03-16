@@ -46,6 +46,7 @@ if($auth == TRUE){
 			$link_list = $links->getFavorites();
 	elseif(@$_GET['mode']=="search"){
 		$display = "search.tpl";
+		$link_list = "";
 		if(isset($_GET['q']) && strlen(@$_GET['q']) >= 3){
 			require "includes/sphinxapi.php";
 			$sp = new SphinxClient();
