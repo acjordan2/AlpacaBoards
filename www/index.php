@@ -25,6 +25,7 @@
  */
 require("includes/init.php");
 if($auth == FALSE){
+	$message = "";
 	$display = "login.tpl";
 	if(@$_GET['m'] == 1)
 		$message = "Аккаунтом Созданный";

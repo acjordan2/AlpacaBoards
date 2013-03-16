@@ -6,7 +6,7 @@
 
 	</head>
 	<body onload="document.getElementsByTagName('input')[0].focus();">
-		{$message}<br />
+		{if $message != NULL}{$message}{/if}<br />
 		<br />
 		<form action="" method="POST" autocomplete="off">
 		  <fieldset style="width:250px;">

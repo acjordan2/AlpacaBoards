@@ -34,15 +34,23 @@ if($auth == TRUE){
 	if(isset($_POST['title']) && isset($_POST['description']) && isset($_POST['token'])){
 		if(TRUE){
 				$error_msg = "";
-				if(isset($_POST['lurl']))
+				if(isset($_POST['lurl'])){
 						if(!override\validateURL($_POST['lurl']))
 							$error_msg = "Please enter a valid URL<br />";
 						elseif($links->checkURLExist($_POST['lurl']))
 							$error_msg = "A link with that URL already exists";
-				if(strlen($_POST['title']) < 5 || strlen($_POST['title'] > 80))
-					$error_msg .= "The title must be between 5 and 80<br />";
-				if(strlen($_POST['description']) < 5)
-					$error_msg .= "Description must be long than 5 characters<br />";
+					$smarty->assign("lurl", override\htmlentities($_POST['lurl']));
+				}
+				if(isset($_POST['title'])){
+					$smarty->assign("title", override\htmlentities($_POST['title']));
+					if(strlen($_POST['title']) < 5 || strlen($_POST['title'] > 80))
+						$error_msg .= "The title must be between 5 and 80<br />";
+				}
+				if(isset($_POST['description'])){
+					$smarty->assign("description", override\htmlentities($_POST['description']));
+					if(strlen($_POST['description']) < 5)
+						$error_msg .= "Description must be long than 5 characters<br />";
+				}
 				if($error_msg=="")
 					if($links->addLink($_REQUEST))
 						header("Location: /linkme.php?l=".$links->getLinkID());
