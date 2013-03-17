@@ -288,7 +288,6 @@ class Link{
 				}			
 			}
 		}
-		print_r($cats);
 		$sql = "INSERT INTO Links (user_id, title, url, description, created)
 			VALUES($this->user_id, ?, ?, ?, ".time().")";
 		$statement = $this->pdo_conn->prepare($sql);
@@ -299,6 +298,35 @@ class Link{
 						VALUES($this->link_id, ".$cats[$i].")";
 			$statement2 = $this->pdo_conn->query($sql2);
 		}
+		return true;
+	}
+	
+	public function updateLink($request){
+		$allowed_categories = self::getCategories($this->pdo_conn);
+		if(is_null(@$request['lurl']))
+			$request['lurl'] = "";
+		$k = 0;
+		for($i=0; $i<sizeof($allowed_categories); $i++){
+			if(isset($request[$allowed_categories[$i][0]])){
+				if($request[$allowed_categories[$i][0]] == 1){
+					 $cats[$k] = $allowed_categories[$i][1];
+					 $k++;
+					 print($k);
+				}			
+			}
+		}
+		$sql = "UPDATE Links SET Links.title=?, Links.url=?, Links.description=?
+			 WHERE Links.user_id=".$this->user_id." AND Links.link_id=?";
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($request['title'], $request['lurl'], $request['description'], $this->link_id));
+		/**
+		$this->link_id = $this->pdo_conn->lastInsertId();
+		for($i=0; $i<sizeof($cats); $i++){
+			$sql2 = "INSERT INTO LinksCategorized (link_id, category_id)
+						VALUES($this->link_id, ".$cats[$i].")";
+			$statement2 = $this->pdo_conn->query($sql2);
+		}
+		**/
 		return true;
 	}
 	

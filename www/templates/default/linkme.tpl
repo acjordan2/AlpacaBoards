@@ -34,7 +34,7 @@
     Favorites</a> | <a href="./linkreport.php?l={$link_data.link_id}">Report
     Link</a>
     {if $user_id == $link_data.user_id}
-    | <a href="/add.php?edit={$link_data.link_id}">Edit
+    | <a href="/addlink.php?edit={$link_data.link_id}">Edit
     link</a> 
     {else}
     <br /><br /><b>Vote:</b> {for $i=0; $i<11; $i++}<a href="./linkme.php?l={$link_data.link_id}&v={$i}&token={$token}">{$i}</a> {/for}<br />

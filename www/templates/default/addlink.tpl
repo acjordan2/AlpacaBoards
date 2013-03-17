@@ -22,7 +22,7 @@
 
 <h1>Add teh link!</h1>
 <br />
-<form action="/addlink.php" method="POST">
+<form action="/addlink.php{if isset($link_edit)}?edit={$link_id}{/if}" method="POST">
 <input type="hidden" name="token" value="{$token}">
 {if isset($error)}
 <span style="color: #ff0000;"><b>Error:</b> {$error}</span><br /><br />
