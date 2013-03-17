@@ -91,8 +91,8 @@ class Link{
 		$statement = $this->pdo_conn->prepare($sql);
 		$statement->execute(array($this->link_id));
 		if($statement->rowCount() == 1){
-			$sql2 = "SELECT LinkCategories.name FROM LinksCategorized JOIN LinkCategories ON (LinksCategorized.link_cat_id = LinkCategories.category_id)
-						WHERE LinksCategorized.link_id = ?";
+			$sql2 = "SELECT LinkCategories.name FROM LinksCategorized 
+						JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)  WHERE LinksCategorized.link_id = ?";
 			$statement2 = $this->pdo_conn->prepare($sql2);
 			$statement2->execute(array($this->link_id));
 
@@ -111,6 +111,7 @@ class Link{
 			while($cats = $statement2->fetch()){
 				$row['categories'] .=  $cats['name'].", ";
 			}
+			$row['categories'] = substr($row['categories'], 0, (strlen($row['categories'])-2));
 			return $row;
 		}
 		else
@@ -275,17 +276,19 @@ class Link{
 	
 	public function addLink($request){
 		$allowed_categories = self::getCategories($this->pdo_conn);
-		if(is_null($request['lurl']))
+		if(is_null(@$request['lurl']))
 			$request['lurl'] = "";
+		$k = 0;
 		for($i=0; $i<sizeof($allowed_categories); $i++){
-			$k = 0;
 			if(isset($request[$allowed_categories[$i][0]])){
 				if($request[$allowed_categories[$i][0]] == 1){
 					 $cats[$k] = $allowed_categories[$i][1];
 					 $k++;
+					 print($k);
 				}			
 			}
 		}
+		print_r($cats);
 		$sql = "INSERT INTO Links (user_id, title, url, description, created)
 			VALUES($this->user_id, ?, ?, ?, ".time().")";
 		$statement = $this->pdo_conn->prepare($sql);
