@@ -1,6 +1,6 @@
 <?php
 /*
- * links.php
+ * linkme.php
  * 
  * Copyright (c) 2012 Andrew Jordan
  * 
