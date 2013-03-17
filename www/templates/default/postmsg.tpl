@@ -44,7 +44,7 @@ Save The Internet - http://act2.freepress.net/letter/two_million/
 		  <b>The rules:</b> Don't be an ass hat. I will ban
 	  </span><br />
       <br />
-      {if $new_topic == TRUE}
+      {if isset($new_topic)}
       To create a new topic, enter a title for the topic below and create the first message.<br />
 		<input type="text" name="title" value="" maxlength="80" size="60" /><br />
     (Between 5 and 80 characters in length)<br /><br />
@@ -63,12 +63,12 @@ Save The Internet - http://act2.freepress.net/letter/two_million/
       <br />
       <input type="hidden" name="topic" value="{$topic_id}" />
       {/if}
-     {if $message_id != NULL}<input type="hidden" name="id" value="{$message_id}" />{/if}
+     {if isset($message_id)}<input type="hidden" name="id" value="{$message_id}" />{/if}
       <input type="hidden" name="board" value="{$board_id}" /> 
       <b>Your Message</b><br />
       Enter your message text below.<br />
       <textarea cols="100" rows="20" name="message" id="message">
-{if $e_message != NULL}{$e_message}{elseif $quote == TRUE}<quote msgid="t,{$quote_topic},{$quote_id}@{$quote_revision}">{$quote_message}</quote>{$signature}{else}{$signature}{/if}</textarea><br />
+{if $e_message != NULL}{$e_message}{elseif isset($quote)}<quote msgid="t,{$quote_topic},{$quote_id}@{$quote_revision}">{$quote_message}</quote>{$signature}{else}{$signature}{/if}</textarea><br />
       <br />
 
       <div>
