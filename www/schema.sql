@@ -1,3 +1,12 @@
+-- phpMyAdmin SQL Dump
+-- version 3.4.10.1deb1
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Mar 17, 2013 at 03:19 PM
+-- Server version: 5.5.29
+-- PHP Version: 5.3.10-1ubuntu3.5
+
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -7,6 +16,11 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
+--
+-- Database: `spergs2`
+--
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `ArchivedMessages`
@@ -22,6 +36,14 @@ CREATE TABLE IF NOT EXISTS `ArchivedMessages` (
   KEY `user_id` (`user_id`),
   KEY `topic_id` (`topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `ArchivedMessages`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `topic_id`
+--       `ArchivedTopics` -> `topic_id`
+--
 
 -- --------------------------------------------------------
 
@@ -39,6 +61,14 @@ CREATE TABLE IF NOT EXISTS `ArchivedTopics` (
   KEY `user_id` (`user_id`),
   KEY `board_id` (`board_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `ArchivedTopics`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `board_id`
+--       `Boards` -> `board_id`
+--
 
 -- --------------------------------------------------------
 
@@ -67,6 +97,12 @@ CREATE TABLE IF NOT EXISTS `Boards` (
   KEY `category_id` (`category_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `Boards`:
+--   `category_id`
+--       `BoardCategories` -> `category_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -81,6 +117,14 @@ CREATE TABLE IF NOT EXISTS `Inventory` (
   KEY `user_id` (`user_id`),
   KEY `transaction_id` (`transaction_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `Inventory`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `transaction_id`
+--       `ShopTransactions` -> `transaction_id`
+--
 
 -- --------------------------------------------------------
 
@@ -97,6 +141,12 @@ CREATE TABLE IF NOT EXISTS `InviteCodes` (
   PRIMARY KEY (`invite_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `InviteCodes`:
+--   `user_id`
+--       `Users` -> `user_id`
+--
 
 -- --------------------------------------------------------
 
@@ -116,6 +166,14 @@ CREATE TABLE IF NOT EXISTS `InviteTree` (
   KEY `Invited_user` (`Invited_user`),
   KEY `invite_code` (`invite_code`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `InviteTree`:
+--   `invited_by`
+--       `Users` -> `user_id`
+--   `Invited_user`
+--       `Users` -> `user_id`
+--
 
 -- --------------------------------------------------------
 
@@ -144,6 +202,12 @@ CREATE TABLE IF NOT EXISTS `Karma` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `Karma`:
+--   `user_id`
+--       `Users` -> `user_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -171,6 +235,14 @@ CREATE TABLE IF NOT EXISTS `LinkFavorites` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `LinkFavorites`:
+--   `link_id`
+--       `Links` -> `link_id`
+--   `user_id`
+--       `Users` -> `user_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -186,6 +258,14 @@ CREATE TABLE IF NOT EXISTS `LinkHistory` (
   UNIQUE KEY `link_id` (`link_id`,`user_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `LinkHistory`:
+--   `link_id`
+--       `Links` -> `link_id`
+--   `user_id`
+--       `Users` -> `user_id`
+--
 
 -- --------------------------------------------------------
 
@@ -205,6 +285,14 @@ CREATE TABLE IF NOT EXISTS `LinkMessages` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `LinkMessages`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `link_id`
+--       `Links` -> `link_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -223,6 +311,12 @@ CREATE TABLE IF NOT EXISTS `Links` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `Links`:
+--   `user_id`
+--       `Users` -> `user_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -237,6 +331,39 @@ CREATE TABLE IF NOT EXISTS `LinksCategorized` (
   KEY `link_id` (`link_id`,`category_id`),
   KEY `category_id` (`category_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `LinksCategorized`:
+--   `link_id`
+--       `Links` -> `link_id`
+--   `category_id`
+--       `LinkCategories` -> `category_id`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `LinksReported`
+--
+
+CREATE TABLE IF NOT EXISTS `LinksReported` (
+  `report_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) unsigned NOT NULL,
+  `link_id` int(11) unsigned NOT NULL,
+  `reason` varchar(1024) NOT NULL,
+  `created` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`report_id`),
+  KEY `link_id` (`link_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `LinksReported`:
+--   `link_id`
+--       `Links` -> `link_id`
+--   `user_id`
+--       `Users` -> `user_id`
+--
 
 -- --------------------------------------------------------
 
@@ -253,6 +380,14 @@ CREATE TABLE IF NOT EXISTS `LinkVotes` (
   KEY `user_id` (`user_id`),
   KEY `link_id` (`link_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `LinkVotes`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `link_id`
+--       `Links` -> `link_id`
+--
 
 -- --------------------------------------------------------
 
@@ -272,6 +407,14 @@ CREATE TABLE IF NOT EXISTS `Messages` (
   KEY `topic_id` (`topic_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `Messages`:
+--   `topic_id`
+--       `Topics` -> `topic_id`
+--   `user_id`
+--       `Users` -> `user_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -290,6 +433,12 @@ CREATE TABLE IF NOT EXISTS `Sessions` (
   PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `Sessions`:
+--   `user_id`
+--       `Users` -> `user_id`
+--
 
 -- --------------------------------------------------------
 
@@ -324,6 +473,14 @@ CREATE TABLE IF NOT EXISTS `ShopTransactions` (
   KEY `item_id` (`item_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `ShopTransactions`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `item_id`
+--       `ShopItems` -> `item_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -340,6 +497,14 @@ CREATE TABLE IF NOT EXISTS `StickiedTopics` (
   KEY `topic_id` (`topic_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `StickiedTopics`:
+--   `topic_id`
+--       `Topics` -> `topic_id`
+--   `user_id`
+--       `Users` -> `user_id`
+--
 
 -- --------------------------------------------------------
 
@@ -358,6 +523,16 @@ CREATE TABLE IF NOT EXISTS `TopicHistory` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- RELATIONS FOR TABLE `TopicHistory`:
+--   `topic_id`
+--       `Topics` -> `topic_id`
+--   `user_id`
+--       `Users` -> `user_id`
+--   `message_id`
+--       `Messages` -> `message_id`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -374,6 +549,14 @@ CREATE TABLE IF NOT EXISTS `Topics` (
   KEY `user_id` (`user_id`),
   KEY `board_id` (`board_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- RELATIONS FOR TABLE `Topics`:
+--   `user_id`
+--       `Users` -> `user_id`
+--   `board_id`
+--       `Boards` -> `board_id`
+--
 
 -- --------------------------------------------------------
 
@@ -483,6 +666,13 @@ ALTER TABLE `Links`
 ALTER TABLE `LinksCategorized`
   ADD CONSTRAINT `LinksCategorized_ibfk_2` FOREIGN KEY (`link_id`) REFERENCES `Links` (`link_id`),
   ADD CONSTRAINT `LinksCategorized_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `LinkCategories` (`category_id`);
+
+--
+-- Constraints for table `LinksReported`
+--
+ALTER TABLE `LinksReported`
+  ADD CONSTRAINT `LinksReported_ibfk_2` FOREIGN KEY (`link_id`) REFERENCES `Links` (`link_id`),
+  ADD CONSTRAINT `LinksReported_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
 
 --
 -- Constraints for table `LinkVotes`

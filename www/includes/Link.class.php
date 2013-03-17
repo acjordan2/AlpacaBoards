@@ -405,5 +405,13 @@ class Link{
 		$statement->execute(array($aLink_id));
 		return $statement->fetch();
 	}
+	
+	public function reportLink($request){
+		$sql = "INSERT INTO LinksReported (user_id, link_id, reason, created)
+			VALUES(".$this->user_id.", ?, ?, ".time().")";
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->link_id, $request));
+		return 1;
+	}
 }
 ?>
