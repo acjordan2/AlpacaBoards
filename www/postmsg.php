@@ -35,9 +35,6 @@ if($auth == TRUE){
 	$csrf = new CSRFGuard();
 	$smarty->assign("token", $csrf->getToken());
 	if(is_numeric(@$_REQUEST['topic'])){
-		$smarty->assign("preview_message", FALSE);
-		$smarty->assign("quote", FALSE);
-		$smarty->assign("new_topic", FALSE);
 		$topic_id = intval($_REQUEST['topic']);
 		$topic = new Topic($db, $topic_id, $authUser->getUserID());
 		if(!$topic->doesExist())
@@ -143,7 +140,6 @@ if($auth == TRUE){
 	}
     elseif(is_numeric(@$_REQUEST['board'])){
 	   $smarty->assign("preview_message", FALSE);
-	   $smarty->assign("quote", FALSE);
 	   $smarty->assign("new_topic", TRUE);
 	   $smarty->assign("board_id", intval($_REQUEST['board']));
 	   $smarty->assign("signature", "\n---\n".override\htmlentities($authUser->getSignature()));
