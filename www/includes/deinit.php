@@ -27,6 +27,7 @@
 $time = explode(' ', microtime());
 $load_time = round(($time[1] + $time[0]) - $start, 4);
 $smarty->assign("load_time", $load_time);
+$smarty->assign("page_title", $page_title);
 $smarty->display($display);
 exit();
 ?>

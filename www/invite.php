@@ -40,14 +40,14 @@ if($auth == TRUE){
 		
 		$mail = new PHPMailer();
 		$email = $_POST['email'];
-		$mail->From = "no-reply@sper.gs";
+		$mail->From = "no-reply@".DOMAIN;
 		$mail->FromName = "Do Not Reply";
 		$mail->AddAddress($email);
 
 		$mail->WordWrap = 50;                                 // set word wrap to 50 characters
 		$mail->IsHTML(true);                                  // set email format to HTML
 
-		$mail->Subject = "You have been invited to Spergs";
+		$mail->Subject = "You have been invited to ".SITENAME;
 		$mail->Body    = "The user ".$authUser->getUsername()." has invited you to join ".SITENAME." and has specified this address ("
 						  .$email.") as your email. If you do not know this person, please disregard.<br /><br />".
 						  "<br />To confirm your invite, click on the folowing link:<br /><br /> ".

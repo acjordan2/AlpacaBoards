@@ -27,7 +27,15 @@
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
 
-set_include_path(get_include_path().PATH_SEPARATOR.$_SERVER['DOCUMENT_ROOT']."/includes/smarty");
+$root_path_array = explode("/", dirname(__FILE__));
+$root_path = "";
+
+for($i=0; $i<sizeof($root_path_array)-1; $i++){
+	$root_path .= $root_path_array[$i]."/";
+}
+$root_path = substr($root_path, 0, strlen($root_path)-1);
+
+set_include_path(get_include_path().PATH_SEPARATOR.$root_path."/includes/smarty");
 
 ##Database Settings
 define("DATABASE_TYPE", "mysql");
@@ -37,7 +45,7 @@ define("DATABASE_USER", "");
 define("DATABASE_PASS", "");
 
 ##Sitewide Settings
-define("DOMAIN", "127.0.1.1");
+define("DOMAIN", "localhost");
 define("SITENAME", "Sper.gs");
 
 ##Search Settings
@@ -95,10 +103,10 @@ define("AUTH_KEY1", "sessionid");
 define("AUTH_KEY2", "sessionkey");
 
 ##Template Engine Variables
-define("TEMPLATE_DIR", $_SERVER['DOCUMENT_ROOT']."/templates");
-define("TEMPLATE_CACHE", $_SERVER['DOCUMENT_ROOT']."/includes/smarty/cache");
-define("TEMPLATE_CONFIG", $_SERVER['DOCUMENT_ROOT']."/includes/smarty/configs");
-define("TEMPLATE_COMPILE", $_SERVER['DOCUMENT_ROOT']."/includes/smarty/templates_c");
+define("TEMPLATE_DIR", $root_path."/templates");
+define("TEMPLATE_CACHE", $root_path."/includes/smarty/cache");
+define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
+define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");
 define("DATE_FORMAT", "%m/%d/%Y %H:%M:%S");
 
 ?>

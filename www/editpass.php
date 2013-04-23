@@ -66,7 +66,7 @@ if($auth == TRUE){
 			if(!$authUser->changePassword($_POST['old'], $new))
 					$error = 4;
 					
-		header("Location: /editpass.php?error=$error");
+		header("Location: ./editpass.php?error=$error");
 
 	}
 	$display = "editpass.tpl";

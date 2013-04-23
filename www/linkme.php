@@ -53,6 +53,7 @@ if($auth == TRUE){
 			$smarty->assign("p_signature", override\htmlentities($authUser->getSignature()));
 			$smarty->assign("token", $csrf->getToken());
 			$display = "linkme.tpl";
+			$page_title = $link_data['title'];
 			require("includes/deinit.php");
 		}else require("404.php");
 	}elseif($link_id=="random"){

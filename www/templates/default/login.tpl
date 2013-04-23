@@ -21,6 +21,6 @@
 		  </fieldset>
 		</form>
 		<br />
-		<a href="/register.php">Создать Логин</a> | <a href="/passwordReset.php">Забыли пароль</a>
+		<a href="./register.php">Создать Логин</a> | <a href="./passwordReset.php">Забыли пароль</a>
 	</body>
 </html>

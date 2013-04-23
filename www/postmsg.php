@@ -29,8 +29,11 @@ require("includes/Board.class.php");
 require("includes/Topic.class.php");
 require("includes/Message.class.php");
 require("includes/Link.class.php");
+require("includes/CSRFGuard.class.php");
 
 if($auth == TRUE){
+	$csrf = new CSRFGuard();
+	$smarty->assign("token", $csrf->getToken());
 	if(is_numeric(@$_REQUEST['topic'])){
 		$smarty->assign("preview_message", FALSE);
 		$smarty->assign("quote", FALSE);
@@ -70,17 +73,18 @@ if($auth == TRUE){
 			require("404.php");
 			
 		if(@$_POST['preview'] == "Preview Message"){
-			print $message_id;
 			$smarty->assign("preview_message", TRUE);
 			$message = new Message($db, 13);
 			$smarty->assign("p_message", override\makeURL($message->formatComments(override\closeTags(str_replace("\n", "<br/>", override\htmlentities($_POST['message'], $allowed_tags))))));
 		}
 		elseif(@$_POST['submit'] == "Post Message"){
-			if(is_numeric($message_id))
-				$message_id = intval(@$_REQUEST['id']);
-			if($topic->postMessage($_POST['message'], $message_id)){
-				$topic->getMessages();
-				header("Location: /showmessages.php?board=".$board_id."&topic=".$topic_id."&page=".$topic->getPageCount());
+			if($csrf->validateToken($_REQUEST['token'])){			
+				if(is_numeric($message_id))
+					$message_id = intval(@$_REQUEST['id']);
+				if($topic->postMessage($_POST['message'], $message_id)){
+					$topic->getMessages();
+					header("Location: ./showmessages.php?board=".$board_id."&topic=".$topic_id."&page=".$topic->getPageCount());
+				}
 			}
 		}
 		if(!is_null(@$_POST['message']))
@@ -127,10 +131,12 @@ if($auth == TRUE){
 			$smarty->assign("p_message", override\makeURL($message->formatComments(override\closeTags(str_replace("\n", "<br/>", override\htmlentities($_POST['message'], $allowed_tags))))));
 		}
 		elseif(@$_POST['submit'] == "Post Message"){
-			if(is_numeric($message_id))
-				$message_id = intval(@$_REQUEST['id']);
-			if($link->postMessage($_POST['message'], $message_id))
-				header("Location: /linkme.php?l=".$link_id);
+			if($csrf->validateToken($_REQUEST['token'])){			
+				if(is_numeric($message_id))
+					$message_id = intval(@$_REQUEST['id']);
+				if($link->postMessage($_POST['message'], $message_id))
+					header("Location: ./linkme.php?l=".$link_id);
+			}
 		}
 		if(!is_null(@$_POST['message']))
 			$smarty->assign("e_message", (override\htmlentities(@$_POST['message'])));
@@ -156,7 +162,7 @@ if($auth == TRUE){
 			   $board = new Board($db, intval($_REQUEST['board']), $authUser->getUserID());
 			   $newTopic = $board->createTopic(trim($_POST['title']), @$_POST['message']);
 			   if($newTopic)
-					header("Location: /showmessages.php?board=".intval($_REQUEST['board_id'])."&topic=".$newTopic);
+					header("Location: ./showmessages.php?board=".intval($_REQUEST['board_id'])."&topic=".$newTopic);
 		   }
 	   }
    }
@@ -165,6 +171,6 @@ if($auth == TRUE){
 }
 else
 	require("404.php");
-
+$page_title = "Post Message";
 require("includes/deinit.php");
 ?>

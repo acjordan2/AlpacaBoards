@@ -27,6 +27,7 @@
 require("includes/init.php");
 require("includes/Link.class.php");
 if($auth == TRUE){
+	$page_title = "Links";
 	$display = "links.tpl";
 	$links = new Link($db, $authUser->getUserID());
 	switch(@$_GET['mode']){
@@ -72,6 +73,7 @@ if($auth == TRUE){
 			}
 			$link_list = $link_data;
 			$display = "links.tpl";
+			$page_title = "Links";
 		}
 	}
 	else

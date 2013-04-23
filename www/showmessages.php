@@ -84,6 +84,7 @@ if($auth == TRUE){
 			$smarty->assign("token", $csrf->getToken());
 			$smarty->assign("action", $authUser->checkInventory(1));
 			$display = "showmessages.tpl";
+			$page_title = $topic->getTopicTitle();
 			require("includes/deinit.php");
 		}
 		else

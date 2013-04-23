@@ -6,7 +6,7 @@
 	<body>
 		<h1>Register</h1>
 		<br />
-		{$message}
+		{if isset($message)}{$message}{/if}
 		<br />
 		<br />
 		<form action="" method="POST" autocomplete="OFF">
@@ -14,7 +14,7 @@
 			<legend><small>Enter your details:</small></legend>
 			<br />
 			<input type="hidden" name="token" value="{$token}" />
-			{if $invite==1}<input type="hidden" name="invite_code" value="{$invite_code}" />{/if}
+			{if isset($invite)}<input type="hidden" name="invite_code" value="{$invite_code}" />{/if}
 			Desired Username:<br />
 			<input type="text" name="username" style="width:100%;" />
 			<br /><br />
@@ -27,7 +27,7 @@
 			Password (Again):<br />
 			<input type="password" name="password2" style="width:100%;" />
 			<br /><br />
-			{if $invite!=1}Invite Code:<br />
+			{if !isset($invite)}Invite Code:<br />
 			<input type="text" name="invite_code" style="width:100%;" />
 			<br /><br />{/if}
 			<input type="submit" value="Register">

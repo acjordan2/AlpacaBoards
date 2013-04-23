@@ -1,5 +1,6 @@
 # REQUIREMENTS
 WebServer running PHP 5.3+
+php5-curl (for ETI username check)
 MySQL
 Sphinx Search 
 *Note this has only been tested on Linux

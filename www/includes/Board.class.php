@@ -113,7 +113,7 @@ class Board{
 					LEFT JOIN TopicHistory Using(topic_id)
 					WHERE Messages.topic_id=? AND Messages.message_id > TopicHistory.message_id AND TopicHistory.user_id=$this->user_id";
 		$statement2 = $this->pdo_conn->prepare($sql2);
-		
+		$topic_data = array();
 		for($i=0; $topic_data_array = $statement->fetch(); $i++){
 			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
 			$topic_data[$i]['posted'] = $topic_data_array['posted'];
@@ -187,7 +187,7 @@ class Board{
 			LEFT JOIN TopicHistory Using(topic_id)
 			WHERE Messages.topic_id=? AND Messages.message_id > TopicHistory.message_id AND TopicHistory.user_id=$this->user_id";
 		$statement2 = $this->pdo_conn->prepare($sql2);
-		
+		$topic_data = array();
 		for($i=0; $topic_data_array = $statement->fetch(); $i++){
 			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
 			$topic_data[$i]['posted'] = $topic_data_array['posted'];

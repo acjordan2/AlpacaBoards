@@ -27,6 +27,7 @@ require("includes/init.php");
 require("includes/PHPMailer.class.php");
 if($auth == FALSE){
 	$display = "forgotPassword.tpl";
+	$page_title = "Forgot Password";
 	$message = "";
 	if(@$_GET['m'] == 1)
 		$message = "Аккаунтом Созданный";

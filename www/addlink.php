@@ -60,7 +60,7 @@ if($auth == TRUE){
 					if($error_msg==""){
 						if($csrf->validateToken($_POST['token'])){
 							if($link_edit->updateLink($_REQUEST))
-								header("Location: /linkme.php?l=".$link_edit->getLinkID());
+								header("Location: ./linkme.php?l=".$link_edit->getLinkID());
 						}else
 							$error_msg = "There was a problem processing your request. Please try again";
 					}
@@ -95,7 +95,7 @@ if($auth == TRUE){
 					if($error_msg==""){
 						if($csrf->validateToken($_POST['token'])){
 							if($links->addLink($_REQUEST))
-								header("Location: /linkme.php?l=".$links->getLinkID());
+								header("Location: ./linkme.php?l=".$links->getLinkID());
 						}else
 							$error_msg = "There was a problem processing your request. Please try again";
 					}
@@ -106,6 +106,7 @@ if($auth == TRUE){
 	$smarty->assign("categories", Link::getCategories($db));
 	$smarty->assign("token", $csrf->getToken());
 	$display = "addlink.tpl";
+	$page_title = "Add Link";
 	require("includes/deinit.php");
 }else
 	require("404.php");

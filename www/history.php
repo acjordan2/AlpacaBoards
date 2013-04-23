@@ -28,6 +28,7 @@ require("includes/init.php");
 require("includes/Board.class.php");
 if($auth == TRUE){
 	$smarty->assign("topicList", $authUser->getCommentHistory());
+	$page_title = "Message History";
 	$display = "history.tpl";
 	require("includes/deinit.php");
 }

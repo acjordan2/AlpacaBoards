@@ -11,7 +11,7 @@
 		<br /> 
 		 <fieldset style="width:250px;">
 			<br />
-			{if $change == TRUE}
+			{if isset($change)}
 			Пароль:	
 			<input type="password" name="new" value="" style="width:100%" />
 			Подтвердите пароль:
@@ -25,6 +25,6 @@
 		  </fieldset>
 		</form>
 		<br />
-		<a href="/register.php">Создать Логин</a>
+		<a href="./register.php">Создать Логин</a>
 	</body>
 </html>

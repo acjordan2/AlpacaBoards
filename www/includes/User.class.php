@@ -690,15 +690,15 @@ class User{
 			WHERE Messages.user_id=$this->user_id AND Messages.revision_no=0
 			GROUP BY Topics.topic_id ORDER BY Messages.posted DESC";
 		$statement = $this->pdo_conn->query($sql);
-		for($i=0; $topic_data_array = $statement->fetch(); $i++){
-			
+		$topic_data = array();
+		for($i=0; $topic_data_array = $statement->fetch(); $i++){	
 			$topic_data[$i]['board_title'] = $topic_data_array['board_title'];
 			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
 			$topic_data[$i]['u_last_posted'] = $topic_data_array['u_last_posted'];
-			$topic_data[$i]['last_post'] = $topic_data_array['last_post'];
+			//$topic_data[$i]['last_post'] = $topic_data_array['last_post'];
 			$topic_data[$i]['title'] = override\htmlentities($topic_data_array['title']);
-			$topic_data[$i]['username'] = $topic_data_array['username'];
-			$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
+			//$topic_data[$i]['username'] = $topic_data_array['username'];
+			//$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
 			
 			$sql2 = "SELECT MAX(Messages.posted) as last_post FROM Messages
 						WHERE Messages.topic_id=".$topic_data_array['topic_id'].
@@ -723,8 +723,8 @@ class User{
 			**/
 			$topic_data[$i]['last_post'] = $last_post[0][0];
 			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
-			$topic_data[$i]['history'] = $history_count[0]['count'];
-			$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+			//$topic_data[$i]['history'] = $history_count[0]['count'];
+			//$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
 
 													
 		}

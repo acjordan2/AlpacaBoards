@@ -30,6 +30,7 @@ if($auth == TRUE){
 	$inventory = $authUser->getInventory();
 	$smarty->assign("inventory", $inventory);
 	$display = "inventory.tpl";
+	$page_title = "Inventory";
 	require("includes/deinit.php");
 }else
 	require("404.php");

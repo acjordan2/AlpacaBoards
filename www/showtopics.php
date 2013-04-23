@@ -40,6 +40,7 @@ if($auth == TRUE){
 	if($current_page == 1)
 		$sticky_list = $board->getStickiedTopics();
 	$display = "showtopics.tpl";
+	$page_title = $board->getTitle();
 	$smarty->assign("topicList", $topic_list);
 	$smarty->assign("stickyList",$sticky_list);
 	$smarty->assign("username", $authUser->getUsername());

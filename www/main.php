@@ -32,10 +32,10 @@ if($auth == TRUE){
 	//$display = "main.tpl";
 	//$myBoard = new Board($db, 1, $authUser->getUserID());
 	//$myBoard->getTopics(0,0, $authUser->getUserID());
-	header("Location: /showtopics.php?board=42");
+	header("Location: ./showtopics.php?board=42");
 }
 else
-	header("Location: /?r=main.php");
+	header("Location: ./?r=main.php");
 
 //require("includes/deinit.php");
 ?>

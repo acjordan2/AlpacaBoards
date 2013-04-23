@@ -67,7 +67,7 @@ class Link{
 				$where 
 				GROUP BY link_id ORDER BY $order";
 		$statement = $this->pdo_conn->query($sql);
-		//$link_data = array();
+		$link_data = array();
 		for($i=0; $link_data_array=$statement->fetch(); $i++){
 			if($link_data_array['link_id'] != null){
 				$link_data[$i]['link_id'] = $link_data_array['link_id'];
@@ -377,6 +377,7 @@ class Link{
 				WHERE LinkFavorites.user_id = $this->user_id
 				GROUP BY link_id";
 		$statement = $this->pdo_conn->query($sql);
+		$link_data = array();
 		for($i=0; $link_data_array=$statement->fetch(); $i++){
 			if($link_data_array['link_id'] != null){
 				$link_data[$i]['link_id'] = $link_data_array['link_id'];

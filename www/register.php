@@ -54,7 +54,7 @@ if(isset($_POST['username']) && isset($_POST['email']) &&
 					$error_msg = "Invalid invite code. Invite codes are case sensitive<br />";
 					break;
 				case 1:
-					header("Location: /index.php?m=1");
+					header("Location: ./index.php?m=1");
 					break;
 			}
 		}
@@ -63,5 +63,6 @@ if(isset($_POST['username']) && isset($_POST['email']) &&
 }
 $smarty->assign("token", $csrf->getToken());
 $display = "register.tpl";
+$page_title = "Register";
 require("includes/deinit.php");
 ?>
