@@ -1,6 +1,6 @@
 {include file="header.tpl"}
 	<h1>Post Message</h1>
-{if $preview_message == TRUE}
+{if isset($preview_message)}
 	<form action="postmsg.php" method="post">
 		<input type="hidden" name="message" value="$p_message" />
     		<input type="hidden" name="h" value="{$token}" />
@@ -24,7 +24,7 @@
 			To create a new topic, enter a title for the topic below and create the first message.<br />
 			<input type="text" name="title" value="" maxlength="80" size="60" /><br />
 			(Between 5 and 80 characters in length)<br /><br />
-      		{elseif $is_link == TRUE}
+      		{elseif isset($is_link)}
 			<b>Current Link:</b> 
 			<a href="linkme.php?l={$link_id}" target="_blank">{$link_title}</a><br />
 			(Click to open a new window with the current messages)<br />
