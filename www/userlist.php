@@ -34,7 +34,9 @@ if($auth == TRUE){
 	$userlist = User::getUserList($db, $current_page,$query);
 	$smarty->assign("userlist", $userlist);
 	$smarty->assign("page_count", User::$page_count);
-	$smarty->assign("current_page", $current_page);	$display = "userlist.tpl";
+	$smarty->assign("current_page", $current_page);	
+	$display = "userlist.tpl";
+	$page_title = "User List";
 	$smarty->assign("user_search", override\htmlentities($query));
 	require("includes/deinit.php");
 

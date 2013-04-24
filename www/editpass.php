@@ -70,6 +70,7 @@ if($auth == TRUE){
 
 	}
 	$display = "editpass.tpl";
+	$page_title = "Edit Password";
 	require("includes/deinit.php");
 
 }else

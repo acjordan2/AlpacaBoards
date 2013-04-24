@@ -40,12 +40,14 @@ if($auth == TRUE){
 			if($shop->purchaseItem($item_id))
 				header("Location: ./inventory.php");
 		$display = "item.tpl";
+		$page_title = "Purchase ".$item['name'];
 	}
 	elseif($item_id != '')
 		require("404.php");
 	else{
 		$smarty->assign("items", $shop->getItems());
 		$display = "shop.tpl";
+		$page_title = "Token Shop";
 	}
 	require("includes/deinit.php");
 }else

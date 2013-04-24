@@ -61,8 +61,9 @@ if($auth == TRUE){
 		else
 		   $message = "Invite has been sent";
 	}
-	$smarty->assign("message", $message);
+	$smarty->assign("message", @$message);
 	$display = "invite.tpl";
+	$page_title = "Send Invite";
 	require("includes/deinit.php");
 }
 else

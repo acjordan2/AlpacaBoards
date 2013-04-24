@@ -46,7 +46,7 @@ if($auth=TRUE){
 			
 			$signature = explode("---", $message_content);
 			
-			if($_GET['output'] == "json"){
+			if(@$_GET['output'] == "json"){
 				$signature = explode("---", $message->getMessage());
 
 				$content = array("id" => $message_id,
@@ -71,6 +71,7 @@ if($auth=TRUE){
 				$smarty->assign("m_user_id", $message->getUserID());
 				$smarty->assign("m_username", $message->getUsername());
 				$display = "message.tpl";
+				$page_title = "Message Detail";
 				require("includes/deinit.php");
 			}
 		}else

@@ -3,7 +3,7 @@
 	<h2>{$topic_title}</h2>
 	{if isset($status_message) && $status_message != NULL}<br /><h3 style="text-align:center"><em>{$status_message}</em></h3><br />{/if}
 	<div class="userbar">
-		<a href="/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
 		<span id="userbar_pms" style="display:none">
 			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>

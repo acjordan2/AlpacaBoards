@@ -44,6 +44,7 @@ if($auth == TRUE){
 			$smarty->assign("num_votes", $stat_user->getNumberOfVotes());
 			$smarty->assign("vote_avg", $stat_user->getVoteAverage());
 			$display = "loser.tpl";
+			$page_title = "Loser";
 			require("includes/deinit.php");
 		}else
 			require("404.php");

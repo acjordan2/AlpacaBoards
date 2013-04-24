@@ -50,6 +50,7 @@ if($auth == TRUE){
 			$smarty->assign("public_email", '');
 			
 			$display = "profile.tpl";
+			$page_title = "User Profile - ".$profile_user->getUsername();
 			require("includes/deinit.php");
 		}else
 			require("404.php");

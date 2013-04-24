@@ -44,6 +44,7 @@ if($auth == TRUE){
 
 
 		$display = "stats.tpl";
+		$page_title = "Stats";
 		require("includes/deinit.php");
 }else
 	require("404.php");

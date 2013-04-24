@@ -547,7 +547,7 @@ class User{
 		$statement = $this->pdo_conn->query($sql);
 		$statement= $this->pdo_conn->query($sql);
 		$row = $statement->fetchAll();
-		return $row[0]['average'];
+		return @$row[0]['average'];
 	}
 	
 	public static function getUserList(&$db, $page=1, $query=NULL){

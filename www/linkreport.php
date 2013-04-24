@@ -48,6 +48,7 @@ if($auth == TRUE){
 				}
 			}
 			$display = "linkreport.tpl";
+			$page_title = "Report Link";
 			require("includes/deinit.php");
 		}
 		 else require("404.php");
