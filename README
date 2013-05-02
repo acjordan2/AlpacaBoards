@@ -6,14 +6,11 @@ Sphinx Search
 A mail server such as postfix (for sending out invites and password reset.
 *Note this has only been tested on Linux
 
-# INSTALLATION INSTRUCTIONS
-1. Extract Files and put them in your web directory
-2. Point your web root to /path/to/sper.gs/www
-3. Edit ./www/includes/Config.ini.php with your Database and Sphinx settings
-4. Edit ./sphinx/sphinx.conf with your database settings and config paths
-5. Import the schema.sql and baseline.sql files into your database
-	-baseline.sql contains the basic data to get the web app running since there is no installer at this point.
-6. Run php ./sphinx/start_sphinx.
+##Install Directions
+1. Put contents of www in your webroot
+2. Navigate to the install direcotry with your browser and run the installer
+3. Edit Sphinx varibles to match your enviroment in www/includes/Config.ini.php and sphinx/sphinx.conf
+4. Start the sphinx search damon by navigating to the sphinx directory and running "php start_sphinx.php". Creating a better way to do this is on my "to-do" list.
 
 Notes:
 	Make sure to turn off magic quotes in your php.ini as it causes unexpected behavior. 
