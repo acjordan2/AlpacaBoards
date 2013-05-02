@@ -43,7 +43,7 @@ elseif(!isset($install))
 	header("Location: ./install/");
 
 ##Sitewide Settings
-define("DOMAIN", "localhost");
+define("DOMAIN", "");
 define("SITENAME", "Sper.gs");
 
 ##Search Settings
