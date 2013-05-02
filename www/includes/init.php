@@ -23,7 +23,8 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-require("Config.ini.php");
+
+require_once("Config.ini.php");
 require_once("User.class.php");
 require_once("Smarty.class.php");
 require_once("Override.inc.php");
@@ -53,6 +54,13 @@ try{
 	$smarty->assign("dateformat", DATE_FORMAT);
 	$smarty->assign("board_id", 42);
 	
+	$sql_sitekey = "SELECT sitekey FROM SiteOptions";
+	$statement_sitekey = $db->query($sql_sitekey);
+	$results_sitekey = $statement_sitekey->fetch();
+	$sitekey = base64_decode($results_sitekey['sitekey']);
+	
+	define("SITE_KEY", $sitekey);
+	
 	$authUser = new User($db);
 	$auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
 	if($auth == TRUE){
@@ -60,10 +68,18 @@ try{
 		$smarty->assign("user_id", $authUser->getUserID());
 		$authUser->awardKarma();
 		$smarty->assign("karma", $authUser->getKarma());
+		if($authUser->getStatus() == -1){
+			$message = "You have been banned";
+			$display = "no_access.tpl";
+			$page_title = "You have been banned";
+			$smarty->assign("message", $message);
+			$smarty->assign("reason", override\htmlentities($authUser->getDisciplineReason()));
+			require_once("deinit.php");
+		}
 
 	}
 } catch(PDOException $e){
-	#print $e->getMessage();
+	print $e->getMessage();
 	print "Error :(";
 }
 ?>

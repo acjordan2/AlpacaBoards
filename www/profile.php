@@ -35,22 +35,60 @@ if($auth == TRUE){
 	if(is_numeric($user_id)){
 		$profile_user = new User($db, $user_id);
 		if($profile_user->doesExist()){
-			$smarty->assign("p_username", $profile_user->getUsername());
-			$smarty->assign("p_user_id", $profile_user->getUserID());
-			$smarty->assign("p_karma", $profile_user->getKarma());
-			$smarty->assign("good_karma", $profile_user->getGoodKarma());
-			$smarty->assign("bad_karma", $profile_user->getBadKarma());
-			$smarty->assign("contribution_karma", $profile_user->getContributionKarma());
-			$smarty->assign("credit", $profile_user->getCredits());
-			$smarty->assign("created", $profile_user->getAccountCreated());
-			$smarty->assign("last_active", $profile_user->getLastActive());
-			$smarty->assign("signature", override\htmlentities($profile_user->getSignature()));
-			$smarty->assign("quote", override\htmlentities($profile_user->getQuote()));
-			$smarty->assign("instant_messaging", '');
-			$smarty->assign("public_email", '');
-			
-			$display = "profile.tpl";
-			$page_title = "User Profile - ".$profile_user->getUsername();
+			if(isset($_GET['mod_action']) && $authUser->checkPermissions($_GET['mod_action'])){
+				require("includes/CSRFGuard.class.php");
+				$csrf = new CSRFGuard();
+				$smarty->assign("token", $csrf->getToken());
+				$smarty->assign("mod_action", $_GET['mod_action']);
+				switch($_GET['mod_action']){
+					case "user_ban":
+						if($profile_user->getStatus() == -1)
+							$message = "User has already been banned!";
+						$action_taken = "User has been banned";
+						if($authUser->getUserID() == $profile_user->getUserID())
+							$message = "You can't ban youself!";
+						if(isset($message))
+							$smarty->assign("message", $message);
+						else{
+							if(isset($_POST['submit'])){
+								if($csrf->validateToken($_REQUEST['token'])){
+									if($authUser->setStatus(-1, $profile_user->getUserID(), $action_taken, $_POST['description'])){
+										$message = $profile_user->getUsername()." has been banned";
+										$smarty->assign("message", $message);
+									}
+								}
+							}
+						}
+						$smarty->assign("p_user_id", $profile_user->getUserID());
+						$smarty->assign("p_username", $profile_user->getUsername());
+						$smarty->assign("action_taken", $action_taken);
+						$page_title = "Ban ".$profile_user->getUsername();
+						break;
+				}
+				$display = "mod_actions.tpl";
+			}
+			else{
+				$smarty->assign("p_username", $profile_user->getUsername());
+				$smarty->assign("p_user_id", $profile_user->getUserID());
+				$smarty->assign("p_status", $profile_user->getStatus());
+				$smarty->assign("p_karma", $profile_user->getKarma());
+				$smarty->assign("good_karma", $profile_user->getGoodKarma());
+				$smarty->assign("bad_karma", $profile_user->getBadKarma());
+				$smarty->assign("contribution_karma", $profile_user->getContributionKarma());
+				$smarty->assign("credit", $profile_user->getCredits());
+				$smarty->assign("created", $profile_user->getAccountCreated());
+				$smarty->assign("last_active", $profile_user->getLastActive());
+				$smarty->assign("signature", override\htmlentities($profile_user->getSignature()));
+				$smarty->assign("quote", override\htmlentities($profile_user->getQuote()));
+				$smarty->assign("instant_messaging", '');
+				$smarty->assign("public_email", '');
+				
+				$smarty->assign("access_level", $authUser->getAccessLevel());
+				$smarty->assign("access_title", $authUser->getAccessTitle());
+				$smarty->assign("mod_user_ban", $authUser->checkPermissions("user_ban"));
+				$display = "profile.tpl";
+				$page_title = "User Profile - ".$profile_user->getUsername();
+			}
 			require("includes/deinit.php");
 		}else
 			require("404.php");

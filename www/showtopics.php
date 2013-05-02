@@ -42,7 +42,8 @@ if($auth == TRUE){
 	$display = "showtopics.tpl";
 	$page_title = $board->getTitle();
 	$smarty->assign("topicList", $topic_list);
-	$smarty->assign("stickyList",$sticky_list);
+	if(isset($sticky_list))
+		$smarty->assign("stickyList",$sticky_list);
 	$smarty->assign("username", $authUser->getUsername());
 	$smarty->assign("board_id", $board_id);
 	$smarty->assign("board_title", override\htmlentities($board->getTitle()));

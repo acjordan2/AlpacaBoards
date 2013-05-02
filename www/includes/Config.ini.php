@@ -37,12 +37,10 @@ $root_path = substr($root_path, 0, strlen($root_path)-1);
 
 set_include_path(get_include_path().PATH_SEPARATOR.$root_path."/includes/smarty");
 
-##Database Settings
-define("DATABASE_TYPE", "mysql");
-define("DATABASE_HOST", "");
-define("DATABASE_NAME", "");
-define("DATABASE_USER", "");
-define("DATABASE_PASS", "");
+if(file_exists($root_path."/includes/Database.ini.php"))
+	require_once("Database.ini.php");
+elseif(!isset($install))
+	header("Location: ./install/");
 
 ##Sitewide Settings
 define("DOMAIN", "localhost");
@@ -58,7 +56,6 @@ define("SPHINX_CONFIG", "/var/www/Sper.gs/sphinx/sphinx.conf");
 ##Security Settings
 define("SALT_SIZE", 16);
 define("USE_SSL", FALSE);
-define("SITE_KEY", "<put lots of random letters, numbers, and symobls here>"); //DO NOT CHANGE ONCE SITE GOES LIVE
 define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
 $allowed_tags =  array("\<b\>","\<\/b\>",
 					 "\<strong\>","\<\/strong\>",

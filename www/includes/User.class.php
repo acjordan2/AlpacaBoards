@@ -26,6 +26,7 @@
 
 class User{
 	
+	/* PDO Database Connection */
 	private $pdo_conn;
 	
 	private $user_id;
@@ -51,6 +52,10 @@ class User{
 	private $timezone;
 	
 	private $exist;
+	
+	private $level = array();
+	
+	private $permissions;
 	
 	public static $page_count;
 	
@@ -83,7 +88,7 @@ class User{
 													Users.email, Users.private_email,
 													Users.instant_messaging, Users.account_created,
 													Users.last_active, Users.status, Users.avatar,
-													Users.signature, Users.quote, Users.timezone
+													Users.signature, Users.quote, Users.timezone, Users.level
 												 FROM Users
 												 INNER JOIN Sessions
 												 USING(user_id)
@@ -124,7 +129,7 @@ class User{
 													email, private_email, password, old_password,
 													instant_messaging, account_created,
 													last_active, status, avatar,
-													signature, quote, timezone 
+													signature, quote, timezone, level 
 												  FROM Users 
 												  WHERE username=:username");
 			$statement->bindParam(":username", $aUsername);
@@ -212,6 +217,16 @@ class User{
 		$this->quote = $user_data['quote'];
 		$this->timezone = $user_data['timezone'];
 		$this->account_created = $user_data['account_created'];
+		$this->level[0] = $user_data['level'];
+		if($this->level != 0){
+				$sql = "SELECT * FROM StaffPermissions WHERE position_id = ".$this->level[0];
+				$statement = $this->pdo_conn->query($sql);
+				$this->permissions = $statement->fetch();
+				$sql2 = "SELECT StaffPositions.title FROM StaffPositions WHERE position_id=".$this->level[0];
+				$statement2 = $this->pdo_conn->query($sql2);
+				$results = $statement2->fetch();
+				$this->level[1] = $results[0];
+		}
 	}
 	
 	public function changePassword($aPassword1, $aPassword2, $reset=FALSE){
@@ -381,7 +396,7 @@ class User{
 					   Users.email, Users.private_email,
 					   Users.instant_messaging, Users.account_created,
 					   Users.last_active, Users.status, Users.avatar,
-					   Users.signature, Users.quote, Users.timezone
+					   Users.signature, Users.quote, Users.timezone, Users.level
 				FROM Users
 				WHERE Users.user_id=?";
 		$statement = $this->pdo_conn->prepare($sql);
@@ -481,6 +496,18 @@ class User{
 	 */
 	public function getTimezone(){
 		return $this->timezone;
+	}
+	
+	public function checkPermissions($search){
+		return @$this->permissions[$search];
+	}
+	
+	public function getAccessLevel(){
+		return $this->level[0];
+	}
+	
+	public function getAccessTitle(){
+		return $this->level[1];
 	}
 	
 	/**
@@ -586,8 +613,29 @@ class User{
 	 * Update the user's account status.
 	 * @param $aStatus -1 for banned, 0 for active, More than zero for number of days suspesion
 	 */
-	public function setStatus($aStatus){
+	public function setStatus($aStatus, $aUser_id, $action, $description){
+		if($this->level > 0){
+			$is_authorized = FALSE;
+			if($aStatus == -1)
+				$is_authorized = $this->checkPermissions("user_ban");
+			elseif($aStatus > 0)
+				$is_authorized = $this->checkPermissions("user_suspend");
+			elseif($aStatus = 0){
+				//unban or unsuspend code
+			}
 		
+			$sql = "UPDATE Users SET status = ? WHERE user_id = ?";
+			$statement = $this->pdo_conn->prepare($sql);
+			$statement->execute(array($aStatus, $aUser_id));
+			
+			$sql2 = "INSERT INTO DisciplineHistory (user_id, mod_id, action_taken, description, date)
+						VALUES (?, $this->user_id, ?, ?, ".time().")";
+			$statement2 = $this->pdo_conn->prepare($sql2);
+			$statement2->execute(array($aUser_id, $action, $description));
+			return TRUE;
+		}
+		else
+			return FALSE;
 	}
 	
 	/**
@@ -620,6 +668,14 @@ class User{
 	 */
 	public function setTimezone($aTimezone){
 		
+	}
+	
+	public function getDisciplineReason(){
+		$sql = "SELECT description FROM DisciplineHistory WHERE user_id = $this->user_id
+					ORDER BY date DESC LIMIT 1";
+		$statement = $this->pdo_conn->query($sql);
+		$results = $statement->fetch();
+		return $results['description'];
 	}
 	
 	public function checkInvite($invite_code){

@@ -153,7 +153,7 @@ class Topic{
                 $content = str_replace("<quote", "<div class=\"quoted-message\"", $content);
                 $content = str_replace("</quote>", "</div>", $content);
                 
-                $quote_header = "<div class=\"message-header\">From: <a href=\"/profile.php?id=".$row['user_id']."\">".$row['username']."</a> | Posted: ".date("m/d/Y H:i:s", $row['posted'])."</div>";
+                $quote_header = "<div class=\"message-header\">From: <a href=\"./profile.php?id=".$row['user_id']."\">".$row['username']."</a> | Posted: ".date("m/d/Y H:i:s", $row['posted'])."</div>";
                 $pattern = "<div class=\"quoted-message\" msgid=\"".$msgid_array[0].",".$msgid_array[1].",".$msgid_array[2]."\">";
                 
                 $content = preg_replace("/$pattern/", $pattern.$quote_header, $content);

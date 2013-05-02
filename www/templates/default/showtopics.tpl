@@ -23,6 +23,7 @@
 			<th>Msgs</th>
 			<th>Last Post</th>
 		</tr>
+{if isset($stickyList)}
 {foreach from=$stickyList key=header item=table}
 		<tr>
 			<td>
@@ -44,6 +45,7 @@
 			</td>
 		</tr>
 {/foreach}
+{/if}
 {foreach from=$topicList key=header item=table}
 		<tr>
 			<td>

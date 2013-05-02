@@ -1,2 +1,31 @@
 .Trash-1000/*
 www/includes/smarty/templates_c/*.tpl.php
+www/includes/Database.ini.php
+www/install/install.lock
+
+##Linux Files
+.*
+!.gitignore
+!.htaccess
+*~
+
+##Mac Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+##Vim
+.*.s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~

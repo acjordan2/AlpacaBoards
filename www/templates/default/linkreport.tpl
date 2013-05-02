@@ -28,7 +28,7 @@
       		<br />
 		<div>
 			<input type="hidden" name="token" value="{$token}" /> 
-        		<input type="submit" name="submit" value="Report Link" /> 
+        	<input type="submit" name="submit" value="Report Link" /> 
 		</div>
 	</form>
 	<br />

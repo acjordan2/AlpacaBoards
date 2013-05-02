@@ -7,13 +7,13 @@
 		<span id="userbar_pms" style="display:none">
 			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>
-		<a href="./boardlist.php">Board List</a> |
-      		<a href="./showtopics.php?board=42">Topic List</a> | 
+		<!--<a href="./boardlist.php">Board List</a> | -->
+      	<a href="./showtopics.php?board=42">Topic List</a> | 
 		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}">Post New Message</a>
 		<!--| <a href="//boards.endoftheinter.net/showmessages.php?board=42&amp;topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
 		{if $action != NULL} 
-			| <a href="/showmessages.php?board={$board_id}&topic={$topic_id}&sticky=1&token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
+			| <a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
 				{$action[0].name}
 			</a>
 		{/if}
@@ -62,15 +62,15 @@
 			<td class="userpic">
 				<div class="userpic-holder">
 					<!-- <span class="img-placeholder" style="width:150px;height:131px" id="u0_{$i}"></span> -->
-					<img src="./templates/default/images/grey.gif" data-original="https://i.sper.gs/i/t/7805f50352da7b2b878b645408ed669f/lueshi.jpg" width="150" height="156" />
-				{literal}				
+					<img src="./templates/default/images/grey.gif" data-original="./templates/default/images/LUEshi.jpg" width="150" height="156" />
+				{literal}<!--				
 					<script type="text/javascript">
 						/*
 						//<![CDATA[
 						onDOMContentLoaded(function(){new ImageLoader($("u0_{/literal}{$i}{literal}"), "./templates/default/images/LUEshi.jpg", 150, 131)})
 						//]]>*/
 					</script>
-				{/literal}
+				{/literal}-->
 				</div>
 			</td>
 		</tr>
@@ -84,7 +84,7 @@
 		{if $k == $current_page}{$k} 
 			{if $k<$page_count}|{/if}
 			{else}
-				<a href="/showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$k}">{$k}</a> 
+				<a href="./showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$k}">{$k}</a> 
 				{if $k < $page_count}| {/if}
 		{/if}
 		{assign var="k" value=$k+1}

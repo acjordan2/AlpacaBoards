@@ -10,5 +10,5 @@ if(isset($_COOKIE[session_name()])){
 	setcookie($name=session_name(), $value='', $expire=1, $path="/", 
 				$domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
 }
-header("Location: /index.php");
+header("Location: ./index.php");
 ?>

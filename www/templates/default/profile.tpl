@@ -26,7 +26,13 @@
 			<td>User ID</td>
 			<td>{$p_user_id}</td>
 		</tr>
-		<tr> 
+{if $p_status != 0}
+		<tr>
+			<td>Status</td>
+			<td>{if $p_status == -1}<b>Banned</b>{/if}</td>
+		</tr>
+{/if}
+		<tr>
 			<td>Total Karma</td>
 			<td>{$p_karma}</td>
 		</tr>
@@ -152,7 +158,20 @@
 		<tr>
 			<td colspan="2"><a href="./loser.php?user={$p_user_id}">View {if $user_id == $p_user_id}My{else}{$p_username}'s{/if} Stats</a></td>
 		</tr>
+{if $access_level > 0}
+		<tr>
+			<th colspan="2">{$access_title} Options</th>
+		</tr>
+		{if $mod_user_ban == 1}
+		<tr>
+			<td colspan="2">
+				<a href="./profile.php?user={$p_user_id}&amp;mod_action=user_ban">Ban User</a>
+			</d>
+		</tr>
+		{/if}
+{/if}
 	</table>
+	
 	<br />
 	<br />
 {include file="footer.tpl"}
