@@ -1,6 +1,6 @@
 <div class="menubar">
 			<a href="./main.php">Home</a> | 
-			<a href="./archives.php">Archives</a> | 
+			<!--<a href="./archives.php">Archives</a> | -->
 			<a href="./addlink.php">Add a link</a> | 
 			<a href="./linkme.php?l=random">Random link</a> | 
 			<a href="./links.php?mode=topvoted">Top voted links</a> | 
