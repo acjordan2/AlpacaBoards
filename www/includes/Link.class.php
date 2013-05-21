@@ -361,9 +361,11 @@ class Link{
 	}
 
 	public function checkURLExist($link){
-		$sql = "SELECT Links.url FROM Links WHERE url=?";
+		if(isset($this->link_id))
+			$sql_append = "AND link_id != ?";
+		$sql = "SELECT Links.url FROM Links WHERE url=? $sql_appened";
 		$statement = $this->pdo_conn->prepare($sql);
-		$statement->execute(array($link));
+		$statement->execute(array($link, $this->link_id));
 		if($statement->rowCount() == 1)
 			return TRUE;
 		else

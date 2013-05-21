@@ -37,7 +37,7 @@ if($auth == TRUE){
 		if($link_edit_data['user_id'] == $authUser->getUserID()){
 			$smarty->assign("title", override\htmlentities($link_edit_data['title']));
 			$smarty->assign("description", override\htmlentities($link_edit_data['raw_description']));
-			$smarty->assign("lurl", override\htmlentities($link_edit_data['url']));
+			$smarty->assign("lurl", override\htmlentities($link_edit_data['url2']));
 			$smarty->assign("link_edit", TRUE);
 			$smarty->assign("link_id", $link_edit_data['link_id']);
 			if(isset($_POST['token'])){
@@ -45,7 +45,7 @@ if($auth == TRUE){
 					if(isset($_POST['lurl'])){
 							if(!override\validateURL($_POST['lurl']))
 								$error_msg = "Please enter a valid URL<br />";
-							elseif($links->checkURLExist($_POST['lurl']))
+							elseif($link_edit->checkURLExist($_POST['lurl']))
 								$error_msg = "A link with that URL already exists";
 						$smarty->assign("lurl", override\htmlentities($_POST['lurl']));
 					}

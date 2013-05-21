@@ -39,8 +39,7 @@
 		<br />
 		<b>Link Description</b><br />
 		Enter a link description. Make it good!<br />
-		<textarea cols="100" rows="20" name="description" id="description">{if isset($description)}{$description}{/if}
-		</textarea>
+		<textarea cols="100" rows="20" name="description" id="description">{if isset($description)}{$description}{/if}</textarea>
 		<br />
 		<br />
 		<input type="submit" name="addlink" value="Add Link">
