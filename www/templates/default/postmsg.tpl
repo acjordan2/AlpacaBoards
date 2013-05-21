@@ -1,6 +1,6 @@
 {include file="header.tpl"}
 	<h1>Post Message</h1>
-{if isset($preview_message)}
+{if isset($p_message)}
 	<form action="postmsg.php" method="post">
 		<input type="hidden" name="message" value="$p_message" />
     		<input type="hidden" name="h" value="{$token}" />

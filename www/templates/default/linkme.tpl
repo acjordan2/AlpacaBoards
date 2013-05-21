@@ -90,9 +90,9 @@
 </a>
 <div id="pageexpander" style="height:280px;display:none;"></div>
 <div id="quickpost" style="display:none;">
-	<form method="POST" action="/postmsg.php" name="quickposts" id="quickposts">
+	<form method="POST" action="./postmsg.php" name="quickposts" id="quickposts">
 			<input type="hidden" name="link" value="{$link_data.link_id}" />
-			<input type="hidden" name="h" value="76f03" />
+			<input type="hidden" name="token" value="{$token}" />
 			<b>Your Message:</b><br />
 			<textarea id="qpmessage" name="message">
 

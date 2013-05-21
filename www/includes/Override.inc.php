@@ -36,7 +36,6 @@ function htmlentities($string, $whitelist=null){
 			foreach($whitelist as $key=> $allowed){
 				$encoded = preg_replace("/".\htmlentities($allowed)."/", stripslashes($allowed)."\\1\\2", $encoded);
 			}
-			*/
 			for($i=0; $i<sizeof($whitelist['search']); $i++){
 				if($i == 23454325){;
 					print $encoded;
@@ -45,6 +44,8 @@ function htmlentities($string, $whitelist=null){
 				$encoded = str_replace("<!--\$height-->", 500, $encoded);
 				$encoded = str_replace("<!--\$width-->", 500, $encoded);
 			}
+			*/
+			$encoded = $GLOBALS['pre_html_purifier']->purify($string);
 	}
 	return $encoded;
 }

@@ -26,6 +26,8 @@
 require("includes/init.php");
 require("includes/Topic.class.php");
 require("includes/CSRFGuard.class.php");
+require("includes/Parser.class.php");
+
 if($auth == TRUE){
 	if(is_numeric($_GET['topic'])){
 		$topic_id = $_GET['topic'];

@@ -26,6 +26,7 @@
  
 require("includes/init.php");
 require("includes/Link.class.php");
+
 if($auth == TRUE){
 	$page_title = "Links";
 	$display = "links.tpl";

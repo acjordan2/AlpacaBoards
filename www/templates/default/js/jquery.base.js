@@ -33,7 +33,7 @@ function quickpost_quote(message_id){
 	req = "id="+id[0]+"&topic="+quote_data[1]+"&r="+id[1]+"&output=json";
 	if(quote_data[0] == "l")
 		req += "&link=1";
-	$.ajax({url:"/message.php", dataType:"json", data:req, success:function(result){
+	$.ajax({url:"./message.php", dataType:"json", data:req, success:function(result){
 		message_body = $("#qpmessage").val();
 		message_split = $('#qpmessage').val().split("---");
 

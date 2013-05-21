@@ -95,15 +95,24 @@ class Link{
 						JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)  WHERE LinksCategorized.link_id = ?";
 			$statement2 = $this->pdo_conn->prepare($sql2);
 			$statement2->execute(array($this->link_id));
-
+			
+			$parser = new Parser($this->pdo_conn);
 			
 			$this->updateHistory();
 			$row = $statement->fetch();
 			$row['url2'] = override\htmlentities($row['url']);
 			$row['url'] = override\makeURL(override\htmlentities($row['url']));
-			$row['description'] = override\makeURL(override\embedVideo(override\closeTags(
-												str_replace("\n", "<br/>\n", 
-													override\htmlentities($row['description'], $allowed_tags)))));
+			
+			$parser->loadHTML($GLOBALS['pre_html_purifier']->purify($row['description']));
+			$parser->parse();
+			$row['description'] = $GLOBALS['post_html_purifier']->purify($parser->getHTML());
+			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL(str_replace("\n", "<br/>\n",$row['description'])));
+			$message_script = str_replace("</safescript>", "</script>", $message_script);
+			$row['description'] = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
+			//$row['description'] = override\makeURL(override\embedVideo(override\closeTags(
+			//									str_replace("\n", "<br/>\n", 
+			//										override\htmlentities($row['description'], $allowed_tags)))));
+			
 			$row['code'] = dechex($this->link_id);
 			$row['link_id'] = $this->link_id;
 			$row['hits'] = $this->getHits();
@@ -155,13 +164,22 @@ class Link{
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
 		$message_data = array();
+		$parser = new Parser($this->pdo_conn);
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
-			$message_data[$i]['message'] = $this->formatComments(override\makeURL(override\closeTags(
-												str_replace("\n", "<br/>\n", 
-													override\htmlentities($message_data_array['message'], $allowed_tags)))));
+			$parser->loadHTML($GLOBALS['pre_html_purifier']->purify($message_data_array['message']));
+			$parser->parse();
+			$message_content = $GLOBALS['post_html_purifier']->purify($parser->getHTML());
+			
+			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL(str_replace("\n", "<br/>\n",$message_content)));
+			$message_script = str_replace("</safescript>", "</script>", $message_script);
+			$message_data[$i]['message'] = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
+			
+			//$message_data[$i]['message'] = $this->formatComments(override\makeURL(override\closeTags(
+											//	str_replace("\n", "<br/>\n", 
+													//override\htmlentities($message_data_array['message'], $allowed_tags)))));
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_no'] = $message_data_array['revision_no'];
 		}

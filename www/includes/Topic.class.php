@@ -101,65 +101,23 @@ class Topic{
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
-			$message_data[$i]['message'] = override\makeURL(override\embedVideo(override\closeTags(
+			$message_data[$i]['message'] = override\embedVideo((
 												str_replace("\n", "<br/>\n", 
-													override\htmlentities($message_data_array['message'], $allowed_tags)))));
-			libxml_use_internal_errors(true);
-			$doc = new DomDocument();
-			$doc->loadHTML($message_data[$i]['message']);
-			$sql3 = "SELECT Users.user_id, Users.username, Messages.posted
-										FROM Messages LEFT JOIN Users Using(user_id)
-										WHERE Messages.topic_id = ? AND Messages.message_id=? 
-										AND Messages.revision_no = 0";
-			$statement3 = $this->pdo_conn->prepare($sql3);
+													($message_data_array['message']))));
 			
-			foreach($doc->getElementsByTagName('quote') as $quote){
-				$msgid = $quote->getAttribute('msgid');
-				$msgid_array = explode(",", $msgid);
-				$statement3->execute(array($msgid_array[1], $msgid_array[2]));
-				$row = $statement3->fetch();
-				$statement3->closeCursor();
-				
-				$innerHTML= ''; 
-				$children = $quote->childNodes; 
-				foreach ($children as $child) { 
-					$innerHTML .= $child->ownerDocument->saveXML($child);
-				}
-				$innerHTML = str_replace("<span class=\"spoiler_closed\" id=\"s0_&lt;!--\$i--&gt;\"><span class=\"spoiler_on_close\"><a class=\"caption\" href=\"#\"><b>&lt;spoiler /&gt;</b></a></span><span class=\"spoiler_on_open\"><a class=\"caption\" href=\"#\">&lt;spoiler&gt;</a>", "<spoiler>", $innerHTML);
-				$innerHTML = str_replace("<a class=\"caption\" href=\"#\">&lt;/spoiler&gt;</a></span></span><script type=\"text/javascript\"><![CDATA[$(document).ready(function(){llmlSpoiler($(\"#s0_<!--\$i-->\"));});]]></script>", "</spoiler>", $innerHTML);
-				
-				if($innerHTML == "<br/>") $innerHTML = "[quoted text omitted]";
-				
-				$quote_headers = $doc->createElement("div", "");
-				$quote_headers->setAttribute("class", "message-header");
-				$quote->appendChild($quote_headers);
-		
-				$divnode = $doc->createElement("div", $innerHTML);
-				$divnode->setAttribute("class", "quoted-message");
-				$divnode->setAttribute("msgid", $msgid);
-				$quote->parentNode->replaceChild($divnode, $quote);	
-														
-				$rawHTML = $doc->saveHTML();
-				//$rawHTML = $doc->saveXML();
-				$content = preg_replace(array("/^\<\!DOCTYPE.*?<html><body>/si",
-                                  "!</body></html>$!si"),
-                            "",
-                            $rawHTML);
-                            
-                $content = str_replace("<div class=\"quoted-message\"", "<quote", $content);
-                $content = str_replace("</div>", "</quote>", $content);
-                $content = html_entity_decode($content);
-                $content = override\htmlentities($content, $allowed_tags);
-                $content = str_replace("<quote", "<div class=\"quoted-message\"", $content);
-                $content = str_replace("</quote>", "</div>", $content);
-                
-                $quote_header = "<div class=\"message-header\">From: <a href=\"./profile.php?id=".$row['user_id']."\">".$row['username']."</a> | Posted: ".date("m/d/Y H:i:s", $row['posted'])."</div>";
-                $pattern = "<div class=\"quoted-message\" msgid=\"".$msgid_array[0].",".$msgid_array[1].",".$msgid_array[2]."\">";
-                
-                $content = preg_replace("/$pattern/", $pattern.$quote_header, $content);
-                $message_data[$i]['message'] = $content;
-			}
-			libxml_use_internal_errors(false);
+			$parser = new Parser($this->pdo_conn);
+			
+			$msg_tmp = $GLOBALS['pre_html_purifier']->purify($message_data[$i]['message']);
+			$parser->loadHTML($msg_tmp);
+			$parser->parse();
+			
+			// Replaces <safescript> tag with <script> since html purify does not allow <script> tags @TODO: Test extensively for XSS
+			// Removes extra </span> created by the parser @TODO: figure out why this happens
+			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL($GLOBALS['post_html_purifier']->purify($parser->getHTML())));
+			$message_script = str_replace("</safescript>", "</script>", $message_script);
+			$message_data[$i]['message'] = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
+			
+			//die($message_data[$i]['message']);
 			
 			//$message_data[$i]['message'] = str_replace("</quote>", "</div>", $message_data[$i]['message']);
 			$message_data[$i]['posted'] = $message_data_array['posted'];

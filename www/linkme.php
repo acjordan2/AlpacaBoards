@@ -27,6 +27,8 @@
 require("includes/init.php");
 require("includes/Link.class.php");
 require("includes/CSRFGuard.class.php");
+require("includes/Parser.class.php");
+
 if($auth == TRUE){
 	$link_id = @$_GET['l'];
 	if(is_numeric($link_id)){

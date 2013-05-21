@@ -24,9 +24,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 require("includes/init.php");
+require("includes/Parser.class.php");
 require("includes/Message.class.php");
+require("includes/CSRFGuard.class.php");
+
 if($auth=TRUE){
 	if(is_numeric(@$_GET['id']) && is_numeric(@$_GET['topic'])){
+		$csrf = new CSRFGuard();
 		if(is_numeric(@$_GET['r']))
 			$revision_no = intval($_GET['r']);
 		else
@@ -40,9 +44,16 @@ if($auth=TRUE){
 		$message = new MessageRevision($db, $message_id, $revision_no, $link);
 		if($message->doesExist()){
 			
-			$message_content = override\formatComments(override\makeURL(override\closeTags(
-													str_replace("\n", "<br/>", 
-														override\htmlentities($message->getMessage(), $allowed_tags)))));
+			$message_content = $pre_html_purifier->purify($message->getMessage());
+			$parser = new Parser($db);
+			$parser->loadHTML($message_content);
+			$parser->parse();
+			$message_content = $post_html_purifier->purify($parser->getHTML());
+			
+			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL($message_content));
+			$message_script = str_replace("</safescript>", "</script>", $message_script);
+			$message_content = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
+			$message_content = str_replace("\n", "<br/>", $message_content);
 			
 			$signature = explode("---", $message_content);
 			
@@ -53,7 +64,7 @@ if($auth=TRUE){
 								 "topic" => $topic_id,
 								 "r" => $message->getRevisionID(),
 								 "message" => $signature[0],
-								 "signature" => $signature[1]);
+								 "signature" => @$signature[1]);
 				header("Content-Type: application/json");
 				print json_encode($content);
 			}else{
@@ -70,6 +81,7 @@ if($auth=TRUE){
 				$smarty->assign("message_id", $message_id);
 				$smarty->assign("m_user_id", $message->getUserID());
 				$smarty->assign("m_username", $message->getUsername());
+				$smarty->assign("token", $csrf->getToken());
 				$display = "message.tpl";
 				$page_title = "Message Detail";
 				require("includes/deinit.php");

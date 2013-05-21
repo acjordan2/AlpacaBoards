@@ -57,43 +57,9 @@ define("SPHINX_CONFIG", "/var/www/Sper.gs/sphinx/sphinx.conf");
 define("SALT_SIZE", 16);
 define("USE_SSL", FALSE);
 define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
-$allowed_tags =  array("\<b\>","\<\/b\>",
-					 "\<strong\>","\<\/strong\>",
-					 "\<i\>","\<\/i\>",
-					 "\<em\>","\<\/em\>",
-					 "\<u\>","\<\/u\>",
-					 "\<strike\>","\<\/strike\>",
-					 "\<s\>","\<\/s\>",
-					 "\<del\>","\<\/del\>",
-					 "\<spoiler\>", "\<\/spoiler\>",
-					  "\<spoiler caption=\"(.+)\"\>",
-					 "\<br\>", "\<br \/\>",
-					 "\<br\/\>",
-					 "\<pre\>", "\<\/pre\>",
-					 /*"\<quote msgid=\"t,(\d+),(\d+)@(\d+)\"\>(.+)?<img src=\"https?:\/\/i\.(minus|imgur)\.com\/([A-z0-9_\.-]+)\.(jpg|gif|png|jpeg)\"( \/)?>", "<\/quote>",
-					 */"\<quote msgid=\"t,(\d+),(\d+)@(\d+)\"\>", "\<\/quote\>",
-					 "\<img src=\"https?:\/\/i\.(minus|imgur)\.com\/([A-Za-z0-9_.-]+)\"( \/)?\>");
-					 
-$allowed_tags = array("search" => $allowed_tags,
-					  "replace" => array(
-								"<b>", "</b>",
-								"<strong>", "</strong>",
-								"<i>", "</i>",
-								"<em>", "</em>",
-								"<u>", "</u>",
-								"<strike>", "</strike>",
-								"<s>", "</s>",
-								"<del>", "</del>",
-								"<span class=\"spoiler_closed\" id=\"s0_<!--\$i-->\"><span class=\"spoiler_on_close\"><a class=\"caption\" href=\"#\"><b>&lt;spoiler /&gt;</b></a></span><span class=\"spoiler_on_open\"><a class=\"caption\" href=\"#\">&lt;spoiler&gt;</a>", "<a class=\"caption\" href=\"#\">&lt;/spoiler&gt;</a></span></span><script type=\"text/javascript\">\$(document).ready(function(){llmlSpoiler($(\"#s0_<!--\$i-->\"));});</script>",
-								"<span class=\"spoiler_closed\" id=\"s0_<!--\$i-->\"><span class=\"spoiler_on_close\"><a class=\"caption\" href=\"#\"><b>&lt;$1 /&gt;</b></a></span><span class=\"spoiler_on_open\"><a class=\"caption\" href=\"#\">&lt;$1 &gt;</a>",
-								"<br/>", "<br />", "<br>",
-								"<pre>", "</pre>",
-								/*"<div class=\"quoted-message\" msgid=\"t,$1,$2@$3\">$4<div class=\"imgs\"><a target=\"_blank\" imgsrc=\"http://i.$5.com/$6s.$7\" href=\"http://i.$5.com/$6.$7\"><span class=\"img-placeholder\" style=\"width:90px;height:90px\" id=\"u0_<!--\$i-->\"></span><script type=\"text/javascript\">onDOMContentLoaded(function(){new ImageLoader($(\"u0_<!--\$i-->\"), \"http:\/\/i.$5.com\/$6s.$7\", 90, 90)})</script></a><div style=\"clear:both\"></div></div>", "</quote>",
-								"<div class=\"quoted-message\" msgid=\"t,$1,$2@$3\">", "</div>",*/
-								"<quote msgid=\"t,$1,$2@$3\">", "</quote>",
-								"<a href=\"http://i.$1.com/$2\" target=\"_blank\"><img src=\"http://i.$1.com/$2\" /></a>"	
-							)
-						);
+
+$pre_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,quote[msgid],spoiler[caption],img[src]";
+$post_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,div[class|msgid],a[href],span[class|id],safescript[type]";
 
 ##Authentication Cookie Names
 define("AUTH_KEY1", "sessionid");
@@ -104,6 +70,7 @@ define("TEMPLATE_DIR", $root_path."/templates");
 define("TEMPLATE_CACHE", $root_path."/includes/smarty/cache");
 define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
 define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");
-define("DATE_FORMAT", "%m/%d/%Y %H:%M:%S");
+define("DATE_FORMAT_SMARTY", "%m/%d/%Y %l:%M:%S %p");
+define("DATE_FORMAT", "n/j/Y g:i:s A");
 
 ?>

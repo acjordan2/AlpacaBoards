@@ -30,6 +30,7 @@ require("includes/Topic.class.php");
 require("includes/Message.class.php");
 require("includes/Link.class.php");
 require("includes/CSRFGuard.class.php");
+require("includes/Parser.class.php");
 
 if($auth == TRUE){
 	$csrf = new CSRFGuard();
@@ -50,7 +51,7 @@ if($auth == TRUE){
 				$smarty->assign("quote_id", override\htmlentities($_GET['quote']));
 				$smarty->assign("quote_topic", $message->getTopicID());
 				$message_body = explode("\n---", $message->getMessage());
-				$smarty->assign("quote_message", override\htmlentities(substr($message_body[0], 0, strlen($message_body[0])-1)));
+				$smarty->assign("quote_message", override\htmlentities(substr($message_body[0], 0, strlen($message_body[0]))));
 				$smarty->assign("quote_revision", $message->getRevisionID());
 			}
 			else
