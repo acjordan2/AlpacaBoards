@@ -16,7 +16,7 @@
 	<a href="./linkme.php?f=1&amp;l={$link_data.link_id}&amp;token={$token}">Add to Favorites</a> | 
 	<a href="./linkreport.php?l={$link_data.link_id}">Report Link</a>
 {if $user_id == $link_data.user_id}
-	| <a href="/addlink.php?edit={$link_data.link_id}">Edit link</a> 
+	| <a href="./addlink.php?edit={$link_data.link_id}">Edit link</a> 
 {else}
 	<br />
 	<br />

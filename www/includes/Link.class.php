@@ -102,16 +102,13 @@ class Link{
 			$row = $statement->fetch();
 			$row['url2'] = override\htmlentities($row['url']);
 			$row['url'] = override\makeURL(override\htmlentities($row['url']));
-			
+			$row['raw_description'] = $row['description'];
 			$parser->loadHTML($GLOBALS['pre_html_purifier']->purify($row['description']));
 			$parser->parse();
 			$row['description'] = $GLOBALS['post_html_purifier']->purify($parser->getHTML());
 			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL(str_replace("\n", "<br/>\n",$row['description'])));
 			$message_script = str_replace("</safescript>", "</script>", $message_script);
 			$row['description'] = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
-			//$row['description'] = override\makeURL(override\embedVideo(override\closeTags(
-			//									str_replace("\n", "<br/>\n", 
-			//										override\htmlentities($row['description'], $allowed_tags)))));
 			
 			$row['code'] = dechex($this->link_id);
 			$row['link_id'] = $this->link_id;
