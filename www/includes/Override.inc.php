@@ -27,26 +27,8 @@ namespace override;
 require_once("Config.ini.php");
 require_once("Autolink.inc.php");
 
-function htmlentities($string, $whitelist=null){
-	$string = str_replace("<br>", "<br/>", $string);
-	$string = str_replace("<br />", "<br/>", $string);
+function htmlentities($string){
 	$encoded = \htmlentities($string);
-	if(isset($whitelist) && is_array($whitelist)){
-			/**
-			foreach($whitelist as $key=> $allowed){
-				$encoded = preg_replace("/".\htmlentities($allowed)."/", stripslashes($allowed)."\\1\\2", $encoded);
-			}
-			for($i=0; $i<sizeof($whitelist['search']); $i++){
-				if($i == 23454325){;
-					print $encoded;
-				}else
-					$encoded = preg_replace("/".\htmlentities($whitelist['search'][$i])."/", $whitelist['replace'][$i], $encoded, -1);
-				$encoded = str_replace("<!--\$height-->", 500, $encoded);
-				$encoded = str_replace("<!--\$width-->", 500, $encoded);
-			}
-			*/
-			$encoded = $GLOBALS['pre_html_purifier']->purify($string);
-	}
 	return $encoded;
 }
 

@@ -81,15 +81,7 @@
 		<tr>
         	<td>Picture</td>
         	<td>
-			<a target="_blank" imgsrc="./templates/default/images/LUEshi.jpg" href="./templates/default/images/LUEshi.jpg">
-			<span class="img-placeholder" style="width:395px;height:400px" id="u0_1"></span>
-			{literal}			
-			<script type="text/javascript">
-				//<![CDATA[
-				onDOMContentLoaded(function(){new ImageLoader($("u0_1"), ".\/templates\/default\/images\/LUEshi.jpg", 395, 400)})
-				//]]>
-        		</script>
-			{/literal}</a>
+			<img src="./templates/default/images/grey.gif" data-original="./templates/default/images/LUEshi.jpg" width="395" height="400" />
 		</td>
 		</tr>
 		<tr>
