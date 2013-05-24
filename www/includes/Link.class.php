@@ -101,7 +101,8 @@ class Link{
 			$this->updateHistory();
 			$row = $statement->fetch();
 			$row['url2'] = override\htmlentities($row['url']);
-			$row['url'] = override\makeURL(override\htmlentities($row['url']));
+			$row['url'] = override\makeURL(htmlentities($row['url']));
+			$row['title'] = htmlentities($row['title']);
 			$row['raw_description'] = $row['description'];
 			$parser->loadHTML($GLOBALS['pre_html_purifier']->purify($row['description']));
 			$parser->parse();
