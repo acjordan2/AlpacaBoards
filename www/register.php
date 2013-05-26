@@ -37,6 +37,8 @@ if(isset($_GET['code'])){
 if(isset($_POST['username']) && isset($_POST['email']) && 
 	isset($_POST['password']) && isset($_POST['password2'])){
 	$error_msg = "";
+	$smarty->assign("username", htmlentities($_POST['username']));
+	$smarty->assign("email", htmlentities($_POST['email']));
 	if(TRUE){
 		if(strlen($_POST['password']) < 8)
 			$error_msg = "Password must be at least 8 characters<br />";

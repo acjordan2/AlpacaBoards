@@ -110,16 +110,8 @@ class Topic{
 			$msg_tmp = $GLOBALS['pre_html_purifier']->purify($message_data[$i]['message']);
 			$parser->loadHTML($msg_tmp);
 			$parser->parse();
+			$message_data[$i]['message'] = Parser::cleanUp(override\makeURL($GLOBALS['post_html_purifier']->purify($parser->getHTML())));
 			
-			// Replaces <safescript> tag with <script> since html purify does not allow <script> tags @TODO: Test extensively for XSS
-			// Removes extra </span> created by the parser @TODO: figure out why this happens
-			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL($GLOBALS['post_html_purifier']->purify($parser->getHTML())));
-			$message_script = str_replace("</safescript>", "</script>", $message_script);
-			$message_data[$i]['message'] = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
-			
-			//die($message_data[$i]['message']);
-			
-			//$message_data[$i]['message'] = str_replace("</quote>", "</div>", $message_data[$i]['message']);
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_id'] = $message_data_array['revision_id'];
 		}

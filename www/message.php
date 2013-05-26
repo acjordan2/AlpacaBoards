@@ -43,17 +43,13 @@ if($auth=TRUE){
 		$topic_id = intval($_GET['topic']);
 		$message = new MessageRevision($db, $message_id, $revision_no, $link);
 		if($message->doesExist()){
-			
 			$message_content = $pre_html_purifier->purify($message->getMessage());
 			$parser = new Parser($db);
 			$parser->loadHTML($message_content);
 			$parser->parse();
 			$message_content = $post_html_purifier->purify($parser->getHTML());
-			
-			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL($message_content));
-			$message_script = str_replace("</safescript>", "</script>", $message_script);
-			$message_content = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
-			$message_content = str_replace("\n", "<br/>", $message_content);
+			$message_content = Parser::cleanUp(override\makeURL($message_content));
+			$message_content = str_replace("\n", "<br/>\n", $message_content);
 			
 			$signature = explode("---", $message_content);
 			

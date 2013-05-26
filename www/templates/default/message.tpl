@@ -19,15 +19,8 @@
 				<td msgid="t,{$topic_id},{$message_id}@{$revision_no}" class="message">{$message}</td>
 				<td class="userpic">
 					<div class="userpic-holder">
-              					<a href="./templates/default/images/LUEshi.jpg">
-              					<span class="img-placeholder" style="width:148px;height:150px" id="u0_1"></span>
-{literal}
-		<script type="text/javascript">
-			//<![CDATA[
-			onDOMContentLoaded(function(){new ImageLoader($("u0_1"), "./templates/default/images/LUEshi.jpg", 148, 150)})
-			//]]>
-		</script>
-{/literal}
+						<a href="./templates/default/images/LUEshi.jpg">
+							<img src="./templates/default/images/grey.gif" data-original="./templates/default/images/LUEshi.jpg" width="150" height="156" />
 						</a>
 					</div>
 				</td>

@@ -103,6 +103,8 @@ try{
 	if($def = $post_html_purifier_config->maybeGetRawHTMLDefinition(true)){
 		$def->addAttribute('div', 'msgid', 'Text');
 		$def->addAttribute('span', 'id', 'Text');
+		$def->addAttribute('img', 'style', 'Text');
+		$def->addAttribute('img', 'data-original', 'Text');
 		$safe_script = $def->addElement(
 			'safescript',
 			'Block',

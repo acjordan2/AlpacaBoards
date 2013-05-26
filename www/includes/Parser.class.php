@@ -46,10 +46,12 @@ class Parser{
 
 	}
 	
-	public function loadHTML($aHtml){
+	public function loadHTML($aHtml, $r=false){
 		global $allowed_tags;
-	
-		$this->raw_html = "<div>$aHtml</div>";
+		if($r)
+			$this->raw_html = "$aHtml";
+		else
+			$this->raw_html = "<div>$aHtml</div>";
 		//$this->raw_html = $aHtml;
 		$this->doc->loadHTML($this->raw_html);
 	}
@@ -82,7 +84,7 @@ class Parser{
 			if($msgid != NULL) $divnode->setAttribute("msgid", $msgid);
 			$quote->parentNode->replaceChild($divnode, $quote);
 			$this->raw_html = html_entity_decode($this->doc->saveHTML());
-			$this->loadHTML($this->raw_html);
+			$this->loadHTML($this->raw_html, true);
 			$this->parse();
 		}
 		$element_spoiler = $this->doc->getElementsByTagName("spoiler");
@@ -128,10 +130,26 @@ class Parser{
 			$spannode->appendChild($script);
 			
 			$spoiler->parentNode->replaceChild($spannode, $spoiler);
-			
 
 			$this->parse();
+		}	
+		$element_img = $this->doc->getElementsByTagName("img");
+		//<img style="display: inline;" src="./templates/default/images/LUEshi.jpg" data-original="./templates/default/images/LUEshi.jpg" height="156" width="150">
+		foreach($element_img as $img){
+			$src = $img->getAttribute("src");
+			$attr_style = $this->doc->createAttribute('style');
+			$attr_dataOriginal = $this->doc->createAttribute('data-orginal');
+			
+			//img->appendChild($attr_style);
+			//$img->appendChild($attr_dataOriginal);
+			
+			$img->setAttribute("style", "display: inline;");
+			$img->setAttribute("data-original", $src);
+			$img->setAttribute("src", "./templates/default/images/grey.gif");
+			
+			$this->raw_html = $this->doc->saveHTML();
 		}
+			
 		$this->final_html = $this->raw_html;
 		
 	}
@@ -161,20 +179,20 @@ class Parser{
 		# remove <html><body></body></html> 
 		$this->doc->replaceChild($this->doc->firstChild->firstChild->firstChild, $this->doc->firstChild);
 		$this->final_html = $this->doc->saveHTML();
-		
-		/*
-		$bodyNode = $this->doc->getElementsByTagName('div')->item(0);
-		foreach ($bodyNode->childNodes as $childNode) {
-			$this->final_html .= $this->doc->saveHTML($childNode);
-		}*/
-		
-		//$tmp_html = substr($this->final_html, 5, strlen($this->final_html)-4);
 		return $this->final_html;
 	}
 	
 	public static function getElementCount(){
 		Parser::$element_count++;
 		return Parser::$element_count;
+	}
+	
+	public static function cleanUp($html){
+		// Replaces <safescript> tag with <script> since html purify does not allow <script> tags @TODO: Test extensively for XSS
+		// Removes extra </span> created by the parser @TODO: figure out why this happens
+		$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", $html);
+		$message_script = str_replace("</safescript>", "</script>", $message_script);
+		return str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
 	}
 }
 ?>
