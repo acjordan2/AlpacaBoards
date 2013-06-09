@@ -87,11 +87,16 @@ class User{
 			$statement = $this->pdo_conn->prepare("SELECT Users.user_id, Users.username, 
 													Users.email, Users.private_email,
 													Users.instant_messaging, Users.account_created,
-													Users.last_active, Users.status, Users.avatar,
-													Users.signature, Users.quote, Users.timezone, Users.level
+													Users.last_active, Users.status, Users.avatar, UploadedImages.sha1_sum,
+													UploadedImages.height, UploadedImages.width, UploadedImages.thumb_width,
+													UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, Users.timezone, Users.level
 												 FROM Users
+												 LEFT JOIN UploadLog
+												 ON Users.avatar=UploadLog.uploadlog_id
+												 LEFT JOIN UploadedImages
+												 ON UploadLog.image_id = UploadedImages.image_id
 												 INNER JOIN Sessions
-												 USING(user_id)
+												 on Users.user_id=Sessions.user_id
 												 WHERE 
 													Sessions.session_key1=:session_key1 
 													AND Sessions.session_key2=:session_key2
@@ -212,7 +217,7 @@ class User{
 		@$this->password = $user_data['password'];
 		$this->last_active = $user_data['last_active'];
 		$this->status = $user_data['status'];
-		$this->avatar = $user_data['avatar'];
+		$this->avatar = array($user_data['sha1_sum'], $user_data['filename'], $user_data['width'], $user_data['height'], $user_data['thumb_width'], $user_data['thumb_height']);
 		$this->signature = $user_data['signature'];
 		$this->quote = $user_data['quote'];
 		$this->timezone = $user_data['timezone'];
@@ -396,8 +401,14 @@ class User{
 					   Users.email, Users.private_email,
 					   Users.instant_messaging, Users.account_created,
 					   Users.last_active, Users.status, Users.avatar,
-					   Users.signature, Users.quote, Users.timezone, Users.level
+					   Users.signature, Users.quote, Users.timezone, Users.level, UploadedImages.sha1_sum,
+					   UploadedImages.height, UploadedImages.width, UploadedImages.thumb_width,
+					   UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, Users.timezone, Users.level
 				FROM Users
+				LEFT JOIN UploadLog
+					 ON Users.avatar=UploadLog.uploadlog_id
+					 LEFT JOIN UploadedImages
+					 ON UploadLog.image_id = UploadedImages.image_id
 				WHERE Users.user_id=?";
 		$statement = $this->pdo_conn->prepare($sql);
 		$statement->execute(array($this->user_id));
@@ -474,7 +485,11 @@ class User{
 	 * @return Location of the user's avatar
 	 */
 	public function getAvatar(){
-		return $this->avatar();
+		return $this->avatar;
+	}
+	
+	public function getInstantMessaging(){
+		return $this->instant_messaging;
 	}
 	
 	/**
@@ -609,6 +624,13 @@ class User{
 		
 	}
 	
+	public function setInstantMessaging($aInstantMessaging){
+		$sql = "UPDATE Users set instant_messaging = ? WHERE user_id = ".$this->user_id;
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($aInstantMessaging));
+		$this->instant_messaging = $aInstantMessaging;
+	}
+	
 	/**
 	 * Update the user's account status.
 	 * @param $aStatus -1 for banned, 0 for active, More than zero for number of days suspesion
@@ -642,8 +664,15 @@ class User{
 	 * Update the path of the user's avatar
 	 * @param $aAvatar Path of the user's avatar
 	 */
-	public function setAvatar($aAvatar){
+	public function setAvatar($image_id){
 		
+		$sql_getAvatarID = "SELECT UploadLog.filename, UploadedImages.width, UploadedImages.height, UploadedImages.sha1_sum FROM UploadLog
+						LEFT JOIN UploadedImages USING(image_id) WHERE UploadLog.uploadlog_id = $image_id";
+		$statement_getAvatarID = $this->pdo_conn->query($sql_getAvatarID);
+		$result = $statement_getAvatarID->fetch();
+		$sql = "UPDATE Users set Users.avatar = $image_id WHERE user_id=".$this->user_id;
+		$statement = $this->pdo_conn->query($sql);
+		$this->avatar = array($result['sha1_sum'], $result['filename'], $result['width'], $result['height']);
 	}
 	
 	/**
@@ -651,7 +680,10 @@ class User{
 	 * @param Signature to be appended to every post
 	 */
 	public function setSignature($aSignature){
-		
+		$sql = "UPDATE Users SET signature = ? WHERE user_id = ".$this->user_id;
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($aSignature));
+		$this->signature = $aSignature;
 	}
 	
 	/**
@@ -659,7 +691,10 @@ class User{
 	 * @param $aQuote The user's quote to be displayed on their profile
 	 */
 	public function setQuote($aQuote){
-		
+		$sql = "UPDATE Users SET quote = ? WHERE user_id = ".$this->user_id;
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($aQuote));
+		$this->quote = $aQuote;
 	}
 	
 	/**
@@ -735,6 +770,17 @@ class User{
 													 AND ShopItems.item_id=5";
 		$statement = $this->pdo_conn->query($sql);
 		return $statement->fetchAll();
+	}
+	
+	public function getUploads(){
+		$sql = "SELECT UploadLog.filename, UploadedImages.sha1_sum, MaxCreated FROM (SELECT UploadLog.filename, 
+					UploadLog.user_id, UploadLog.image_id, UploadedImages.sha1_sum, MAX(UploadLog.created) as MaxCreated
+					FROM UploadLog LEFT JOIN UploadedImages USING(image_id) GROUP BY UploadLog.user_id, UploadLog.image_id) UploadLog
+					LEFT JOIN UploadedImages ON UploadLog.image_id = UploadedImages.image_id
+					WHERE UploadLog.user_id=".$this->user_id." GROUP BY UploadLog.user_id, UploadLog.image_id ORDER BY MaxCreated DESC";
+		$statement = $this->pdo_conn->query($sql);
+		$results = $statement->fetchAll();
+		return $results;
 	}
 	
 	public function getCommentHistory(){

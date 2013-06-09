@@ -51,11 +51,11 @@
         <input type="hidden" name="token" value="{$token}" /> 
         <input type="submit" name="preview" value="Preview Message" /> 
         <input type="submit" name="submit" value="Post Message" /> 
-        <!--<input type="button" value="Upload Image" onclick=
-			"new upload_form($('message'), this.parentNode, 7764709); 
-			this.style.display = 'none'" />-->
-        </div>
-    </form><br />
+        <input type="button" id="btn_upload" value="Upload Image" />
+     </div>
+    </form>
+    <div id="uploadFrame" style="display:none;"><iframe id="upload" src= "" width="700" height="300" frameBorder="0"></iframe></div>
+    <br />
     <br />
     {include file="footer.tpl"}
   </div>

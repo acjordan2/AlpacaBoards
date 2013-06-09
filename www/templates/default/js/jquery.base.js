@@ -4,6 +4,10 @@ $(function() {
 			quickpost();
 			return false;
 		});
+		$("#btn_upload").click(function () {
+			 $("#uploadFrame").toggle(); 
+     			 $("#upload").attr("src", "./u.php");
+		});
 
 });
 
@@ -52,3 +56,4 @@ function llmlSpoiler(id){
 			return false;
 	});
 }
+

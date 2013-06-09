@@ -74,11 +74,17 @@ class Topic{
 				MAX(Messages.revision_no) as revision_id,
 				Messages.user_id,
 				Users.username,
+				Users.avatar,
+				UploadedImages.sha1_sum,
+				UploadedImages.thumb_width,
+				UploadedImages.thumb_height,
 				Messages.message,
 				MIN(Messages.posted) as posted
 			FROM Messages
 			LEFT JOIN Users
-				USING(user_id)
+				ON Users.user_id = Messages.user_id
+			LEFT JOIN UploadedImages
+				ON Users.avatar_id = UploadedImages.image_id
 			WHERE
 				Messages.topic_id = ?".
 				@$filter_by_user."
@@ -97,7 +103,14 @@ class Topic{
 		if($topic_count % 50 != 0)
 			$this->page_count += 1;
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
-
+			if(!is_null($message_data_array['avatar'])){
+				$avatar_extension = end(explode(".", $message_data_array['avatar']));
+				$message_data[$i]['avatar'] = $message_data_array['sha1_sum']."/".urlencode(substr($message_data_array['avatar'],0,-1*(strlen($avatar_extension))))."jpg";
+				$message_data[$i]['avatar_width'] = $message_data_array['thumb_width'];
+				$message_data[$i]['avatar_height'] = $message_data_array['thumb_height'];
+			}
+			else
+				$message_data[$i]['avatar'] = NULL;
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];

@@ -25,6 +25,7 @@
  */
  
 require("includes/init.php");
+require("includes/Parser.class.php");
 if($auth == TRUE){
 	$user_id = @$_GET['user'];
 	if(is_null($user_id))
@@ -68,6 +69,27 @@ if($auth == TRUE){
 				$display = "mod_actions.tpl";
 			}
 			else{
+				
+				$avatar = $profile_user->getAvatar();
+				if(!is_null($avatar)){
+					$smarty->assign("avatar", $avatar[0]."/".urlencode($avatar[1]));
+					$smarty->assign("avatar_width", $avatar[2]);
+					$smarty->assign("avatar_height", $avatar[3]);
+				}
+				
+				$parser = new Parser($db);
+				$signature = str_replace("\n" ,"<br />", $pre_html_purifier->purify($profile_user->getSignature()));
+				$parser->loadHTML($signature);
+				$parser->parse();
+				$signature = $post_html_purifier->purify($parser->getHTML());
+				$signature = Parser::cleanUp($signature);
+				
+				$quote = str_replace("\n" ,"<br />", $pre_html_purifier->purify($profile_user->getQuote()));
+				$parser->loadHTML($quote);
+				$parser->parse();
+				$quote = $post_html_purifier->purify($parser->getHTML());
+				$quote = Parser::cleanUp($quote);
+				
 				$smarty->assign("p_username", $profile_user->getUsername());
 				$smarty->assign("p_user_id", $profile_user->getUserID());
 				$smarty->assign("p_status", $profile_user->getStatus());
@@ -78,10 +100,10 @@ if($auth == TRUE){
 				$smarty->assign("credit", $profile_user->getCredits());
 				$smarty->assign("created", $profile_user->getAccountCreated());
 				$smarty->assign("last_active", $profile_user->getLastActive());
-				$smarty->assign("signature", override\htmlentities($profile_user->getSignature()));
-				$smarty->assign("quote", override\htmlentities($profile_user->getQuote()));
-				$smarty->assign("instant_messaging", '');
-				$smarty->assign("public_email", '');
+				$smarty->assign("signature", $signature);
+				$smarty->assign("quote", $quote);
+				$smarty->assign("instant_messaging", $authUser->getInstantMessaging());
+				$smarty->assign("public_email", $authUser->getEmail());
 				
 				$smarty->assign("access_level", $authUser->getAccessLevel());
 				$smarty->assign("access_title", $authUser->getAccessTitle());

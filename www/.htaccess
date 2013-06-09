@@ -1,10 +1,10 @@
-ErrorDocument 404	/404.php
-
+ErrorDocument 404	/Sper.gs/www/404.php 
 Options All -Indexes
 
 RewriteEngine On
 RewriteRule ^includes($|/) 404.php [L,R=404]
 RewriteRule ^templates/default/(.+).tpl($|/) 404.php [L,R=404]
 RewriteRule ^templates/default/main.html($|/) 404.php [L,R=404]
+RewriteRule ^usercontent/i/(n|t)/([0-9a-f]{0,2})([0-9a-f]{0,38})/(.+).(jpg|png|gif) usercontent/image_uploads/$1/$2/$2$3.$5
 RewriteRule (.*/)?\\.git+ - [F,L]
 

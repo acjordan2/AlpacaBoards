@@ -57,6 +57,7 @@ try{
 	$smarty->assign("domain", DOMAIN);
 	$smarty->assign("dateformat", DATE_FORMAT_SMARTY);
 	$smarty->assign("board_id", 42);
+	$smarty->assign("base_image_url", BASE_IMAGE_URL);
 	
 	//HTMLPurifier Setup pre processing
 	global $pre_html_purifier;

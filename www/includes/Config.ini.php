@@ -45,6 +45,7 @@ elseif(!isset($install))
 ##Sitewide Settings
 define("DOMAIN", "");
 define("SITENAME", "Sper.gs");
+define("BASE_IMAGE_URL", "usercontent/i");
 
 ##Search Settings
 define("SEARCHD_PATH", "/usr/bin/searchd");
@@ -72,5 +73,6 @@ define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
 define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");
 define("DATE_FORMAT_SMARTY", "%m/%d/%Y %l:%M:%S %p");
 define("DATE_FORMAT", "n/j/Y g:i:s A");
+
 
 ?>

@@ -58,7 +58,6 @@ class Parser{
 	
 	public function parse(){
 		$element_quote = $this->doc->getElementsByTagName('quote');
-		global $allowed_tags;
 		foreach($element_quote as $quote){
 			$msgid = $quote->getAttribute('msgid');
 			if($msgid != NULL){
@@ -134,7 +133,6 @@ class Parser{
 			$this->parse();
 		}	
 		$element_img = $this->doc->getElementsByTagName("img");
-		//<img style="display: inline;" src="./templates/default/images/LUEshi.jpg" data-original="./templates/default/images/LUEshi.jpg" height="156" width="150">
 		foreach($element_img as $img){
 			$src = $img->getAttribute("src");
 			$attr_style = $this->doc->createAttribute('style');
@@ -147,7 +145,7 @@ class Parser{
 			$img->setAttribute("data-original", $src);
 			$img->setAttribute("src", "./templates/default/images/grey.gif");
 			
-			$this->raw_html = $this->doc->saveHTML();
+			//$this->raw_html = $this->doc->saveHTML();
 		}
 			
 		$this->final_html = $this->raw_html;
@@ -177,7 +175,7 @@ class Parser{
 		# remove <!DOCTYPE 
 		$this->doc->removeChild($this->doc->firstChild);            
 		# remove <html><body></body></html> 
-		$this->doc->replaceChild($this->doc->firstChild->firstChild->firstChild, $this->doc->firstChild);
+		//$this->doc->replaceChild($this->doc->firstChild->firstChild->firstChild, $this->doc->firstChild);
 		$this->final_html = $this->doc->saveHTML();
 		return $this->final_html;
 	}

@@ -81,37 +81,19 @@
 		<tr>
         	<td>Picture</td>
         	<td>
-			<img src="./templates/default/images/grey.gif" data-original="./templates/default/images/LUEshi.jpg" width="395" height="400" />
-		</td>
+				{if isset($avatar)}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/n/{$avatar}" width="{$avatar_width}" height="{$avatar_height}" />{/if}
+			</td>
 		</tr>
 		<tr>
 			<th colspan="2">More Options</th>
 		</tr>
 {if $user_id == $p_user_id}
-	<!--
 		<tr>
 			<td colspan="2"><a href="./editprofile.php">Edit My Profile</a></td>
 		</tr>
+<!--
 		<tr>
 			<td colspan="2"><a href="./editdisplay.php">Edit My Site Display Options</a></td>
-		</tr>
-		<tr>
-			<td colspan="2"><a href="./editpass.php">Edit My Password</a></td>
-		</tr>
-		<tr>
-			<td colspan="2"><a href="./history.php">View My Posted Messages</a></td>
-		</tr>
-		<tr>
-			<td colspan="2"><a href="./links.php?mode=user&amp;userid={$p_user_id}">View Links I've Added</a></td>
-		</tr>
-		<tr>
-			<td colspan="2"><a href="./links.php?mode=comments">View My LUElink Comment History</a></td>
-		</tr>
-		<tr>
-			<td colspan="2"><a href="./mytokens.php?user=18026">View My Available Tokens</a></td>
-		</tr>
-		<tr>
-			<td colspan="2"><a href="./loser.php?userid=18026">View My Stats</a></td>
 		</tr>
 	-->
 		<tr>
@@ -120,6 +102,17 @@
 		<tr>
 			<td colspan="2"><a href="./history.php">View My Posted Messages</a></td>
 	 	</tr>     
+<!--
+		<tr>
+			<td colspan="2"><a href="./links.php?mode=user&amp;userid={$p_user_id}">View Links I've Added</a></td>
+		</tr>
+		<tr>
+			<td colspan="2"><a href="./links.php?mode=comments">View My LUElink Comment History</a></td>
+		</tr>
+		<tr>
+			<td colspan="2"><a href="./mytokens.php?user={$p_user_id}">View My Available Tokens</a></td>
+		</tr>
+-->
 		<tr>
 			<td colspan="2"><a href="./shop.php">Enter The Token Shop</a></td>
 		</tr>      

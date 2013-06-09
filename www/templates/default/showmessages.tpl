@@ -61,16 +61,7 @@
 			</td>
 			<td class="userpic">
 				<div class="userpic-holder">
-					<!-- <span class="img-placeholder" style="width:150px;height:131px" id="u0_{$i}"></span> -->
-					<img src="./templates/default/images/grey.gif" data-original="./templates/default/images/LUEshi.jpg" width="150" height="156" />
-				{literal}<!--				
-					<script type="text/javascript">
-						/*
-						//<![CDATA[
-						onDOMContentLoaded(function(){new ImageLoader($("u0_{/literal}{$i}{literal}"), "./templates/default/images/LUEshi.jpg", 150, 131)})
-						//]]>*/
-					</script>
-				{/literal}-->
+					{if $table.avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.avatar}" width="{$table.avatar_width}" height="{$table.avatar_height}" />{/if}
 				</div>
 			</td>
 		</tr>
