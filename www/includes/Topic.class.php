@@ -78,13 +78,16 @@ class Topic{
 				UploadedImages.sha1_sum,
 				UploadedImages.thumb_width,
 				UploadedImages.thumb_height,
+				UploadLog.filename,
 				Messages.message,
 				MIN(Messages.posted) as posted
 			FROM Messages
 			LEFT JOIN Users
 				ON Users.user_id = Messages.user_id
+			LEFT JOIN UploadLog
+				ON Users.avatar = UploadLog.uploadlog_id
 			LEFT JOIN UploadedImages
-				ON Users.avatar_id = UploadedImages.image_id
+				On UploadedImages.image_id = UploadLog.image_id
 			WHERE
 				Messages.topic_id = ?".
 				@$filter_by_user."
@@ -104,8 +107,8 @@ class Topic{
 			$this->page_count += 1;
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
 			if(!is_null($message_data_array['avatar'])){
-				$avatar_extension = end(explode(".", $message_data_array['avatar']));
-				$message_data[$i]['avatar'] = $message_data_array['sha1_sum']."/".urlencode(substr($message_data_array['avatar'],0,-1*(strlen($avatar_extension))))."jpg";
+				$avatar_extension = end(explode(".", $message_data_array['filename']));
+				$message_data[$i]['avatar'] = $message_data_array['sha1_sum']."/".urlencode(substr($message_data_array['filename'],0,-1*(strlen($avatar_extension))))."jpg";
 				$message_data[$i]['avatar_width'] = $message_data_array['thumb_width'];
 				$message_data[$i]['avatar_height'] = $message_data_array['thumb_height'];
 			}

@@ -2,6 +2,7 @@
 www/includes/smarty/templates_c/*.tpl.php
 www/includes/Database.ini.php
 www/install/install.lock
+www/usercontent/image_uploads/
 
 ##Linux Files
 .*

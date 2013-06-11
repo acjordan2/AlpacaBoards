@@ -741,3 +741,44 @@ ALTER TABLE `Users`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+INSERT INTO `BoardCategories` (`category_id`, `title`) VALUES
+(1, 'Social Boards'),
+(2, 'Special Boards');
+
+INSERT INTO `Boards` (`board_id`, `category_id`, `title`, `description`) VALUES
+(42, 1, 'Life, the Universe, and Everything', 'What ever.'),
+(754, 2, 'Fish Farm', 'Staff only');
+
+INSERT INTO `ItemClass` (`class_id`, `type`) VALUES
+(1, 'topic');
+
+INSERT INTO `LinkCategories` (`category_id`, `name`) VALUES
+(1, 'Funny'),
+(2, 'News'),
+(3, 'Videos'),
+(4, 'Educational'),
+(5, 'Wacky'),
+(6, 'Pictures'),
+(7, 'Fighting'),
+(8, 'Trailers'),
+(9, 'Music'),
+(10, 'Adult'),
+(11, 'Sports'),
+(12, 'Gaming'),
+(13, 'Fail'),
+(14, 'Website');
+
+INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `class_id`) VALUES
+(4, 'Invite', 50, 'Buy an invite to give to another user.', 1, 0),
+(5, 'Pin Topic', 10, 'pin a topic on the main board for 24 hours', 1, 1);
+
+INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
+(1, 'Adminstrator');
+
+INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`) VALUES
+(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+

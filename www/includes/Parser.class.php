@@ -140,7 +140,16 @@ class Parser{
 			
 			//img->appendChild($attr_style);
 			//$img->appendChild($attr_dataOriginal);
+			$src_array = explode("/", $src);
+			$hash = $src_array[3];
 			
+			$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
+			$statement = $this->pdo_conn->prepare($sql);
+			$statement->execute(array($hash));
+			$results = $statement->fetch();
+			
+			$img->setAttribute("width", $results[0]);
+			$img->setAttribute("height", $results[1]);
 			$img->setAttribute("style", "display: inline;");
 			$img->setAttribute("data-original", $src);
 			$img->setAttribute("src", "./templates/default/images/grey.gif");
