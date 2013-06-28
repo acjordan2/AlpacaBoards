@@ -148,7 +148,7 @@ class User{
 				if($user_data['old_password'] != null){
 					$old_salt = "m*Uc98/'14B#\|omIQ,G:IrnpVM:zo";
 					$old_password  = md5($old_salt.$aPassword);
-					if(strcmp($old_password, $user_data['old_password']) ==0){
+					if(strcmp($old_password, $user_data['old_password']) === 0){
 						$old_pass_auth = TRUE;
 					}
 				}
@@ -157,13 +157,12 @@ class User{
 					$salted_password = explode("\$", $user_data['password']);
 					$salt = $salted_password[1];
 					$password = $salted_password[2];
-					if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) == 0)
+					if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) === 0)
 						$new_pass_auth = TRUE;
 				}
 				# Compare the stored hash with the generated hash
 				if($new_pass_auth == TRUE || $old_pass_auth == TRUE){
 					$this->setUserData($user_data);
-					if($old_pass_auth == TRUE)
 						$this->convertOldPassword($aPassword);
 					# Generate session keys
 					$session_key1 = hash("sha256", $this->user_id.$this->username.mt_rand());
@@ -217,7 +216,7 @@ class User{
 		@$this->password = $user_data['password'];
 		$this->last_active = $user_data['last_active'];
 		$this->status = $user_data['status'];
-		$this->avatar = array($user_data['sha1_sum'], $user_data['filename'], $user_data['width'], $user_data['height'], $user_data['thumb_width'], $user_data['thumb_height']);
+		$this->avatar = @array($user_data['sha1_sum'], $user_data['filename'], $user_data['width'], $user_data['height'], $user_data['thumb_width'], $user_data['thumb_height']);
 		$this->signature = $user_data['signature'];
 		$this->quote = $user_data['quote'];
 		$this->timezone = $user_data['timezone'];
@@ -242,7 +241,7 @@ class User{
 			$salted_password = explode("\$", $row['password']);
 			$salt = $salted_password[1];
 			$password = $salted_password[2];
-			if(strcmp($row['password'], $this->generatePasswordHash($aPassword1, $salt)) == 0 || $reset==TRUE){
+			if(strcmp($row['password'], $this->generatePasswordHash($aPassword1, $salt)) === 0 || $reset==TRUE){
 				$newPassword = $this->generatePasswordHash($aPassword2);
 				$sql2 = "UPDATE Users SET Users.password='$newPassword' WHERE Users.username='$this->username'";
 				$this->pdo_conn->query($sql2);
@@ -554,7 +553,10 @@ class User{
 		$sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) as count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE Topics.user_id=$this->user_id GROUP BY Topics.topic_id ORDER BY count DESC"; 
 		$statement= $this->pdo_conn->query($sql);
 		$row = $statement->fetchAll();
-		return $row[0]['count'];
+		if(!empty($row))
+			return $row[0]['count'];
+		else
+			return 0;
 	}
 	
 	public function getNoReplyTopics(){
