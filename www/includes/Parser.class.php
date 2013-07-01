@@ -134,27 +134,24 @@ class Parser{
 		}	
 		$element_img = $this->doc->getElementsByTagName("img");
 		foreach($element_img as $img){
-			$src = $img->getAttribute("src");
-			$attr_style = $this->doc->createAttribute('style');
-			$attr_dataOriginal = $this->doc->createAttribute('data-orginal');
-			
-			//img->appendChild($attr_style);
-			//$img->appendChild($attr_dataOriginal);
-			$src_array = explode("/", $src);
-			$hash = $src_array[3];
-			
-			$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
-			$statement = $this->pdo_conn->prepare($sql);
-			$statement->execute(array($hash));
-			$results = $statement->fetch();
-			
-			$img->setAttribute("width", $results[0]);
-			$img->setAttribute("height", $results[1]);
-			$img->setAttribute("style", "display: inline;");
-			$img->setAttribute("data-original", $src);
-			$img->setAttribute("src", "./templates/default/images/grey.gif");
-			
-			//$this->raw_html = $this->doc->saveHTML();
+			if($img->getAttribute('data-orginal')){
+				$src = $img->getAttribute("src");
+				$attr_style = $this->doc->createAttribute('style');
+				$attr_dataOriginal = $this->doc->createAttribute('data-orginal');
+				
+				$src_array = explode("/", $src);
+				$hash = $src_array[3];
+				$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
+				$statement = $this->pdo_conn->prepare($sql);
+				$statement->execute(array($hash));
+				$results = $statement->fetch();
+				
+				$img->setAttribute("width", $results[0]);
+				$img->setAttribute("height", $results[1]);
+				$img->setAttribute("style", "display: inline;");
+				$img->setAttribute("data-original", $src);
+				$img->setAttribute("src", "./templates/default/images/grey.gif");
+			}
 		}
 			
 		$this->final_html = $this->raw_html;
