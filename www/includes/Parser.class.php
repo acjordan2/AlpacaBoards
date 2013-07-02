@@ -57,6 +57,32 @@ class Parser{
 	}
 	
 	public function parse(){
+		$element_img = $this->doc->getElementsByTagName("img");
+		foreach($element_img as $img){
+			$src = $img->getAttribute("src");
+			$src_array = explode("/", $src);
+			if($src_array[sizeof($src_array)-1] != "grey.gif"){
+				$hash = $src_array[3];
+				if($img->parentNode->getAttribute('msgid') != NULL){
+					$src_array[2] = 't';
+					$filename = explode(".", $src_array[sizeof($src_array)-1]);
+					$src_array[sizeof($src_array)-1] = $filename[0].".jpg";
+				}
+				if($src_array[2] === 'n')
+					$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
+				else
+					$sql = "SELECT thumb_width, thumb_height FROM UploadedImages WHERE sha1_sum = ?";
+				$statement = $this->pdo_conn->prepare($sql);
+				$statement->execute(array($hash));
+				$results = $statement->fetch();
+				
+				$img->setAttribute("width", $results[0]);
+				$img->setAttribute("height", $results[1]);
+				$img->setAttribute("style", "display: inline;");
+				$img->setAttribute("data-original", implode("/", $src_array));
+				$img->setAttribute("src", "./templates/default/images/grey.gif");
+			}
+		}
 		$element_quote = $this->doc->getElementsByTagName('quote');
 		foreach($element_quote as $quote){
 			$msgid = $quote->getAttribute('msgid');
@@ -132,27 +158,6 @@ class Parser{
 
 			$this->parse();
 		}	
-		$element_img = $this->doc->getElementsByTagName("img");
-		foreach($element_img as $img){
-			if($img->getAttribute('data-orginal')){
-				$src = $img->getAttribute("src");
-				$attr_style = $this->doc->createAttribute('style');
-				$attr_dataOriginal = $this->doc->createAttribute('data-orginal');
-				
-				$src_array = explode("/", $src);
-				$hash = $src_array[3];
-				$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
-				$statement = $this->pdo_conn->prepare($sql);
-				$statement->execute(array($hash));
-				$results = $statement->fetch();
-				
-				$img->setAttribute("width", $results[0]);
-				$img->setAttribute("height", $results[1]);
-				$img->setAttribute("style", "display: inline;");
-				$img->setAttribute("data-original", $src);
-				$img->setAttribute("src", "./templates/default/images/grey.gif");
-			}
-		}
 			
 		$this->final_html = $this->raw_html;
 		
