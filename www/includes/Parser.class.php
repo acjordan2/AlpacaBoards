@@ -2,7 +2,7 @@
 /*
  * Parser.class.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2013 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -86,6 +86,7 @@ class Parser{
 		$element_quote = $this->doc->getElementsByTagName('quote');
 		foreach($element_quote as $quote){
 			$msgid = $quote->getAttribute('msgid');
+			$parent_msgid = $quote->parentNode->parentNode->getAttribute('msgid');
 			if($msgid != NULL){
 				$msgid_array = explode(",", $msgid);
 				$message_id = explode("@", $msgid_array[2]);
@@ -100,6 +101,8 @@ class Parser{
 				$message_header = "From: <a href=\"./profile.php?id=".$results['user_id']."\">".$results['username']."</a> | Posted: ".date(DATE_FORMAT, $results['posted']);
 				$quote_headers = $this->doc->CreateElement("div", $message_header);
 				$quote_headers->setAttribute("class", "message-header");
+				if($parent_msgid != null)
+					$quote->nodeValue = "[<a href=\"./message.php?id=".urlencode($message_id[0])."&amp;topic=".urlencode($msgid_array[1])."&amp;r=".urlencode($message_id[1])."\">Quoted text omitted</a>]";
 				$quote_body = $this->prependElement($quote, $quote_headers->ownerDocument->saveHTML($quote_headers));
 			}else{
 				$quote_body = $quote;
