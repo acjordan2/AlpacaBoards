@@ -127,7 +127,7 @@ class Parser{
 			
 			$spoiler_on_close_node = $this->doc->createElement('span');
 			$spoiler_on_close_node->setAttribute("class", "spoiler_on_close");
-			$spoiler_on_close_bold = $this->doc->createElement("b", "&lt;$caption /&gt;");
+			$spoiler_on_close_bold = $this->doc->createElement("b", "&amp;lt;$caption /&amp;gt;");
 			$spoiler_on_close_tag = $this->doc->createElement("a");
 			$spoiler_on_close_tag->setAttribute("class", "caption");
 			$spoiler_on_close_tag->setAttribute("href", "#");
@@ -136,13 +136,13 @@ class Parser{
 			
 			$spoiler_on_open_node = $this->doc->createElement('span');
 			$spoiler_on_open_node->setAttribute("class", "spoiler_on_open");
-			$spoiler_on_open_start_tag = $this->doc->createElement("a", "&lt;$caption&gt;");
+			$spoiler_on_open_start_tag = $this->doc->createElement("a", "&amp;lt;$caption&amp;gt;");
 			$spoiler_on_open_start_tag->setAttribute("class", "caption");
 			$spoiler_on_open_start_tag->setAttribute("href", "#");
 			
 			$spoiler_body = $this->doc->createTextNode($this->get_inner_html($spoiler));
-			
-			$spoiler_on_open_end_tag = $this->doc->createElement("a", "&lt;/$caption&gt;");
+
+			$spoiler_on_open_end_tag = $this->doc->createElement("a", "&amp;lt;/$caption&amp;gt;");
 			$spoiler_on_open_end_tag->setAttribute("class", "caption");
 			$spoiler_on_open_end_tag->setAttribute("href", "#");
 			$spoiler_on_open_node->appendChild($spoiler_on_open_start_tag);
@@ -150,18 +150,15 @@ class Parser{
 			$spoiler_on_open_node->appendChild($spoiler_on_open_end_tag);
 			
 			$spannode->appendChild($spoiler_on_close_node);
-			$spannode->appendChild($spoiler_on_open_node);
-			
+			$spannode->appendChild($spoiler_on_open_node);			
 			
 			$script = $this->doc->createElement("safescript", "$(document).ready(function(){llmlSpoiler($(\"#s0_".$count."\"));});");
 			$script->setAttribute("type", "text/javascript");
 			$spannode->appendChild($script);
 			
 			$spoiler->parentNode->replaceChild($spannode, $spoiler);
-
-			$this->parse();
-		}	
-			
+			//$this->parse();
+		}		
 		$this->final_html = $this->raw_html;
 		
 	}
@@ -180,7 +177,7 @@ class Parser{
 		$innerHTML = '';
 		$children = $node->childNodes;
 		foreach($children as $child){
-			$innerHTML .= override\htmlentities($child->ownerDocument->saveXML($child));
+			$innerHTML .= htmlentities($child->ownerDocument->saveXML($child));
 		}
 		return html_entity_decode($innerHTML);
 	}
@@ -190,7 +187,7 @@ class Parser{
 		$this->doc->removeChild($this->doc->firstChild);            
 		# remove <html><body></body></html> 
 		//$this->doc->replaceChild($this->doc->firstChild->firstChild->firstChild, $this->doc->firstChild);
-		$this->final_html = $this->doc->saveHTML();
+		$this->final_html = html_entity_decode($this->doc->saveHTML());
 		return $this->final_html;
 	}
 	
