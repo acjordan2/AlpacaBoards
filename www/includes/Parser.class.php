@@ -59,6 +59,8 @@ class Parser{
 	public function parse(){
 		$element_img = $this->doc->getElementsByTagName("img");
 		foreach($element_img as $img){
+			$img_div = $this->doc->createElement("span");
+			$img_div->setAttribute("class", "imgs");
 			$src = $img->getAttribute("src");
 			$src_array = explode("/", $src);
 			if($src_array[sizeof($src_array)-1] != "grey.gif"){
@@ -75,12 +77,14 @@ class Parser{
 				$statement = $this->pdo_conn->prepare($sql);
 				$statement->execute(array($hash));
 				$results = $statement->fetch();
-				
-				$img->setAttribute("width", $results[0]);
-				$img->setAttribute("height", $results[1]);
-				$img->setAttribute("style", "display: inline;");
-				$img->setAttribute("data-original", implode("/", $src_array));
-				$img->setAttribute("src", "./templates/default/images/grey.gif");
+				$img_tmp = $this->doc->createElement("img");
+				$img_tmp->setAttribute("width", $results[0]);
+				$img_tmp->setAttribute("height", $results[1]);
+				$img_tmp->setAttribute("style", "display: inline;");
+				$img_tmp->setAttribute("data-original", implode("/", $src_array));
+				$img_tmp->setAttribute("src", "./templates/default/images/grey.gif");
+				$img_div->appendChild($img_tmp);
+				$img->parentNode->replaceChild($img_div, $img);
 			}
 		}
 		$element_quote = $this->doc->getElementsByTagName('quote');
@@ -127,7 +131,7 @@ class Parser{
 			
 			$spoiler_on_close_node = $this->doc->createElement('span');
 			$spoiler_on_close_node->setAttribute("class", "spoiler_on_close");
-			$spoiler_on_close_bold = $this->doc->createElement("b", "&amp;lt;$caption /&amp;gt;");
+			$spoiler_on_close_bold = $this->doc->createElement("b", "&lt;$caption /&gt;");
 			$spoiler_on_close_tag = $this->doc->createElement("a");
 			$spoiler_on_close_tag->setAttribute("class", "caption");
 			$spoiler_on_close_tag->setAttribute("href", "#");
@@ -136,18 +140,20 @@ class Parser{
 			
 			$spoiler_on_open_node = $this->doc->createElement('span');
 			$spoiler_on_open_node->setAttribute("class", "spoiler_on_open");
-			$spoiler_on_open_start_tag = $this->doc->createElement("a", "&amp;lt;$caption&amp;gt;");
+			$spoiler_on_open_start_tag = $this->doc->createElement("a", "&lt;$caption&gt;");
 			$spoiler_on_open_start_tag->setAttribute("class", "caption");
 			$spoiler_on_open_start_tag->setAttribute("href", "#");
 			
-			$spoiler_body = $this->doc->createTextNode($this->get_inner_html($spoiler));
+			$spoiler_on_open_node->appendChild($spoiler_on_open_start_tag);
+			$spoiler_body = $this->buildTree($spoiler, $spoiler_on_open_node);
+			//$spoiler_body = $this->doc->createTextNode($this->get_inner_html($spoiler));
 
-			$spoiler_on_open_end_tag = $this->doc->createElement("a", "&amp;lt;/$caption&amp;gt;");
+			$spoiler_on_open_end_tag = $this->doc->createElement("a", "&lt;/$caption&gt;");
 			$spoiler_on_open_end_tag->setAttribute("class", "caption");
 			$spoiler_on_open_end_tag->setAttribute("href", "#");
-			$spoiler_on_open_node->appendChild($spoiler_on_open_start_tag);
-			$spoiler_on_open_node->appendChild($spoiler_body);
 			$spoiler_on_open_node->appendChild($spoiler_on_open_end_tag);
+			//$spoiler_on_open_node->appendChild($spoiler_body);
+			//$spoiler_on_open_node->appendChild($spoiler_on_open_end_tag);
 			
 			$spannode->appendChild($spoiler_on_close_node);
 			$spannode->appendChild($spoiler_on_open_node);			
@@ -182,12 +188,20 @@ class Parser{
 		return html_entity_decode($innerHTML);
 	}
 	
+	public function buildTree($node, $parent){
+		$children = $node->childNodes;
+		foreach($children as $child){
+			$parent->appendChild($child);
+		}
+		return $parent;
+	}
+	
 	public function getHTML(){
 		# remove <!DOCTYPE 
 		$this->doc->removeChild($this->doc->firstChild);            
 		# remove <html><body></body></html> 
 		//$this->doc->replaceChild($this->doc->firstChild->firstChild->firstChild, $this->doc->firstChild);
-		$this->final_html = html_entity_decode($this->doc->saveHTML());
+		$this->final_html = $this->doc->saveHTML();
 		return $this->final_html;
 	}
 	
