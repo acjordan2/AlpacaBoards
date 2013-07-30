@@ -60,7 +60,7 @@ define("USE_SSL", FALSE);
 define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
 
 $pre_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,quote[msgid],spoiler[caption],img[src|style]";
-$post_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,div[class|msgid],a[href],span[class|id],safescript[type],img[src|style|data-original|width|height]";
+$post_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,div[class|msgid],a[href],span[class|id],safescript[type],img[src|style|data-original|width|height],safediv[class]";
 
 ##Authentication Cookie Names
 define("AUTH_KEY1", "sessionid");

@@ -59,7 +59,7 @@ class Parser{
 	public function parse(){
 		$element_img = $this->doc->getElementsByTagName("img");
 		foreach($element_img as $img){
-			$img_div = $this->doc->createElement("span");
+			$img_div = $this->doc->createElement("safediv");
 			$img_div->setAttribute("class", "imgs");
 			$src = $img->getAttribute("src");
 			$src_array = explode("/", $src);
@@ -213,9 +213,12 @@ class Parser{
 	public static function cleanUp($html){
 		// Replaces <safescript> tag with <script> since html purify does not allow <script> tags @TODO: Test extensively for XSS
 		// Removes extra </span> created by the parser @TODO: figure out why this happens
-		$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", $html);
-		$message_script = str_replace("</safescript>", "</script>", $message_script);
-		return str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
+		$message = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", $html);
+		$message = str_replace("</safescript>", "</script>", $message);
+		$message = str_replace("</script>&lt;/span&gt;", "</script>", $message);
+		$message = str_replace("<safediv class=\"imgs\">", "<div class=\"imgs\">", $message);
+		$message = str_replace("</safediv>", "</div>", $message);
+		return $message;
 	}
 }
 ?>

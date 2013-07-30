@@ -115,6 +115,15 @@ try{
 				'type' => 'Text'
 				)
 			);
+		$safe_div = $def->addElement(
+			'safediv',
+			'Inline',
+			'Flow',
+			'None',
+			array(
+				'class' => 'Text'
+				)
+			);
 	}
 
 	$post_html_purifier = new HTMLPurifier($post_html_purifier_config);
