@@ -19,6 +19,8 @@ Class Message{
 	protected $link_id;
 	
 	protected $link_title;
+
+	protected $user_avatar;
 	
 	function __construct(&$db_connection, $aMessage_id, $aUser_id=NULL, $is_link=FALSE){
 		$this->pdo_conn = &$db_connection;
@@ -144,7 +146,7 @@ class MessageRevision Extends Message{
 						 LinkMessages.message,
 						 Users.username,
 						 Links.title as link_title
-					FROM
+					FROM 
 						Users
 					LEFT JOIN LinkMessages USING(user_id)
 					LEFT JOIN Links USING(link_id)
@@ -203,6 +205,12 @@ class MessageRevision Extends Message{
 		$this->message = $data['message'];
 		$this->posted = $data['posted'];
 		$this->username = $data['username'];
+		/*$this->user_avatar = array("height" => $data['thumb_height'],
+								   "width" => $data['thumb_width'],
+								   "avatar" => $data['sha1_sum']."/".urlencode(substr($data['filename']);
+		*/
+		$tmp_user = new User($this->pdo_conn, $this->user_id);
+		$this->user_avatar = $tmp_user->getAvatar();
 	}
 	
 	public function getUsername(){
@@ -227,6 +235,10 @@ class MessageRevision Extends Message{
 	
 	public function getLinkTitle(){
 		return $this->link_title;
+	}
+
+	public function getAvatar(){
+		return $this->user_avatar;
 	}
 	
 }

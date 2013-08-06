@@ -72,9 +72,9 @@ if($auth == TRUE){
 				
 				$avatar = $profile_user->getAvatar();
 				if(!is_null($avatar)){
-					$smarty->assign("avatar", $avatar[0]."/".urlencode($avatar[1]));
-					$smarty->assign("avatar_width", $avatar[2]);
-					$smarty->assign("avatar_height", $avatar[3]);
+					$smarty->assign("avatar", $avatar['sha1_sum']."/".urlencode($avatar['filename'].".".$avatar['extension']));
+					$smarty->assign("avatar_width", $avatar['width']);
+					$smarty->assign("avatar_height", $avatar['height']);
 				}
 				
 				$parser = new Parser($db);

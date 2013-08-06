@@ -19,9 +19,7 @@
 				<td msgid="t,{$topic_id},{$message_id}@{$revision_no}" class="message">{$message}</td>
 				<td class="userpic">
 					<div class="userpic-holder">
-						<a href="./templates/default/images/LUEshi.jpg">
-							<img src="./templates/default/images/grey.gif" data-original="./templates/default/images/LUEshi.jpg" width="150" height="156" />
-						</a>
+						{if $m_avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$m_avatar.sha1_sum}/{$filename}.jpg" width="{$m_avatar.thumb_width}" height="{$m_avatar.thumb_height}" />{/if}
 					</div>
 				</td>
 	        	</tr>
@@ -58,8 +56,6 @@
 	<br />
 	<br />
 	{include file="footer.tpl"}
-	<script type="text/javascript" src="templates/default/js/jquery.lazyload.min.js" charset="utf-8"></script>
-	<script type="text/javascript" src="templates/default/js/jquery.base.js" charset="utf-8"></script>
 </div>
 </body>
 </html>

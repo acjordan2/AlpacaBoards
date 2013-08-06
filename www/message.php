@@ -78,6 +78,8 @@ if($auth=TRUE){
 				$smarty->assign("m_user_id", $message->getUserID());
 				$smarty->assign("m_username", $message->getUsername());
 				$smarty->assign("token", $csrf->getToken());
+				$smarty->assign("m_avatar", $message->getAvatar());
+
 				$display = "message.tpl";
 				$page_title = "Message Detail";
 				require("includes/deinit.php");

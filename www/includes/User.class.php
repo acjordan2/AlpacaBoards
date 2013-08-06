@@ -208,6 +208,7 @@ class User{
 	 * @return void
 	 */
 	private function setUserData($user_data){
+		$filename_array = explode(".", $user_data['filename']);
 		$this->user_id = $user_data['user_id'];
 		$this->username = $user_data['username'];
 		$this->email = $user_data['email'];
@@ -216,7 +217,13 @@ class User{
 		@$this->password = $user_data['password'];
 		$this->last_active = $user_data['last_active'];
 		$this->status = $user_data['status'];
-		$this->avatar = @array($user_data['sha1_sum'], $user_data['filename'], $user_data['width'], $user_data['height'], $user_data['thumb_width'], $user_data['thumb_height']);
+		$this->avatar = @array('sha1_sum' => $user_data['sha1_sum'], 
+							   'filename' => $filename_array[0],
+							   'extension' => $filename_array[1], 
+							   'width' =>	$user_data['width'],
+							   'height' => $user_data['height'], 
+							   'thumb_width' => $user_data['thumb_width'], 
+							   'thumb_height' => $user_data['thumb_height']);
 		$this->signature = $user_data['signature'];
 		$this->quote = $user_data['quote'];
 		$this->timezone = $user_data['timezone'];

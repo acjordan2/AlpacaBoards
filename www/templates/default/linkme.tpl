@@ -64,11 +64,7 @@
 				<td msgid="l,{$link_id},{$table.message_id}@{$table.revision_no}" class="message">{$table.message|replace:"<!--\$i-->":$i++}</td>
 				<td class="userpic">
 					<div class="userpic-holder">
-						<a href="./templates/default/images/LUEshi.jpg">
-							<span class="img-loaded" style="width:150px;height:131px" id="u0_{$i}">
-								<img src="./templates/default/images/LUEshi.jpg" width="150" height="131" />
-							</span>
-						</a>
+						{if $table.avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.avatar.sha1_sum}/{$table.avatar.filename}.jpg" width="{$table.avatar.thumb_width}" height="{$table.avatar.thumb_height}" />{/if}
 					</div>
 				</td>
 			</tr>
@@ -102,7 +98,5 @@
 			<input type="submit" value="Post Message" name="submit"/>
 	</form>
 </div> 
-  <script type="text/javascript" src="templates/default/js/jquery.lazyload.min.js" charset="utf-8"></script>
-  <script type="text/javascript" src="templates/default/js/jquery.base.js" charset="utf-8"></script>
 </body>
 </html>

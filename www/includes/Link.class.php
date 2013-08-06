@@ -164,16 +164,20 @@ class Link{
 		$message_data = array();
 		$parser = new Parser($this->pdo_conn);
 		for($i=0; $message_data_array=$statement->fetch(); $i++){
+			$tmp_user = new User($this->pdo_conn, $message_data_array['user_id']);
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
+			$message_data[$i]['avatar'] = $tmp_user->getAvatar();
 			$parser->loadHTML($GLOBALS['pre_html_purifier']->purify($message_data_array['message']));
 			$parser->parse();
 			$message_content = $GLOBALS['post_html_purifier']->purify($parser->getHTML());
 			
-			$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL(str_replace("\n", "<br/>\n",$message_content)));
-			$message_script = str_replace("</safescript>", "</script>", $message_script);
-			$message_data[$i]['message'] = str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
+			//$message_script = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", override\makeURL(str_replace("\n", "<br/>\n",$message_content)));
+			//$message_script = str_replace("</safescript>", "</script>", $message_script);
+			$message_data[$i]['message'] = Parser::cleanUp($message_content);
+
+			//str_replace("</script>&lt;/span&gt;", "</script>", $message_script);
 			
 			//$message_data[$i]['message'] = $this->formatComments(override\makeURL(override\closeTags(
 											//	str_replace("\n", "<br/>\n", 
