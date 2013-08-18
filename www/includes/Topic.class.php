@@ -117,16 +117,14 @@ class Topic{
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
-			$message_data[$i]['message'] = override\embedVideo((
-												str_replace("\n", "<br/>\n", 
-													($message_data_array['message']))));
 			
+			$message_content = $GLOBALS['pre_html_purifier']->purify($message_data_array['message']);
 			$parser = new Parser($this->pdo_conn);
-			
-			$msg_tmp = $GLOBALS['pre_html_purifier']->purify($message_data[$i]['message']);
-			$parser->loadHTML($msg_tmp);
+			$parser->loadHTML($message_content);
 			$parser->parse();
-			$message_data[$i]['message'] = Parser::cleanUp(override\makeURL($GLOBALS['post_html_purifier']->purify($parser->getHTML())));
+			$message_content = Parser::cleanUp(override\makeURL($GLOBALS['post_html_purifier']->purify($parser->getHTML())));
+			$message_data[$i]['message'] = str_replace("\n", "<br/>\n", $message_content);
+
 			
 			$message_data[$i]['posted'] = $message_data_array['posted'];
 			$message_data[$i]['revision_id'] = $message_data_array['revision_id'];
