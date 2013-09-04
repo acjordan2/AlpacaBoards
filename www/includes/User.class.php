@@ -208,7 +208,7 @@ class User{
 	 * @return void
 	 */
 	private function setUserData($user_data){
-		$filename_array = explode(".", $user_data['filename']);
+		@$filename_array = explode(".", $user_data['filename']);
 		$this->user_id = $user_data['user_id'];
 		$this->username = $user_data['username'];
 		$this->email = $user_data['email'];

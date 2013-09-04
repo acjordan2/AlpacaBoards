@@ -38,6 +38,9 @@ header("Last-Modified: $ls");
 header("Pragma: no-cache");
 header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
 
+session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
+session_start();
+
 #Initiate database connection
 try{
 	// Database Setup 
@@ -150,7 +153,6 @@ try{
 			$smarty->assign("reason", override\htmlentities($authUser->getDisciplineReason()));
 			require_once("deinit.php");
 		}
-
 	}
 } catch(PDOException $e){
 	print $e->getMessage();

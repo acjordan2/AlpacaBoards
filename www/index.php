@@ -36,7 +36,14 @@ if($auth == FALSE){
 	$smarty->assign("message", $message);
 	require("includes/deinit.php");
 }
-else
-	header("Location: ./main.php");
+else{
+	if(isset($_SESSION['redirect'])){
+			$r = $_SESSION['redirect'];
+			unset($_SESSION['redirect']);
+			header("Location: ".$r);
+	}else{
+			header("Location: ./main.php");
+	}
+}
 ?>
 
