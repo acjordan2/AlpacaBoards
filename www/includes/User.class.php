@@ -823,7 +823,7 @@ class User{
 			$statement3 = $this->pdo_conn->query($sql3);
 			$msg_count = $statement3->fetchAll();
 			# Inefficient - Find if another way is possible
-			/**
+			/*
 			$get_count = $this->pdo_conn->prepare("SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
 													WHERE topic_id = ?");
 			$get_count->execute(array($topic_data[$i]['topic_id']));
@@ -831,7 +831,7 @@ class User{
 			
 			$msg_count = $get_count->fetchAll();
 			$history_count = $statement2->fetchAll();
-			**/
+			*/
 			$topic_data[$i]['last_post'] = $last_post[0][0];
 			$topic_data[$i]['number_of_posts'] = $msg_count[0][0];
 			//$topic_data[$i]['history'] = $history_count[0]['count'];
@@ -840,6 +840,24 @@ class User{
 													
 		}
 		return $topic_data;
+	}
+
+	public function logout(){
+		if(isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])){
+			$sql = "UPDATE Sessions SET session_key1=NULL, session_key2=NULL WHERE session_key1=? AND session_key2=?";
+			$statement = $this->pdo_conn->prepare($sql);
+			$statement->execute(array($_COOKIE[AUTH_KEY1], $_COOKIE[AUTH_KEY2]));
+			setcookie($name=AUTH_KEY1, $value='', $expire=1, $path="/", 
+						$domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+			setcookie($name=AUTH_KEY2, $value='', $expire=1, $path="/",           
+				         $domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+		}
+		if(isset($_COOKIE[session_name()])){                       
+			$params = session_get_cookie_params();
+			@session_destroy();
+			setcookie($name=session_name(), $value='', $expire=1, $path="/", 
+						$domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+		}
 	}
 }
 
