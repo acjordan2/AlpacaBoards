@@ -28,7 +28,7 @@ require("includes/Parser.class.php");
 require("includes/Message.class.php");
 require("includes/CSRFGuard.class.php");
 
-if($auth=TRUE){
+if($auth==TRUE){
 	if(is_numeric(@$_GET['id']) && is_numeric(@$_GET['topic'])){
 		$csrf = new CSRFGuard();
 		if(is_numeric(@$_GET['r']))
