@@ -29,8 +29,6 @@ class CSRFGuard{
 	private $pdo_conn;
 	
 	function __construct(){
-		session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
-		session_start();
 		if(!isset($_SESSION['csrf_token']))	
 			$_SESSION['csrf_token'] = override\random(24);
 	}
