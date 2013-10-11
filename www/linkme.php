@@ -2,7 +2,7 @@
 /*
  * linkme.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2013 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -36,14 +36,14 @@ if($auth == TRUE){
 		if($link->doesExist()){
 			$link_data = $link->getLink();
 			$csrf = new CSRFGuard();
-			if(is_numeric(@$_GET['v']) && @$_GET['v'] >= 0 && @$_GET['v'] <= 10 && $link_data['user_id']!=$authUser->getUserID()){
+			if(is_numeric(@$_POST['v']) && @$_POST['v'] >= 0 && @$_POST['v'] <= 10 && $link_data['user_id']!=$authUser->getUserID()){
 				if($csrf->validateToken(@$_REQUEST['token'])){
-					$link->vote($_GET['v']);
+					$link->vote($_POST['v']);
 					$link_data = $link->getLink();
 					$smarty->assign("message", "Vote Added!");
 				}
 			}
-			if(@$_GET['f'] == 1 && $csrf->validateToken(@$_REQUEST['token'])){
+			if(@$_POST['f'] == 1 && $csrf->validateToken(@$_REQUEST['token'])){
 				if($link->addToFavorites())
 					$smarty->assign("message", "Added to Favorites!");
 			}

@@ -12,15 +12,21 @@
 	<b>Rank:</b> {$link_data.rank|string_format:"%.0f"}<br />
 	<b>Share:</b> <a href="./ss.php?l={$link_data.code}">{$domain}/ss.php?l=SS{$link_data.code}</a><br /><br />
 	<b>Categories:</b> {$link_data.categories}<br />
-	<b>Options:</b> 
-	<a href="./linkme.php?f=1&amp;l={$link_data.link_id}&amp;token={$token}">Add to Favorites</a> | 
-	<a href="./linkreport.php?l={$link_data.link_id}">Report Link</a>
+	<b>Options:</b>
+	<form action="./linkme.php?l={$link_data.link_id}" method="POST">
+		<button name="f" value="1">Add to Favorites</button>
+		<input type="hidden" name="token" value={$token} /> | 
+		<a href="./linkreport.php?l={$link_data.link_id}">Report Link</a>
+	</form>
 {if $user_id == $link_data.user_id}
 	| <a href="./addlink.php?edit={$link_data.link_id}">Edit link</a> 
 {else}
 	<br />
 	<br />
-	<b>Vote:</b> {for $i=0; $i<11; $i++}<a href="./linkme.php?l={$link_data.link_id}&v={$i}&token={$token}">{$i}</a> {/for}<br />
+	<form action="./linkme.php?l={$link_data.link_id}" method="POST">
+		<b>Vote:</b>{for $i=0; $i<11; $i++}<button name="v" value="{$i}">{$i}</button>{/for}
+		<input type="hidden" name="token" value={$token} /><br />
+	</form>
    	<br />{if isset($message)}<b>{$message}</b>{/if}<br />
 {/if}
 	<br />
