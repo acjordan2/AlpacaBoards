@@ -11,18 +11,17 @@
 	<b>Rating:</b> {$link_data.rating|string_format:"%.2f"}/10 (based on {$link_data.NumberOfVotes} votes)<br />
 	<b>Rank:</b> {$link_data.rank|string_format:"%.0f"}<br />
 	<b>Share:</b> <a href="./ss.php?l={$link_data.code}">{$domain}/ss.php?l=SS{$link_data.code}</a><br /><br />
-	<b>Categories:</b> {$link_data.categories}<br />
-	<b>Options:</b>
+	<b>Categories:</b> {$link_data.categories}
 	<form action="./linkme.php?l={$link_data.link_id}" method="POST">
-		<button name="f" value="1">Add to Favorites</button>
+		<b>Options:</b>
+		{if isset($link_favorite)}<button name="f" value="0">Remove from Favorites</button>
+		{else}<button name="f" value="1">Add to Favorites</button>{/if}
 		<input type="hidden" name="token" value={$token} /> | 
 		<a href="./linkreport.php?l={$link_data.link_id}">Report Link</a>
 	</form>
 {if $user_id == $link_data.user_id}
 	| <a href="./addlink.php?edit={$link_data.link_id}">Edit link</a> 
 {else}
-	<br />
-	<br />
 	<form action="./linkme.php?l={$link_data.link_id}" method="POST">
 		<b>Vote:</b>{for $i=0; $i<11; $i++}<button name="v" value="{$i}">{$i}</button>{/for}
 		<input type="hidden" name="token" value={$token} /><br />

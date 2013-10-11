@@ -377,10 +377,22 @@ class Link{
 			return FALSE;
 	}
 	
-	public function addToFavorites(){
-		$sql = "INSERT INTO LinkFavorites (link_id, user_id, created)
-				VALUES (? , $this->user_id, ".time().")
-				ON DUPLICATE KEY UPDATE user_id = user_id";
+	public function isFavorite(){
+		$sql = "SELECT link_id FROM LinkFavorites WHERE user_id=$this->user_id AND link_id=?";
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->link_id));
+		return $statement->rowCount();
+	}
+	
+	public function addToFavorites($add){
+		$add = intval($add);
+		if($add === 1){
+			$sql = "INSERT INTO LinkFavorites (link_id, user_id, created)
+					VALUES (? , $this->user_id, ".time().")
+					ON DUPLICATE KEY UPDATE user_id = user_id";
+		}elseif($add === 0){
+			$sql = "DELETE FROM LinkFavorites WHERE LinkFavorites.user_id=$this->user_id AND LinkFavorites.link_id=?";
+		}
 		$statement = $this->pdo_conn->prepare($sql);
 		if($statement->execute(array($this->link_id)))
 			return TRUE;

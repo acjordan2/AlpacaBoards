@@ -43,9 +43,10 @@ if($auth == TRUE){
 					$smarty->assign("message", "Vote Added!");
 				}
 			}
-			if(@$_POST['f'] == 1 && $csrf->validateToken(@$_REQUEST['token'])){
-				if($link->addToFavorites())
-					$smarty->assign("message", "Added to Favorites!");
+			if((@$_POST['f'] === "1" || @$_POST['f'] === "0") && $csrf->validateToken(@$_REQUEST['token'])){
+				if($link->addToFavorites($_POST['f']))
+					$status_message = ($_POST['f'] == 1) ? "Added to favorites!" : "Removed from favorites";
+					$smarty->assign("message", $status_message);
 			}
 			$messages = $link->getMessages();
 			$smarty->assign("link_data", $link_data);
@@ -54,6 +55,8 @@ if($auth == TRUE){
 			$smarty->assign("signature", (str_replace("\r\n", "\\n", addslashes(str_replace("+", " ", ($authUser->getSignature()))))));
 			$smarty->assign("p_signature", override\htmlentities($authUser->getSignature()));
 			$smarty->assign("token", $csrf->getToken());
+			if($link->isFavorite())
+				$smarty->assign("link_favorite", TRUE);
 			$display = "linkme.tpl";
 			$page_title = $link_data['title'];
 			require("includes/deinit.php");
