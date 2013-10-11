@@ -40,6 +40,7 @@ header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0
 header("X-Frame-Options: DENY");
 
 session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
+session_name("lue");
 session_start();
 
 #Initiate database connection
