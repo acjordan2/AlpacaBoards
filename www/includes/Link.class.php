@@ -262,31 +262,6 @@ class Link{
 			return TRUE;
 	}
 	
-	public function formatComments($string){
-		$string = preg_replace("/\<quote /", "<div class=\"quoted-message\" ", $string);
-		/*
-		$attr = explode("\"", $string);
-		$params = $attr[3];
-		$message_id = explode(",", $attr[3]);
-		$message_id = explode("@", $message_id[2]);
-		$message_id = $message_id[0];
-		$statement = $this->pdo_conn->prepare("SELECT Messages.user_id,
-													  Users.username,
-													  Messages.posted
-												FROM Messages
-												LEFT JOIN Users
-												USING(user_id)
-												WHERE Messages.message_id = ?
-												AND revision_no = 0");
-		$statement->execute(array($message_id));
-		$statement->setFetchMode(PDO::FETCH_ASSOC);
-		$row = $statement->fetch();
-		$string = preg_replace("/<div class=\"quoted-message\" msgid=\"t,1,13@0\"\\>/", "<div class=\"quoted-message\" msgid=\"t,1,13@0\"\>/> From: ".$row['username']." | Posted: ".$row['posted'], $string);
-		*/
-		$string = preg_replace("/\<\/quote>/", "</div>", $string);
-		return $string;
-	}
-	
 	public static function getCategories(&$db){
 		$sql = "SELECT LinkCategories.name, LinkCategories.category_id FROM LinkCategories";
 		$statement = $db->prepare($sql);
@@ -454,6 +429,14 @@ class Link{
 		$statement = $this->pdo_conn->prepare($sql);
 		$statement->execute(array($this->link_id));
 		return $statement->fetch();
+	}
+
+	public function getVotes(){
+		$sql = "SELECT COUNT(LinkVotes.vote) AS NumberOfVotes, SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, format(SUM(LinkVotes.vote)/COUNT(LinkVotes.vote),2) AS rating  
+		FROM LinkVotes WHERE link_id = ?";
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->link_id));
+		return $statement->fetch(PDO::FETCH_ASSOC);
 	}
 }
 ?>

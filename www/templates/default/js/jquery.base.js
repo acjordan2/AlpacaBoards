@@ -16,7 +16,7 @@ $(function() {
 
 		//AJAX for linkme.tpl
 		ajaxPost("#link_vote", "v");
-		//ajaxPost("#link_fav", "f");
+		ajaxPost("#link_fav", "f");
 
 });
 
@@ -81,7 +81,10 @@ function ajaxPost(aForm, submitName){
    		});
 
 	    request.done(function (response, textStatus, jqXHR){
-	        $("#message").text("Vote added!")
+	        var obj = JSON.parse(response);
+	        $.each(obj, function(k, v){
+	        	$("#"+k).text(v);
+	        });
 	        console.log("Hooray, it worked!");
     	});
 

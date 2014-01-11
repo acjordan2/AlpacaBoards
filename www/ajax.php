@@ -28,7 +28,7 @@ require("includes/init.php");
 require("includes/CSRFGuard.class.php");
 
 if($auth == TRUE){
-
+	$output = "";
 	$csrf = new CSRFGuard();
 	$token = @$_POST['token'];
 
@@ -49,19 +49,31 @@ if($auth == TRUE){
 							if(is_numeric(@$_POST['v']) && @$_POST['v'] >= 0 && @$_POST['v'] <= 10 && $link->getLinkUserID() !=$authUser->getUserID()){
 								if($csrf->validateToken(@$_REQUEST['token'])){
 									$link->vote($_POST['v']);
-									$output = "Vote Added!";
+									$output = $link->getVotes();
+									$output['message'] = "Vote Added!";
 								}			
 							}
 
 							break;
 						case "fav":
-							print "fav";
+							if((@$_POST['f'] === "1" || @$_POST['f'] === "0") && $csrf->validateToken(@$_REQUEST['token'])){
+								if($link->addToFavorites($_POST['f'])){
+									if($_POST['f'] === "1"){
+										$output['f'] = "Remove from Favorites";
+										$output['message'] = "Added to favorites!";
+									}
+									elseif($_POST['f'] === "0"){
+										$output['f'] = "Add to Favorites";
+										$output['message'] = "Removed from favorites!";
+									}
+								}
+							}	
 							break;
 					}
 				}
 			break;
 	}
-	print $output;
+	print json_encode($output);
 
 }
 else
