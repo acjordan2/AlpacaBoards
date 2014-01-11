@@ -39,15 +39,20 @@ if($auth == TRUE){
 			if(is_numeric(@$_POST['v']) && @$_POST['v'] >= 0 && @$_POST['v'] <= 10 && $link_data['user_id']!=$authUser->getUserID()){
 				if($csrf->validateToken(@$_REQUEST['token'])){
 					$link->vote($_POST['v']);
-					$link_data = $link->getLink();
 					header("Location: ./linkme.php?l=$link_id&v=".@$_POST['v']);
-					$smarty->assign("message", "Vote Added!");
 				}
 			}
+			if(is_numeric(@$_GET['v']) && (@$_GET['v'] >= 0  && @$_GET['v'] <= 10)){
+					$smarty->assign("message", "Vote Added!");
+			}
 			if((@$_POST['f'] === "1" || @$_POST['f'] === "0") && $csrf->validateToken(@$_REQUEST['token'])){
-				if($link->addToFavorites($_POST['f']))
-					$status_message = ($_POST['f'] == 1) ? "Added to favorites!" : "Removed from favorites";
-					$smarty->assign("message", $status_message);
+				if($link->addToFavorites($_POST['f'])){
+					header("Location: ./linkme.php?l=$link_id&f=".$_POST['f']);
+				}		
+			}
+			if(@$_GET['f'] === "1" || @$_GET['f'] === "0"){
+				$status_message = ($_GET['f'] === "1") ? "Added to favorites!" : "Removed from favorites";
+				$smarty->assign("message", $status_message);
 			}
 			$messages = $link->getMessages();
 			$smarty->assign("link_data", $link_data);
