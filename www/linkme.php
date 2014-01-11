@@ -40,6 +40,7 @@ if($auth == TRUE){
 				if($csrf->validateToken(@$_REQUEST['token'])){
 					$link->vote($_POST['v']);
 					$link_data = $link->getLink();
+					header("Location: ./linkme.php?l=$link_id&v=".@$_POST['v']);
 					$smarty->assign("message", "Vote Added!");
 				}
 			}
