@@ -140,7 +140,7 @@ Note, this will delete any existing tables in the database and overrite the data
 <?php if(isset($import)){ ?>
 Database successfully written<br />
 <a href="./step3.php"><input type="button" value="Step 3"/></a>
-<? } ?>
+<?php } ?>
 </body>
 </html>
 
