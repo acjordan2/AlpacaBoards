@@ -1,13 +1,22 @@
 $(function() {
+		//Lazy Load Images
 		$("img").lazyload();
+
+		//Toggle quickpost box
 		$("#qptoggle").click(function () {
 			quickpost();
 			return false;
 		});
+
+		//Toggle image upload box
 		$("#btn_upload").click(function () {
 			 $("#uploadFrame").toggle(); 
      			 $("#upload").attr("src", "./u.php");
 		});
+
+		//AJAX for linkme.tpl
+		ajaxPost("#link_vote", "v");
+		//ajaxPost("#link_fav", "f");
 
 });
 
@@ -57,3 +66,39 @@ function llmlSpoiler(id){
 	});
 }
 
+function ajaxPost(aForm, submitName){
+	var request;
+	$(aForm).submit(function(event){
+   		var submitValue = $("button[clicked=true]").val()
+   		var $form = $(this);
+   		var $inputs = $form.find("input, select, button, textarea");
+   		var serializedData = $form.serialize();
+   		$inputs.prop("disabled", true);
+   		request = $.ajax({
+   			url: "./ajax.php",
+   			type: "post",
+   			data: submitName + "="+submitValue+"&"+serializedData
+   		});
+
+	    request.done(function (response, textStatus, jqXHR){
+	        $("#message").text("Vote added!")
+	        console.log("Hooray, it worked!");
+    	});
+
+	    request.fail(function (jqXHR, textStatus, errorThrown){
+	        console.error(
+            	"The following error occured: "+
+            	textStatus, errorThrown
+            );
+    	});
+    	request.always(function () {
+        	$inputs.prop("disabled", false);
+    	});
+	    event.preventDefault();
+	});
+
+	$(aForm + " button").click(function() {
+    		$("button", $(this).parents("form")).removeAttr("clicked");
+    	$(this).attr("clicked", "true");
+	});
+}

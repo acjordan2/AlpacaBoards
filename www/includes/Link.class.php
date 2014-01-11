@@ -448,5 +448,12 @@ class Link{
 		$statement->execute(array($this->link_id, $request));
 		return 1;
 	}
+
+	public function getLinkUserID(){
+		$sql = "SELECT Links.user_id from Links where Links.link_id=?";
+		$statement = $this->pdo_conn->prepare($sql);
+		$statement->execute(array($this->link_id));
+		return $statement->fetch();
+	}
 }
 ?>
