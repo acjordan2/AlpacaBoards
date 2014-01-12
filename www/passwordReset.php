@@ -29,8 +29,6 @@ if($auth == FALSE){
 	$display = "forgotPassword.tpl";
 	$page_title = "Forgot Password";
 	$message = "";
-	if(@$_GET['m'] == 1)
-		$message = "Аккаунтом Созданный";
 	if(isset($_POST['username'])){
 		$sql  = "SELECT user_id, private_email FROM Users WHERE Users.username = ?";
 		$statement = $db->prepare($sql);
@@ -53,7 +51,7 @@ if($auth == FALSE){
 			$mail->Body = "A password reset has been reqeusted from a user with the IP address of  ".$_SERVER['REMOTE_ADDR'].". If you did not request this, please ignore.<br /><br />To reset your password, please click on the following link:<br /><br />https://sper.gs/passwordReset.php?token=".$reset_token."<br /><br />This link can only be used once and  will expire in 3 days.";
 			$mail->Send();
 		}
-		$message = "Сообщение было отправлено на адрес электронной почты на файле с указанием пароля.";
+		$message = "A message has been sent to the email address associated with this account containing a link to reset your password. Hopefully you provided a valid email ;)";
 	}elseif(isset($_GET['token'])){
 		$reset_token = $_GET['token'];
 		$sql3 = "SELECT user_id FROM PasswordResetRequests WHERE token=? AND used=0 AND created >= ".(time()-60*60*24*3);
@@ -65,7 +63,7 @@ if($auth == FALSE){
 				$new = $_POST['new'];
 				$new2 = $_POST['new2'];
 				if(strlen($new) < 8)
-					$message = "Пароль должен содержать более 8 символов.";
+					$message = "Password must be at least 8 characters";
 				elseif(strcmp($new, $new2) == 0){
 					$results2 = $statement3->fetch();
 					$user = new User($db, $results2['user_id']);
@@ -75,7 +73,7 @@ if($auth == FALSE){
 						$statement4->execute(array($reset_token));
 						header("Location: index.php?m=2");
 					}
-				}else $message = "Пароли не совпадают.";
+				}else $message = "Passwords do not match";
 			}
 			$results2 = $statement3->fetch();
 			$user = new User($db, $results2['user_id']);

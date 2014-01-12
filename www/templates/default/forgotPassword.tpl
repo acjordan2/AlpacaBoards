@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">	
 	<head>
-		<title>Сброс пароля</title>
+		<title>Reset Password</title>
 		<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 
 	</head>
@@ -12,19 +12,19 @@
 		 <fieldset style="width:250px;">
 			<br />
 			{if isset($change)}
-			Пароль:	
+			Password:	
 			<input type="password" name="new" value="" style="width:100%" />
-			Подтвердите пароль:
+			Confirm Password:
 			<input type="password" name="new2" value="" style="width:100%" />
 			{else}
-			Логин:<br />
+			Username:<br />
 			<input type="text" name="username" value="" style="width:100%;">
 			{/if}
 			<br /><br />
-			<input type="submit" value="передавать">
+			<input type="submit" value="Submit">
 		  </fieldset>
 		</form>
 		<br />
-		<a href="./register.php">Создать Логин</a>
+		<a href="./register.php">Sign up</a>
 	</body>
 </html>

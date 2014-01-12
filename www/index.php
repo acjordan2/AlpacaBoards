@@ -29,9 +29,9 @@ if($auth == FALSE){
 	$display = "login.tpl";
 	$page_title = "Login";
 	if(@$_GET['m'] == 1)
-		$message = "Аккаунтом Созданный";
+		$message = "Account Created!";
 	if(isset($_POST['username']) || isset($_POST['password']))
-		$message = "пользователя с таким аккаунтом не существует. <a href=\"./passwordReset.php\">Забыли пароль</a>?";
+		$message = "Invalid username or password. <a href=\"./passwordReset.php\">Forgot password</a>?";
 	$smarty->assign("username", htmlentities(@$_POST['username']));
 	$smarty->assign("message", $message);
 	require("includes/deinit.php");
