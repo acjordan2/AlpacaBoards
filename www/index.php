@@ -25,15 +25,23 @@
  */
 
 
-require "includes/init.php";	
+require "includes/init.php";
 
+// Check authentication
 if ($auth === false) {
+    // Show login page
     $message = "";
     $display = "login.tpl";
     $page_title = "Login";
+
+    // If redirected from register.php
+    // show "Account Created" message
     if (@$_GET['m'] == 1) {
         $message = "Account Created!";
     }
+
+    // If an incorrect username or password was 
+    // provided, show error message
     if (isset($_POST['username']) || isset($_POST['password'])) {
         $message = "Invalid username or password.".
                    " <a href=\"./passwordReset.php\">Forgot password</a>?";
@@ -42,6 +50,9 @@ if ($auth === false) {
     $smarty->assign("message", $message);
     include "includes/deinit.php";
 } else {
+    // If the suer is logged in, redirect
+    // to last visted page if it exists.
+    // Otherwise, redirect to main.php
     if (isset($_SESSION['redirect'])) {
         $r = $_SESSION['redirect'];
         unset($_SESSION['redirect']);

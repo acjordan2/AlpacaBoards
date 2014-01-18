@@ -24,58 +24,79 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require("includes/init.php");
-require("includes/CSRFGuard.class.php");
+require "includes/init.php";
+require "includes/CSRFGuard.class.php";
 
-if($auth == TRUE){
-	$output = "";
-	$csrf = new CSRFGuard();
-	$token = @$_POST['token'];
 
-	$action = explode("_", @$_POST['action']);
-	$section = @$action[0];
-	$action = @$action[1];
-	switch($section){
-		case "link":
-			require("includes/Link.class.php");
-			$link_id = @$_POST['l'];
-			if(!is_numeric($link_id))
-				$output = "{\"error\": \"Invalid Link ID\"}";
-			else
-				$link = new Link($db, $authUser->getUserID(), $link_id);
-				if($link->doesExist()){
-					switch($action){
-						case "vote":
-							if(is_numeric(@$_POST['v']) && @$_POST['v'] >= 0 && @$_POST['v'] <= 10 && $link->getLinkUserID() !=$authUser->getUserID()){
-								if($csrf->validateToken(@$_REQUEST['token'])){
-									$link->vote($_POST['v']);
-									$output = $link->getVotes();
-									$output['message'] = "Vote Added!";
-								}			
-							}
+// Check authentication
+if ($auth == true) {
+    $output = "";
 
-							break;
-						case "fav":
-							if((@$_POST['f'] === "1" || @$_POST['f'] === "0") && $csrf->validateToken(@$_REQUEST['token'])){
-								if($link->addToFavorites($_POST['f'])){
-									if($_POST['f'] === "1"){
-										$output['f'] = "Remove from Favorites";
-										$output['message'] = "Added to favorites!";
-									}
-									elseif($_POST['f'] === "0"){
-										$output['f'] = "Add to Favorites";
-										$output['message'] = "Removed from favorites!";
-									}
-								}
-							}	
-							break;
-					}
-				}
-			break;
-	}
-	print json_encode($output);
+    // Create an anti Cross-Site request
+    // forgery token
+    $csrf = new CSRFGuard();
+    $token = @$_POST['token'];
 
+    // Spilt action; format is <sectom>_<action>
+    // ex link_vote for link voting. 
+    $action = explode("_", @$_POST['action']);
+    $section = @$action[0];
+    $action = @$action[1];
+
+    // Check for different sections
+    switch($section){
+    case "link":
+        include "includes/Link.class.php";
+        $link_id = @$_POST['l'];
+        if (!is_numeric($link_id)) {
+            $output = "{\"error\": \"Invalid Link ID\"}";
+        } else {
+            $link = new Link($db, $authUser->getUserID(), $link_id);
+            
+            // Confirm provided link id is valid
+            if ($link->doesExist()) {
+                // Link actions
+                switch($action){
+                // Link voting
+                case "vote":
+                    if (is_numeric(@$_POST['v']) 
+                        && @$_POST['v'] >= 0 
+                        && @$_POST['v'] <= 10 
+                        && $link->getLinkUserID() !=$authUser->getUserID()
+                    ) {
+                        // Validate CSRF token
+                        if ($csrf->validateToken(@$_REQUEST['token'])) {
+                            $link->vote($_POST['v']);
+                            $output = $link->getVotes();
+                            $output['message'] = "Vote Added!";
+                        }            
+                    }
+
+                    break;
+                // Add links to favorites
+                case "fav":
+                    if ((@$_POST['f'] === "1" || @$_POST['f'] === "0") 
+                        && $csrf->validateToken(@$_REQUEST['token'])
+                    ) {
+                        if ($link->addToFavorites($_POST['f'])) {
+                            if ($_POST['f'] === "1") {
+                                $output['f'] = "Remove from Favorites";
+                                $output['message'] = "Added to favorites!";
+                            } elseif ($_POST['f'] === "0") {
+                                $output['f'] = "Add to Favorites";
+                                $output['message'] = "Removed from favorites!";
+                            }
+                        }
+                    }    
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    // JSON output
+    print json_encode($output);
+} else {
+    include "404.php";
 }
-else
-	require("404.php");
 ?>
