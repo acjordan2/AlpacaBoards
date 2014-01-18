@@ -23,27 +23,32 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-require("includes/init.php");
-if($auth == FALSE){
-	$message = "";
-	$display = "login.tpl";
-	$page_title = "Login";
-	if(@$_GET['m'] == 1)
-		$message = "Account Created!";
-	if(isset($_POST['username']) || isset($_POST['password']))
-		$message = "Invalid username or password. <a href=\"./passwordReset.php\">Forgot password</a>?";
-	$smarty->assign("username", htmlentities(@$_POST['username']));
-	$smarty->assign("message", $message);
-	require("includes/deinit.php");
-}
-else{
-	if(isset($_SESSION['redirect'])){
-			$r = $_SESSION['redirect'];
-			unset($_SESSION['redirect']);
-			header("Location: ".$r);
-	}else{
-			header("Location: ./main.php");
-	}
+
+
+require "includes/init.php";	
+
+if ($auth === true) {
+    $message = "";
+    $display = "login.tpl";
+    $page_title = "Login";
+    if (@$_GET['m'] == 1) {
+        $message = "Account Created!";
+    }
+    if (isset($_POST['username']) || isset($_POST['password'])) {
+        $message = "Invalid username or password.".
+                   " <a href=\"./passwordReset.php\">Forgot password</a>?";
+    }
+    $smarty->assign("username", htmlentities(@$_POST['username']));
+    $smarty->assign("message", $message);
+    include "includes/deinit.php";
+} else {
+    if (isset($_SESSION['redirect'])) {
+        $r = $_SESSION['redirect'];
+        unset($_SESSION['redirect']);
+        header("Location: ".$r);
+    } else {
+        header("Location: ./main.php");
+    }
 }
 ?>
 
