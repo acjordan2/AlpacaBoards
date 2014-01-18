@@ -78,17 +78,15 @@ if($auth == TRUE){
 				}
 				
 				$parser = new Parser($db);
-				$signature = str_replace("\n" ,"<br />", $pre_html_purifier->purify($profile_user->getSignature()));
-				$parser->loadHTML($signature);
-				$parser->parse();
-				$signature = $post_html_purifier->purify($parser->getHTML());
-				$signature = Parser::cleanUp($signature);
-				
-				$quote = str_replace("\n" ,"<br />", $pre_html_purifier->purify($profile_user->getQuote()));
-				$parser->loadHTML($quote);
-				$parser->parse();
-				$quote = $post_html_purifier->purify($parser->getHTML());
-				$quote = Parser::cleanUp($quote);
+				$signature = $profile_user->getSignature();
+				$signature = $parser->parse($signature);
+
+				if($profile_user->getQuote() != "") {
+					$quote = $profile_user->getQuote();
+					$quote = $parser->parse($quote);
+				}
+				else
+					$quote = "";
 				
 				$smarty->assign("p_username", $profile_user->getUsername());
 				$smarty->assign("p_user_id", $profile_user->getUserID());

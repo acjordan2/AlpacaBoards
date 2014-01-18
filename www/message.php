@@ -43,13 +43,9 @@ if($auth==TRUE){
 		$topic_id = intval($_GET['topic']);
 		$message = new MessageRevision($db, $message_id, $revision_no, $link);
 		if($message->doesExist()){
-			$message_content = $pre_html_purifier->purify($message->getMessage());
+			$message_content = $message->getMessage();
 			$parser = new Parser($db);
-			$parser->loadHTML($message_content);
-			$parser->parse();
-			$message_content = $post_html_purifier->purify($parser->getHTML());
-			$message_content = Parser::cleanUp(override\makeURL($message_content));
-			$message_content = str_replace("\n", "<br/>\n", $message_content);
+			$message_content = $parser->parse($message_content);
 			
 			$signature = explode("---", $message_content);
 			

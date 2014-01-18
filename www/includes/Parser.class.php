@@ -2,7 +2,7 @@
 /*
  * Parser.class.php
  * 
- * Copyright (c) 2013 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -23,202 +23,271 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-class Parser{
-	
-	private $pdo_conn;
-	
-	private $raw_html;
-	
-	private $final_html;
-	
-	private $config;
-	
-	private $doc;
-	
-	private $purifier;
-	
+
+require_once("RecursiveDOMIterator.class.php");
+
+class Parser
+{
+
+	private $new_line;
+
 	static $element_count;
-	
+
 	function __construct($db){
 		libxml_use_internal_errors(true);
+		// White list of allowed tags => attributes
+		$this->allowed_tags = array("b" => NULL, 
+									"i" => NULL, 
+									"u" => NULL, 
+									"pre" => NULL,
+									"html" => NULL, 
+									"body" => NULL, 
+									"#text" => NULL,
+									"img"	=> "src",
+									"quote" => "msgid",
+									"spoiler" => "caption");
 		$this->doc = new DomDocument();
 		$this->pdo_conn = $db;
+	}
 
-	}
-	
-	public function loadHTML($aHtml, $r=false){
-		global $allowed_tags;
-		if($r)
-			$this->raw_html = "$aHtml";
-		else
-			$this->raw_html = "<div>$aHtml</div>";
-		//$this->raw_html = $aHtml;
-		$this->doc->loadHTML($this->raw_html);
-	}
-	
-	public function parse(){
-		$element_img = $this->doc->getElementsByTagName("img");
-		foreach($element_img as $img){
-			$img_div = $this->doc->createElement("safediv");
-			$img_div->setAttribute("class", "imgs");
-			$src = $img->getAttribute("src");
-			$src_array = explode("/", $src);
-			if($src_array[sizeof($src_array)-1] != "grey.gif"){
-				$hash = $src_array[3];
-				if($img->parentNode->getAttribute('msgid') != NULL){
-					$src_array[2] = 't';
-					$filename = explode(".", $src_array[sizeof($src_array)-1]);
-					$src_array[sizeof($src_array)-1] = $filename[0].".jpg";
+	public function parse($html, $convert_newlines = true){
+		$this->new_line = $convert_newlines;
+
+		// Initizlize Variables
+		$allowed_attributes = "";
+		if($html == null){
+			$html = " ";
+		}
+		$this->doc->loadHTML($html);
+		// Create a recurisve iterator 
+		// to get all nodes in a document
+		// starting with the children
+		$dit = new RecursiveIteratorIterator(
+			new RecursiveDOMIterator($this->doc),
+			RecursiveIteratorIterator::CHILD_FIRST);
+
+		foreach($dit as $node){
+			// If tag is not in whitelist,
+			// create a textnode with data 
+			// and attributes from the tag
+			if(!array_key_exists($node->nodeName, $this->allowed_tags)){
+				// Ignore CDATA fields. Not necessary
+				// since all invalid tags will be 
+				// entity encoded
+				if($node->nodeName != "#cdata-section"){
+					$text = "<".$node->nodeName;
+					if($node->hasAttributes()){
+						$text .= " ";
+						foreach($node->attributes as $attr){
+							$text .= $attr->nodeName."=\"".$attr->nodeValue."\"";
+						}
+					}	
+					if(!empty($node->nodeValue)){
+						$text .= ">".$node->nodeValue."</".$node->nodeName.">";
+					}else
+						$text .= " />";
+					$textNode = $this->doc->createTextNode($text);
+					$node->parentNode->replaceChild($textNode,$node);
 				}
-				if($src_array[2] === 'n')
-					$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
-				else
-					$sql = "SELECT thumb_width, thumb_height FROM UploadedImages WHERE sha1_sum = ?";
-				$statement = $this->pdo_conn->prepare($sql);
-				$statement->execute(array($hash));
-				$results = $statement->fetch();
-				$img_tmp = $this->doc->createElement("img");
-				$img_tmp->setAttribute("width", $results[0]);
-				$img_tmp->setAttribute("height", $results[1]);
-				$img_tmp->setAttribute("style", "display: inline;");
-				$img_tmp->setAttribute("data-original", implode("/", $src_array));
-				$img_tmp->setAttribute("src", "./templates/default/images/grey.gif");
-				$img_div->appendChild($img_tmp);
-				$img->parentNode->replaceChild($img_div, $img);
 			}
-		}
-		$element_quote = $this->doc->getElementsByTagName('quote');
-		foreach($element_quote as $quote){
-			$msgid = $quote->getAttribute('msgid');
-			$parent_msgid = $quote->parentNode->parentNode->getAttribute('msgid');
-			if($msgid != NULL){
-				$msgid_array = explode(",", $msgid);
-				$message_id = explode("@", $msgid_array[2]);
-				if($msgid_array[0] == "t")
-					$sql_getHeader = "SELECT Users.username, Users.user_id, Messages.posted FROM Messages LEFT JOIN Users Using(user_id) WHERE Messages.message_id=? AND Messages.topic_id=? AND Messages.revision_no = 0";
-				elseif($msgid_array[0] == "l")
-					$sql_getHeader = "SELECT Users.username, Users.user_id, LinkMessages.posted FROM LinkMessages LEFT JOIN Users Using(user_id) WHERE LinkMessages.message_id=? AND LinkMessages.link_id=? AND LinkMessages.revision_no = 0";
+			// If tag is in whitelist,
+			// parse data
+			else{
+				if($node->hasAttributes()){
+					if(!is_null($this->allowed_tags[$node->nodeName])){
+						// Get allowed attributes for tag
+						$allowed_attributes = explode("|", $this->allowed_tags[$node->nodeName]);
+					}	
+					// Remove invalid attributes
+					// Keep ones that are whitelisted
+					for($i=$node->attributes->length - 1; $i>=0; $i--){
+						$attribute = $node->attributes->item($i);
+						if(!in_array($attribute->name, $allowed_attributes))
+							$node->removeAttributeNode($attribute);
+					}
+				}
+				// Processing for special tags
+				// quote, spoiler, img
+				switch($node->nodeName){
+					case "img":
+						$imgNode = $this->createImageNode($node);
+						$node->parentNode->replaceChild($imgNode, $node);
+						break;
+					case "quote":
+						$quoteNode = $this->createQuoteNode($node);
+						$node->parentNode->replaceChild($quoteNode, $node);
+						break;
+					case "spoiler":
+						$spoilerNode = $this->createSpoilerNode($node);
+						$node->parentNode->replaceChild($spoilerNode, $node);
+						break;
+				}
+			}
+			
 
-				$statement = $this->pdo_conn->prepare($sql_getHeader);
-				$statement->execute(array($message_id[0], $msgid_array[1]));
-				$results = $statement->fetch();
-				$message_header = "From: <a href=\"./profile.php?id=".$results['user_id']."\">".$results['username']."</a> | Posted: ".date(DATE_FORMAT, $results['posted']);
-				$quote_headers = $this->doc->CreateElement("div", $message_header);
-				$quote_headers->setAttribute("class", "message-header");
-				if($parent_msgid != null)
-					$quote->nodeValue = "[<a href=\"./message.php?id=".urlencode($message_id[0])."&amp;topic=".urlencode($msgid_array[1])."&amp;r=".urlencode($message_id[1])."\">Quoted text omitted</a>]";
-				$quote_body = $this->prependElement($quote, $quote_headers->ownerDocument->saveHTML($quote_headers));
-			}else{
-				$quote_body = $quote;
-			}
-			$divnode = $this->doc->createElement("div", $this->get_inner_html($quote_body));
-			$divnode->setAttribute("class", "quoted-message");
-			if($msgid != NULL) $divnode->setAttribute("msgid", $msgid);
-			$quote->parentNode->replaceChild($divnode, $quote);
-			$this->raw_html = html_entity_decode($this->doc->saveHTML());
-			$this->loadHTML($this->raw_html, true);
-			$this->parse();
 		}
-		$element_spoiler = $this->doc->getElementsByTagName("spoiler");
-		foreach($element_spoiler as $spoiler){
-			$count = Parser::getElementCount();
-			$spannode = $this->doc->createElement('span');
-			$spannode->setAttribute("class", "spoiler_closed");
-			$spannode->setAttribute("id", "s0_".$count);
-			$caption = $spoiler->getAttribute('caption');
-			if($caption == NULL)
-				$caption = "spoiler";
-			
-			$spoiler_on_close_node = $this->doc->createElement('span');
-			$spoiler_on_close_node->setAttribute("class", "spoiler_on_close");
-			$spoiler_on_close_bold = $this->doc->createElement("b", "&lt;$caption /&gt;");
-			$spoiler_on_close_tag = $this->doc->createElement("a");
-			$spoiler_on_close_tag->setAttribute("class", "caption");
-			$spoiler_on_close_tag->setAttribute("href", "#");
-			$spoiler_on_close_tag->appendChild($spoiler_on_close_bold);
-			$spoiler_on_close_node->appendChild($spoiler_on_close_tag);
-			
-			$spoiler_on_open_node = $this->doc->createElement('span');
-			$spoiler_on_open_node->setAttribute("class", "spoiler_on_open");
-			$spoiler_on_open_start_tag = $this->doc->createElement("a", "&lt;$caption&gt;");
-			$spoiler_on_open_start_tag->setAttribute("class", "caption");
-			$spoiler_on_open_start_tag->setAttribute("href", "#");
-			
-			$spoiler_on_open_node->appendChild($spoiler_on_open_start_tag);
-			$spoiler_body = $this->buildTree($spoiler, $spoiler_on_open_node);
-			//$spoiler_body = $this->doc->createTextNode($this->get_inner_html($spoiler));
-
-			$spoiler_on_open_end_tag = $this->doc->createElement("a", "&lt;/$caption&gt;");
-			$spoiler_on_open_end_tag->setAttribute("class", "caption");
-			$spoiler_on_open_end_tag->setAttribute("href", "#");
-			$spoiler_on_open_node->appendChild($spoiler_on_open_end_tag);
-			//$spoiler_on_open_node->appendChild($spoiler_body);
-			//$spoiler_on_open_node->appendChild($spoiler_on_open_end_tag);
-			
-			$spannode->appendChild($spoiler_on_close_node);
-			$spannode->appendChild($spoiler_on_open_node);			
-			
-			$script = $this->doc->createElement("safescript", "$(document).ready(function(){llmlSpoiler($(\"#s0_".$count."\"));});");
-			$script->setAttribute("type", "text/javascript");
-			$spannode->appendChild($script);
-			
-			$spoiler->parentNode->replaceChild($spannode, $spoiler);
-			//$this->parse();
-		}		
-		$this->final_html = $this->raw_html;
-		
-	}
-	
-	public function prependElement($parent, $child){
-		$new_element = $this->doc->createElement($parent->tagName, $child.$this->get_inner_html($parent));
-		if($parent->hasAttributes()){
-			foreach($parent->attributes as $attr){
-				$new_element->setAttribute($attr->nodeName, $attr->nodeValue);
-			}
-		}
-		return $new_element;
-	}
-	
-	public function get_inner_html($node){
-		$innerHTML = '';
-		$children = $node->childNodes;
-		foreach($children as $child){
-			$innerHTML .= htmlentities($child->ownerDocument->saveXML($child));
-		}
-		return html_entity_decode($innerHTML);
-	}
-	
-	public function buildTree($node, $parent){
-		$children = $node->childNodes;
-		foreach($children as $child){
-			$parent->appendChild($child);
-		}
-		return $parent;
-	}
-	
-	public function getHTML(){
-		# remove <!DOCTYPE 
 		$this->doc->removeChild($this->doc->firstChild);            
-		# remove <html><body></body></html> 
-		//$this->doc->replaceChild($this->doc->firstChild->firstChild->firstChild, $this->doc->firstChild);
-		$this->final_html = $this->doc->saveHTML();
-		return $this->final_html;
+		return $this->cleanup($this->doc->saveHTML()); 
+	} 
+
+	private function createImageNode($node){
+		$img_div = $this->doc->createElement("div");
+		$img_div->setAttribute("class", "imgs");
+		$src = explode("/", $node->getAttribute("src"));
+		if($src[sizeof($src)-1] != "grey.gif") {
+			$hash = $src[sizeof($src)-2];
+			if($node->parentNode->nodeName == "quote"){
+				$src[sizeof($src)-3] = 't';
+				$filename = explode(".", $src[sizeof($src)-1]);
+				$src[sizeof($src)-1] = $filename[0].".jpg";
+				$sql = "SELECT thumb_width, thumb_height FROM UploadedImages WHERE sha1_sum = ?";
+			}
+			else
+				$sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
+			$statement = $this->pdo_conn->prepare($sql);
+			$statement->execute(array($hash));
+			$results = $statement->fetch();
+
+			$img = $this->doc->createElement("img");
+			$img->setAttribute("width", $results[0]);
+			$img->setAttribute("height", $results[1]);
+			$img->setAttribute("data-original", implode("/", $src));
+			$img->setAttribute("src", "./templates/default/images/grey.gif");
+			$img_div->appendChild($img);
+			return $img_div;
+		}
 	}
-	
+
+	private function createQuoteNode($node){
+		
+		if($node->hasAttribute("msgid")) {
+			$msgid = $node->getAttribute("msgid");
+			// Verify the msgid attribute is in the right
+			// format
+			$msgid_pattern = "/(t|l),(\d+),(\d+)@(\d+)/";
+			if(!preg_match($msgid_pattern, $msgid))
+				$node->removeAttributeNode($node->attributes->item(0));
+			else{
+				$pattern = "/[,@]/";
+				$msgid_array = preg_split($pattern, $msgid);
+				// Check if the quote is from a link or a topic
+				if($msgid_array[0] == "t") // Topic
+					$sql_quote = "SELECT Users.username, Users.user_id, 
+									Messages.posted FROM Messages LEFT JOIN 
+									Users Using(user_id) WHERE Messages.message_id=? 
+									AND Messages.topic_id=? AND Messages.revision_no = 0";
+				else // Link
+					$sql_quote = "SELECT Users.username, Users.user_id, LinkMessages.posted 
+									FROM LinkMessages LEFT JOIN Users Using(user_id) 
+									WHERE LinkMessages.message_id=? AND LinkMessages.link_id=? 
+									AND LinkMessages.revision_no = 0";
+				// Get data about quote such as post date
+				// and author
+				$statement = $this->pdo_conn->prepare($sql_quote);
+				$statement->execute(array($msgid_array[1], $msgid_array[2]));
+				$results = $statement->fetch();
+
+				// Quote header showing post information
+				$quote_header = $this->doc->createElement("div", "From: ");
+				$quote_header->setAttribute("class", "message-header");
+
+				// Add profile link to quote header
+				$quote_author = $this->doc->createElement("a", $results['username']);
+				$quote_author->setAttribute("href", "./profile.php?id=".$results['user_id']);
+			
+				// Date of original quote
+				$quote_time = $this->doc->createTextNode(" | Posted: ".date(DATE_FORMAT, $results['posted']));
+				 
+				// Append header child nodes to the parent node
+				$quote_header->appendChild($quote_author);
+				$quote_header->appendChild($quote_time);
+			}
+		}
+		// Create parent div container for quote
+		$quote_body = $this->doc->createElement("div");
+		$quote_body->setAttribute("class", "quoted-message");
+
+		// Append message header if one exists
+		if(!is_null(@$quote_header)){
+			$quote_body->setAttribute("msgid", $msgid);
+			$quote_body->appendChild($quote_header);
+		}
+		// Transfer child nodes from original parent
+		// to the new parent
+
+		// Works, but leaves the the <quote> tags
+		// Not sure why I can't enumerate the children
+		$quote_body->appendChild($node->cloneNode(true));
+		return $quote_body;
+	}
+
+	private function createSpoilerNode($node) {
+
+		$count = Parser::getElementCount();
+		// Create container for all the spoiler tags
+		// This is the default state for spoilers
+		$closed_span = $this->doc->createElement("span");
+		$closed_span->setAttribute("class", "spoiler_closed");
+		$closed_span->setAttribute("id", "s0_".$count);
+
+		// Set the spoiler title text
+		if($node->hasAttribute("caption"))
+			$caption = $node->getAttribute("caption");
+		else
+			$caption="spoiler";
+
+		// Closed Spoiler
+		$onClose_span = $this->doc->createElement("span");
+		$onClose_span->setAttribute("class", "spoiler_on_close");
+		$onClose_bold = $this->doc->createElement("b", "<".$caption." />");
+		$onClose_a = $this->doc->createElement("a");
+		$onClose_a->setAttribute("class", "caption");
+		$onClose_a->setAttribute("href", "#");
+		$onClose_a->appendChild($onClose_bold);
+		$onClose_span->appendChild($onClose_a);
+
+		// Open Spoiler start tag
+		$onOpen_span = $this->doc->createElement("span");
+		$onOpen_span->setAttribute("class", "spoiler_on_open");
+		$onOpen_a_startTag = $this->doc->createElement("a", "<".$caption.">");
+		$onOpen_a_startTag->setAttribute("class", "caption");
+		$onOpen_a_startTag->setAttribute("href", "#");
+		$onOpen_span->appendChild($onOpen_a_startTag);
+
+		// Spoiler body
+		$onOpen_span->appendChild($node->cloneNode(True));
+
+		// Open Spoiler end tag
+		$onOpen_a_endTag = $this->doc->createElement("a", "</".$caption.">");
+		$onOpen_a_endTag->setAttribute("class", "caption");
+		$onOpen_a_endTag->setAttribute("href", "#");
+		$onOpen_span->appendChild($onOpen_a_endTag);
+
+		$closed_span->appendChild($onClose_span);
+		$closed_span->appendChild($onOpen_span);
+
+		$script = $this->doc->createElement("script", "$(document).ready(function(){llmlSpoiler($(\"#s0_".$count."\"));});");
+		$script->setAttribute("type", "text/javascript");
+		$onClose_span->appendChild($script);
+
+		return $closed_span;
+	}
+
 	public static function getElementCount(){
 		Parser::$element_count++;
 		return Parser::$element_count;
 	}
-	
-	public static function cleanUp($html){
-		// Replaces <safescript> tag with <script> since html purify does not allow <script> tags @TODO: Test extensively for XSS
-		// Removes extra </span> created by the parser @TODO: figure out why this happens
-		$message = str_replace("<safescript type=\"text/javascript\">", "<script type=\"text/javascript\">", $html);
-		$message = str_replace("</safescript>", "</script>", $message);
-		$message = str_replace("</script>&lt;/span&gt;", "</script>", $message);
-		$message = str_replace("<safediv class=\"imgs\">", "<div class=\"imgs\">", $message);
-		$message = str_replace("</safediv>", "</div>", $message);
-		return $message;
+
+	private function cleanup($html){
+		if($this->new_line)
+			$html = str_replace("\n", "<br />", $html);
+		$html = str_replace("&lt;p&gt;", "", $html);
+		$html = str_replace("&lt;/p&gt;", "", $html);
+		$html = str_replace("<html>", "", $html);
+		$html = str_replace("</html>", "", $html);
+		$html = str_replace("<body>", "", $html);
+		$html = str_replace("</body>", "", $html);
+
+		return $html;
 	}
 }
-?>
