@@ -1,8 +1,8 @@
 <?php
 /*
- * profile.php
+ * u.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,34 +24,46 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-require("includes/Upload.class.php");
-require("includes/CSRFGuard.class.php");
-require("includes/PHPThumbnailer/ThumbLib.inc.php");
+require "includes/init.php";
+require "includes/Upload.class.php";
+require "includes/CSRFGuard.class.php";
+require "includes/PHPThumbnailer/ThumbLib.inc.php";
 
+// Check authentication
+if ($auth == true) {
+    // Crate new anti-CSRF token
+    $csrf = new CSRFGuard();
+    if (isset($_POST['token'])) {
+        // Valdate token
+        if ($csrf->validateToken($_POST['token'])) {
+            // Upload new picture
+            $upload = new Upload($db, $authUser->getUserID());
+            $image = $upload->uploadImage($_FILES['file']);
+            // Get list of user uploads
+            $image_uploads = $authUser->getUploads();
+            for ($i=0; $i<sizeof($image_uploads); $i++) {
+                $image_uploads[$i]['extension'] 
+                    = end(explode(".", $image_uploads[$i]['filename']));
+                $image_uploads[$i]['filename'] 
+                    = urlencode(
+                        substr(
+                            $image_uploads[$i]['filename'], 0, -1*
+                            (strlen($image_uploads[$i]['extension'])+1)
+                        )
+                    );
+            }
+            $smarty->assign("images", $image_uploads);
+        }
+        
+    }
+    
+    $smarty->assign("token", $csrf->getToken());
 
-if($auth == TRUE){
-	$csrf = new CSRFGuard();
-	if(isset($_POST['token'])){
-		if($csrf->validateToken($_POST['token'])){
-			$upload = new Upload($db, $authUser->getUserID());
-			$image = $upload->uploadImage($_FILES['file']);
-			//if($image){
-				$image_uploads = $authUser->getUploads();
-				for($i=0; $i<sizeof($image_uploads); $i++){
-					$image_uploads[$i]['extension'] = end(explode(".", $image_uploads[$i]['filename']));
-					$image_uploads[$i]['filename'] = urlencode(substr($image_uploads[$i]['filename'], 0, -1*(strlen($image_uploads[$i]['extension'])+1)));
-				}
-				$smarty->assign("images", $image_uploads);
-			//}
-		}
-		
-	}
-	
-	$smarty->assign("token", $csrf->getToken());
-	$page_title = "Upload";
-	$display = "u.tpl";
-	require("includes/deinit.php");
-}else
-	require("404.php");
+    // Set page template
+    $page_title = "Upload";
+    $display = "u.tpl";
+    include "includes/deinit.php";
+} else {
+    include "404.php";
+}
 ?>

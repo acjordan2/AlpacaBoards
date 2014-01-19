@@ -2,7 +2,7 @@
 /*
  * shop.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,32 +24,45 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-require("includes/Shop.class.php");
-require("includes/CSRFGuard.class.php");
-if($auth == TRUE){
-	$item_id = @$_GET['item'];
-	$shop = new Shop($db, $authUser->getUserID());
-	$smarty->assign("credits", $authUser->getCredits());
-	if(is_numeric($item_id)){
-		$item = $shop->getItem($item_id);
-		$smarty->assign("item", $item);
-		$csrf = new CSRFGuard();
-		$smarty->assign("csrf_token", $csrf->getToken());
-		if(@$_POST['submit'] == "Purchase" && is_numeric(@$_POST['item']) && $csrf->validateToken(@$_POST['token']) && $authUser->getCredits() > $item['price'])
-			if($shop->purchaseItem($item_id))
-				header("Location: ./inventory.php");
-		$display = "item.tpl";
-		$page_title = "Purchase ".$item['name'];
-	}
-	elseif($item_id != '')
-		require("404.php");
-	else{
-		$smarty->assign("items", $shop->getItems());
-		$display = "shop.tpl";
-		$page_title = "Token Shop";
-	}
-	require("includes/deinit.php");
-}else
-	require("404.php");
+require "includes/init.php";
+require "includes/Shop.class.php";
+require "includes/CSRFGuard.class.php";
+
+// Check authentication
+if ($auth == true) {
+    // Verify shop itme
+    $item_id = @$_GET['item'];
+    $shop = new Shop($db, $authUser->getUserID());
+    $smarty->assign("credits", $authUser->getCredits());
+    if (is_numeric($item_id)) {
+        $item = $shop->getItem($item_id);
+        $smarty->assign("item", $item);
+
+        // Create new anti-CSRF token
+        $csrf = new CSRFGuard();
+        $smarty->assign("csrf_token", $csrf->getToken());
+        if (@$_POST['submit'] == "Purchase" 
+            // Purchase item
+            && is_numeric(@$_POST['item']) 
+            && $csrf->validateToken(@$_POST['token']) 
+            && $authUser->getCredits() > $item['price']
+        ) {
+            if($shop->purchaseItem($item_id))
+                header("Location: ./inventory.php");
+        }
+        // Set template display page
+        $display = "item.tpl";
+        $page_title = "Purchase ".$item['name'];
+    } elseif ($item_id != '') {
+        include "404.php";
+    } else {
+        // set template display page
+        $smarty->assign("items", $shop->getItems());
+        $display = "shop.tpl";
+        $page_title = "Token Shop";
+    }
+    include "includes/deinit.php";
+} else {
+    include "404.php";
+}
 ?>

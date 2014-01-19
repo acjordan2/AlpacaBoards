@@ -1,8 +1,8 @@
 <?php
 /*
- * links.php
+ * ss.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,15 +24,18 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-require("includes/Link.class.php");
-	$link_id = hexdec(str_replace("ss", "", strtolower(@$_GET['l'])));
-	if(is_numeric($link_id)){
-		$link = new Link($db, $authUser->getUserID(), $link_id);
-		if($link->doesExist()){
-			$link_data = $link->getLink();
-			header("Location: ".$link_data['url2']);
-		}
-	}
+require "includes/init.php";
+require "includes/Link.class.php";
+
+$link_id = hexdec(str_replace("ss", "", strtolower(@$_GET['l'])));
+if (is_numeric($link_id)) {
+    // Get URL from link ID
+    // then redirect to URL
+    $link = new Link($db, $authUser->getUserID(), $link_id);
+    if ($link->doesExist()) {
+        $link_data = $link->getLink();
+        header("Location: ".$link_data['url2']);
+    }
+}
 ?>
 

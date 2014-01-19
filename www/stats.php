@@ -2,7 +2,7 @@
 /*
  * stats.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,28 +24,35 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-if($auth == TRUE){
-		$sql_get_users = "SELECT COUNT(user_id) as count FROM Users";
-		$query_users = $db->query($sql_get_users);
-		$user_num = $query_users->fetch();
-		
-		$sql_get_links = "SELECT COUNT(link_id) as count from Links";
-		$query_links = $db->query($sql_get_links);
-		$link_num = $query_links->fetch();
-		
-		$sql_get_messages = "SELECT COUNT(message_id) FROM Messages";
-		$query_messages = $db->query($sql_get_messages);
-		$message_num = $query_messages->fetch();
-		
-		$smarty->assign("user_num", $user_num[0]);
-		$smarty->assign("links_num", $link_num[0]);
-		$smarty->assign("message_num", $message_num[0]);
+require "includes/init.php";
 
+// Check authentication
+if ($auth == true) {
+    // Get number of Users
+    $sql_get_users = "SELECT COUNT(user_id) as count FROM Users";
+    $query_users = $db->query($sql_get_users);
+    $user_num = $query_users->fetch();
 
-		$display = "stats.tpl";
-		$page_title = "Stats";
-		require("includes/deinit.php");
-}else
-	require("404.php");
+    // Get number of Links
+    $sql_get_links = "SELECT COUNT(link_id) as count from Links";
+    $query_links = $db->query($sql_get_links);
+    $link_num = $query_links->fetch();
+
+    // Get number of Messages
+    $sql_get_messages = "SELECT COUNT(message_id) FROM Messages";
+    $query_messages = $db->query($sql_get_messages);
+    $message_num = $query_messages->fetch();
+
+    // Assign template variables
+    $smarty->assign("user_num", $user_num[0]);
+    $smarty->assign("links_num", $link_num[0]);
+    $smarty->assign("message_num", $message_num[0]);
+
+    // Set page template
+    $display = "stats.tpl";
+    $page_title = "Stats";
+    include "includes/deinit.php";
+} else {
+    include "404.php";
+}
 ?>
