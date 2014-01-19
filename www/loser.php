@@ -2,7 +2,7 @@
 /*
  * loser.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,34 +24,43 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-if($auth == TRUE){
-	$user_id = @$_GET['user'];
-	if(is_null($user_id))
-		$user_id=$authUser->getUserID();
-	else
-		$user_id=$_GET['user'];
-		
-	if(is_numeric($user_id)){
-		$stat_user = new User($db, $user_id);
-		if($stat_user->doesExist()){
-			$smarty->assign("p_username", $stat_user->getUsername());
-			$smarty->assign("messages_posted", $stat_user->getNumberOfPosts());
-			$smarty->assign("topics_created", $stat_user->getNumberOfTopics());
-			$smarty->assign("posts_best", $stat_user->getPostsInBestTopic());
-			$smarty->assign("no_reply", $stat_user->getNoReplyTopics());
-			$smarty->assign("num_links", $stat_user->getNumberOfLinks());
-			$smarty->assign("num_votes", $stat_user->getNumberOfVotes());
-			$smarty->assign("vote_avg", $stat_user->getVoteAverage());
-			$display = "loser.tpl";
-			$page_title = "Loser";
-			require("includes/deinit.php");
-		}else
-			require("404.php");
-	}
-	else{
-		require("404.php");
-	}
-}else
-	require("404.php");
+require "includes/init.php";
+
+// Check authentication
+if ($auth == true) {
+    // Validate provided user ID
+    // default to current logged
+    // in user. 
+    $user_id = @$_GET['user'];
+    if (is_null($user_id)) {
+        $user_id=$authUser->getUserID();
+    } else {
+        $user_id=$_GET['user'];
+    }
+        
+    if (is_numeric($user_id)) {
+        // Get user stats
+        $stat_user = new User($db, $user_id);
+        if ($stat_user->doesExist()) {
+            // Assign template variables 
+            $smarty->assign("p_username", $stat_user->getUsername());
+            $smarty->assign("messages_posted", $stat_user->getNumberOfPosts());
+            $smarty->assign("topics_created", $stat_user->getNumberOfTopics());
+            $smarty->assign("posts_best", $stat_user->getPostsInBestTopic());
+            $smarty->assign("no_reply", $stat_user->getNoReplyTopics());
+            $smarty->assign("num_links", $stat_user->getNumberOfLinks());
+            $smarty->assign("num_votes", $stat_user->getNumberOfVotes());
+            $smarty->assign("vote_avg", $stat_user->getVoteAverage());
+            $display = "loser.tpl";
+            $page_title = "Loser";
+            include "includes/deinit.php";
+        } else {
+            include "404.php";
+        }
+    } else {
+        include "404.php";
+    }
+} else {
+    include "404.php";
+}
 ?>

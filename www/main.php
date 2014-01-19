@@ -24,18 +24,16 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require("includes/init.php");
-require("includes/Board.class.php");
+require "includes/init.php";
+require "includes/Board.class.php";
 
-if($auth == TRUE){
-	//$smarty->assign("page", "Home");
-	//$display = "main.tpl";
-	//$myBoard = new Board($db, 1, $authUser->getUserID());
-	//$myBoard->getTopics(0,0, $authUser->getUserID());
-	header("Location: ./showtopics.php?board=42");
+if ($auth == true) {
+    //$smarty->assign("page", "Home");
+    //$display = "main.tpl";
+    //$myBoard = new Board($db, 1, $authUser->getUserID());
+    //$myBoard->getTopics(0,0, $authUser->getUserID());
+    header("Location: ./showtopics.php?board=42");
+} else {
+    header("Location: ./?r=main.php");
 }
-else
-	header("Location: ./?r=main.php");
-
-//require("includes/deinit.php");
 ?>

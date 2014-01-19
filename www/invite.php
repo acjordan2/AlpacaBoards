@@ -2,7 +2,7 @@
 /*
  * invite.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -23,50 +23,64 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-require("includes/init.php");
-require("includes/PHPMailer.class.php");
-require("includes/CSRFGuard.class.php");
-if($auth == TRUE){
-	$csrf = new CSRFGuard();
-	$smarty->assign("token", $csrf->getToken());
-	if(isset($_POST['email']) && $csrf->validateToken(@$_POST['token']) == TRUE && $authUser->validateEmail($_POST['email']) == TRUE){
-		
-		$invite_code = override\websafeEncode(override\random(32));
-		
-		$sql = "INSERT INTO InviteTree (invite_code, email, invited_by, created)
-		VALUES ('$invite_code', ?, ".$authUser->getUserID().", ".time().")";
-		$statement = $db->prepare($sql);
-		$statement->execute(array($_POST['email']));
-		
-		$mail = new PHPMailer();
-		$email = $_POST['email'];
-		$mail->From = "no-reply@".DOMAIN;
-		$mail->FromName = "Do Not Reply";
-		$mail->AddAddress($email);
 
-		$mail->WordWrap = 50;                                 // set word wrap to 50 characters
-		$mail->IsHTML(true);                                  // set email format to HTML
+require "includes/init.php";
+require "includes/PHPMailer.class.php";
+require "includes/CSRFGuard.class.php";
 
-		$mail->Subject = "You have been invited to ".SITENAME;
-		$mail->Body    = "The user ".$authUser->getUsername()." has invited you to join ".SITENAME." and has specified this address ("
-						  .$email.") as your email. If you do not know this person, please disregard.<br /><br />".
-						  "<br />To confirm your invite, click on the folowing link:<br /><br /> ".
-						  "http://".DOMAIN."/register.php?code=$invite_code<br /><br />".
-						  "After you register, you will be able to use your account. Please take note that if you do not ".
-						  "use this invite in the next 3 days, it will expire.";
-		$mail->AltBody = "This is the body in plain text for non-HTML mail clients";
+// Check authentication 
+if ($auth == false) {
+    // Create new anti-CSRF token
+    $csrf = new CSRFGuard();
+    $smarty->assign("token", $csrf->getToken());
+    // Validate email address and CSRF token
+    if (isset($_POST['email']) 
+        && $csrf->validateToken(@$_POST['token']) == true 
+        && $authUser->validateEmail($_POST['email']) == true
+    ) {
+        // Create random invite code
+        // encoded using websafe base64
+        $invite_code = override\websafeEncode(override\random(32));
+        $sql = "INSERT INTO InviteTree (invite_code, email, invited_by, created)
+            VALUES ('$invite_code', ?, ".$authUser->getUserID().", ".time().")";
+        $statement = $db->prepare($sql);
+        $statement->execute(array($_POST['email']));
+        
+        // Send out invite email
+        $mail = new PHPMailer();
+        $email = $_POST['email'];
+        $mail->From = "no-reply@".DOMAIN;
+        $mail->FromName = "Do Not Reply";
+        $mail->AddAddress($email);
 
-		if(!$mail->Send())
-		   $message = "Error sending invite";
-		else
-		   $message = "Invite has been sent";
-	}
-	$smarty->assign("message", @$message);
-	$display = "invite.tpl";
-	$page_title = "Send Invite";
-	require("includes/deinit.php");
+        $mail->WordWrap = 50;
+        $mail->IsHTML(true);
+
+        $mail->Subject = "You have been invited to ".SITENAME;
+        $mail->Body    = "The user ".$authUser->getUsername()." has invited you to
+            join ".SITENAME." and has specified this address (".$email.") as your 
+            email. If you do not know this person, please disregard.<br /><br />
+            <br />To confirm your invite, click on the folowing link:<br /><br />
+            http://".DOMAIN."/register.php?code=$invite_code<br /><br />
+            After you register, you will be able to use your account. Please take 
+            note that if you do not use this invite in the next 3 days, 
+            it will expire.";
+        $mail->AltBody = "This is the body in plain text for non-HTML mail clients";
+
+        if (!$mail->Send()) {
+            $message = "Error sending invite";
+        } else {
+            $message = "Invite has been sent";
+        }
+    }
+    // Set template variables
+    $smarty->assign("message", @$message);
+    // Set template page
+    $display = "invite.tpl";
+    $page_title = "Send Invite";
+    include "includes/deinit.php";
+} else {
+    include "404.php";
 }
-else
-	require("404.php");
 
 ?>

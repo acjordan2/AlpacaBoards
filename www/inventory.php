@@ -2,7 +2,7 @@
 /*
  * inventory.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,14 +24,20 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require("includes/init.php");
-require("includes/CSRFGuard.class.php");
-if($auth == TRUE){
-	$inventory = $authUser->getInventory();
-	$smarty->assign("inventory", $inventory);
-	$display = "inventory.tpl";
-	$page_title = "Inventory";
-	require("includes/deinit.php");
-}else
-	require("404.php");
+require "includes/init.php";
+require "includes/CSRFGuard.class.php";
+
+// Check authentication 
+if ($auth == true) {
+    // Get user inventory
+    $inventory = $authUser->getInventory();
+    $smarty->assign("inventory", $inventory);
+
+    // Set page template
+    $display = "inventory.tpl";
+    $page_title = "Inventory";
+    include "includes/deinit.php";
+} else {
+    include  "404.php";
+}
 ?>

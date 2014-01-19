@@ -2,7 +2,7 @@
 /*
  * main.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,16 +24,19 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require("includes/init.php");
-require("includes/Board.class.php");
-if($auth == TRUE){
-	$smarty->assign("topicList", $authUser->getCommentHistory());
-	$page_title = "Message History";
-	$display = "history.tpl";
-	require("includes/deinit.php");
-}
-else
-	require("404.php");
+require "includes/init.php";
+require "includes/Board.class.php";
 
-require("includes/deinit.php");
+// Check authentication
+if ($auth === true) {
+    // Get user message history
+    $smarty->assign("topicList", $authUser->getCommentHistory());
+    $page_title = "Message History";
+
+    // Set template page
+    $display = "history.tpl";
+    include "includes/deinit.php";
+} else {
+    include "404.php";
+}
 ?>
