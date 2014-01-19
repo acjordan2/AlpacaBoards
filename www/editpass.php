@@ -24,56 +24,76 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-if($auth == TRUE){
-	$error_msg[0] = "Password updated!";
-	$error_msg[1] = "Passwords must be at least 8 characters long";
-	$error_msg[2] = "Passwords don't match";
-	$error_msg[4] = "Old password is incorrect";
-	$message = array();
-	
-	if(isset($_GET['error'])){
-		if(@$_GET['error'] == 1)
-			$message[] = $error_msg[1];
-		elseif(@$_GET['error'] == 2)
-			$message[] = $error_msg[2];
-		elseif(@$_GET['error'] == 3){
-			$message[] = $error_msg[1];
-			$message[] = $error_msg[2];
-		}
-		elseif(@$_GET['error'] == 4){
-			$message[] = $error_msg[4];
-		}
-		elseif(@$_GET['error'] == 0)
-			$message[] = $error_msg[0];
-	}
-	
-	$smarty->assign("message", $message);
-	if(isset($_POST['old']) && isset($_POST['new']) && isset($_POST['new2'])){
-		$old = $_POST['old'];
-		$new = $_POST['new'];
-		$new2 = $_POST['new2'];
-		$error = 0;
-		if(strlen($new) < 8){
-			$error += 1;
-		}
-		if(strcmp($new, $new2) != 0){
-			$error += 2;
-		}
-		if(strlen($old) == 0)
-			$error = 4;
-		elseif($error == 0)
-			if(!$authUser->changePassword($_POST['old'], $new))
-					$error = 4;
-					
-		header("Location: ./editpass.php?error=$error");
+require "includes/init.php";
 
-	}
-	$display = "editpass.tpl";
-	$page_title = "Edit Password";
-	require("includes/deinit.php");
+// Check authetication 
+if ($auth == true) {
+    // Possible error messages
+    $error_msg[0] = "Password updated!";
+    $error_msg[1] = "Passwords must be at least 8 characters long";
+    $error_msg[2] = "Passwords don't match";
+    $error_msg[4] = "Old password is incorrect";
+    $message = array();
+    
+    // Set error messages based
+    // on get parameter
+    if (isset($_GET['error'])) {
+        switch (@$_GET['error']) {
+        case 1:
+            $message[] = $error_msg[1];
+            break;
+        case 2:
+            $message[] = $error_msg[2];
+            break;
+        case 3:
+            $message[] = $error_msg[1];
+            $message[] = $error_msg[2];
+            break;
+        case 4:
+            $message[] = $error_msg[4];
+            break;
+        case 0:
+            $message[] = $error_msg[0];
+            break;
+        }
+    }
 
-}else
-	require("404.php");
+    $smarty->assign("message", $message);
+
+    // Validate new and old password
+    if (isset($_POST['old']) 
+        && isset($_POST['new']) 
+        && isset($_POST['new2'])
+    ) {
+        $old = $_POST['old'];
+        $new = $_POST['new'];
+        $new2 = $_POST['new2'];
+        $error = 0;
+        if (strlen($new) < 8) {
+            $error += 1;
+        }
+        if (strcmp($new, $new2) != 0) {
+            $error += 2;
+        }
+        if (strlen($old) == 0) {
+            $error = 4;
+        } elseif ($error == 0) {
+            if (!$authUser->changePassword($_POST['old'], $new)) {
+                $error = 4;
+            }
+        }
+        // Redirect after form submission to prevent
+        // re-POSTing of password            
+        header("Location: ./editpass.php?error=$error");
+    }
+
+    // Set template page
+    $display = "editpass.tpl";
+    $page_title = "Edit Password";
+    include "includes/deinit.php";
+
+} else {
+    include "404.php";
+}
 ?>
 
