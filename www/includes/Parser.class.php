@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once("RecursiveDOMIterator.class.php");
+require_once "RecursiveDOMIterator.class.php";
 
 class Parser
 {
@@ -171,16 +171,18 @@ class Parser
 				$pattern = "/[,@]/";
 				$msgid_array = preg_split($pattern, $msgid);
 				// Check if the quote is from a link or a topic
-				if($msgid_array[0] == "t") // Topic
+				if ($msgid_array[0] == "t") { // Topic
 					$sql_quote = "SELECT Users.username, Users.user_id, 
-									Messages.posted FROM Messages LEFT JOIN 
-									Users Using(user_id) WHERE Messages.message_id=? 
-									AND Messages.topic_id=? AND Messages.revision_no = 0";
-				else // Link
+						Messages.posted FROM Messages LEFT JOIN 
+						Users Using(user_id) WHERE Messages.topic_id=? 
+						AND Messages.message_id=? AND Messages.revision_no = 0";
+                } else { // Link
 					$sql_quote = "SELECT Users.username, Users.user_id, LinkMessages.posted 
-									FROM LinkMessages LEFT JOIN Users Using(user_id) 
-									WHERE LinkMessages.message_id=? AND LinkMessages.link_id=? 
-									AND LinkMessages.revision_no = 0";
+					FROM LinkMessages LEFT JOIN Users Using(user_id) 
+					WHERE LinkMessages.message_id=? AND LinkMessages.link_id=? 
+					AND LinkMessages.revision_no = 0";
+                }
+
 				// Get data about quote such as post date
 				// and author
 				$statement = $this->pdo_conn->prepare($sql_quote);
