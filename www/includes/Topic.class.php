@@ -190,40 +190,15 @@ class Topic{
 	
 	public function updateHistory($last_message, $page){
 		if(!is_null($last_message)){
-		$sql = "INSERT INTO TopicHistory (topic_id, user_id, message_id, date, page)
-			VALUES (:topic_id, $this->user_id, $last_message, ".time().", :page)
-			ON DUPLICATE KEY UPDATE message_id= IF(message_id < $last_message, $last_message, message_id), date=".time().", page= IF(page < :page2, :page3, page)";
-		$statement = $this->pdo_conn->prepare($sql);
-		#PDO limitimation: cant call the same named place holder more than once per query
-		$statement->execute(array('topic_id' => $this->topic_id, 'page'=>$page, 'page2'=>$page, 'page3'=>$page));
-		$statement->closeCursor();
-		return TRUE;
-	}	
-	}
-	
-	public function formatComments($string){	
-		$string = preg_replace("/\<quote /", "<div class=\"quoted-message\" ", $string);
-		/*
-		$attr = explode("\"", $string);
-		$params = $attr[3];
-		$message_id = explode(",", $attr[3]);
-		$message_id = explode("@", $message_id[2]);
-		$message_id = $message_id[0];
-		$statement = $this->pdo_conn->prepare("SELECT Messages.user_id,
-													  Users.username,
-													  Messages.posted
-												FROM Messages
-												LEFT JOIN Users
-												USING(user_id)
-												WHERE Messages.message_id = ?
-												AND revision_no = 0");
-		$statement->execute(array($message_id));
-		$statement->setFetchMode(PDO::FETCH_ASSOC);
-		$row = $statement->fetch();
-		$string = preg_replace("/<div class=\"quoted-message\" msgid=\"t,1,13@0\"\\>/", "<div class=\"quoted-message\" msgid=\"t,1,13@0\"\>/> From: ".$row['username']." | Posted: ".$row['posted'], $string);
-		*/
-		$string = preg_replace("/\<\/quote>/", "</div>", $string);
-		return $string;
+    		$sql = "INSERT INTO TopicHistory (topic_id, user_id, message_id, date, page)
+    			VALUES (:topic_id, $this->user_id, $last_message, ".time().", :page)
+    			ON DUPLICATE KEY UPDATE message_id= IF(message_id < $last_message, $last_message, message_id), date=".time().", page= IF(page < :page2, :page3, page)";
+    		$statement = $this->pdo_conn->prepare($sql);
+    		#PDO limitimation: cant call the same named place holder more than once per query
+    		$statement->execute(array('topic_id' => $this->topic_id, 'page'=>$page, 'page2'=>$page, 'page3'=>$page));
+    		$statement->closeCursor();
+    		return TRUE;
+	   }	
 	}
 	
 	public function doesExist(){

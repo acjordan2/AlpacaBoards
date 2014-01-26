@@ -37,6 +37,11 @@ if ($auth === true) {
         $link = new Link($db, $authUser->getUserID(), $link_id);
         if ($link->doesExist()) {
             $link_data = $link->getLink();
+            if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
+                $current_page = 1;
+            } else {
+                $current_page = intval($_GET['page']);
+            }
             // Create anti-CSRF token
             $csrf = new CSRFGuard();
 
@@ -83,7 +88,7 @@ if ($auth === true) {
             }
 
             // Assign link data to template varibles
-            $messages = $link->getMessages();
+            $messages = $link->getMessages($current_page);
             $smarty->assign("link_data", $link_data);
             $smarty->assign("link_id", $link_id);
             $smarty->assign("messages", $messages);
@@ -98,6 +103,8 @@ if ($auth === true) {
             );
             $smarty->assign("p_signature", htmlentities($authUser->getSignature()));
             $smarty->assign("token", $csrf->getToken());
+            $smarty->assign("page_count", $link->getPageCount());
+            $smarty->assign("current_page", $current_page);
             if ($link->isFavorite()) {
                 $smarty->assign("link_favorite", true);
             }
@@ -107,7 +114,7 @@ if ($auth === true) {
         } else {
             include "404.php";
         }
-    } elseif ($link_id=="random") {
+    } elseif ($link_id == "random") {
         // Select random link
         $sql = "SELECT Links.link_id FROM Links WHERE Links.active=0";
         $links = $db->query($sql);        

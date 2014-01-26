@@ -49,13 +49,13 @@
 		<a href="./postmsg.php?link={$link_id}">Post New Message</a> |
 		<a href="https://wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
-	<div class="infobar">
-		Page 1 of <span>1</span> 
-		<span style="display:none">| 
-			<a href="./linkme.php?l={$link_id}&amp;page=2">Next Page</a>
-		</span> <span style="display:none">| 
-		<a href="./linkme.php?l={$link_id}&amp;page=1">Last Page</a></span>
- 	</div>
+	<div class="infobar" id="u0_2">
+        {if $current_page > 1} <span><a href="./linkme.php?l={$link_id}&amp;page=1">First Page</a> |</span>{/if}
+        {if $current_page > 2}<span><a href="./linkme.php?l={$link_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
+        Page {$current_page} of <span>{$page_count}</span> 
+        {if $current_page < $page_count - 1}<span>| <a href="./linkme.php?l={$link_id}&amp;page={$current_page + 1}">Next Page</a></span> {/if}
+        {if $current_page < $page_count}<span>| <a href="./linkme.php?l={$link_id}&amp;page={$page_count}">Last Page</a></span>{/if}
+    </div>
 {$i = 5}
 {foreach from=$messages key=header item=table}
 	<div class="message-container" id="m{$table.message_id}">
@@ -83,8 +83,17 @@
 {$i = $i+1}
 {/foreach}
 
-    <div class="infobar">
-      Page: 1
+    <div class="infobar" id="u0_3">Page: 
+    {assign var="k" value=1}
+    {while $k <= $page_count}
+        {if $k == $current_page}{$k} 
+            {if $k<$page_count}|{/if}
+            {else}
+                <a href="./linkme.php?l={$link_id}&amp;page={$k}">{$k}</a> 
+                {if $k < $page_count}| {/if}
+        {/if}
+        {assign var="k" value=$k+1}
+    {/while}
     </div>
     <br />
     <br />
