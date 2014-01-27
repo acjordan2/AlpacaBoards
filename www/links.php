@@ -62,8 +62,20 @@ if ($auth === true) {
             $sp->setServer("localhost", 3312);
             $sp->SetMatchMode(SPH_MATCH_ALL);
             $sp->SetArrayResult(true);
+            
+            $sphinx_status = $sp->status();
+            if ($sphinx_status[0][1] > 1) {
+                $results = $sp->Query(@$_GET['q'], 'links');
+            } else {
 
-            $results = $sp->Query(@$_GET['q'], 'links');
+                $keyword = "%".$_GET['q']."%";
+                $sql = "SELECT Links.link_id as id FROM Links WHERE 
+                    Links.title LIKE ? OR Links.Description LIKE ?";
+                $statement = $db->prepare($sql);
+                $statement->execute(array($keyword, $keyword));
+                $results['matches'] = $statement->fetchAll();
+            }
+
             $link_data = Array();
             // Get link data based on search results
             for ($i=0; $i<sizeof($results['matches']); $i++) {
