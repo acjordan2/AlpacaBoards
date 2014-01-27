@@ -36,7 +36,7 @@ header("Expires: $es");
 header("Last-Modified: $ls");
 header("Pragma: no-cache");
 header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
-header("X-Frame-Options: DENY");
+header("X-Frame-Options: SAMEORIGIN");
 
 session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
 session_name("lue");
