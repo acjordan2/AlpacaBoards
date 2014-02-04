@@ -1,6 +1,8 @@
 Roadmap
 =======
 
+In no particular order
+
 ##Important
 * Live message updates (ideally using websockets with a long poll fallback) 
 * Links.php needs pagination 
