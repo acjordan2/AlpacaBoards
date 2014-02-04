@@ -26,7 +26,6 @@
  
 require "includes/init.php";
 require "includes/Link.class.php";
-require "includes/CSRFGuard.class.php";
 require "includes/Parser.class.php";
 
 // Check authentication
@@ -39,8 +38,6 @@ if ($auth == true) {
         if ($link->doesExist()) {
             $link_data = $link->getLink();
 
-            // Create new anti=CSRF token
-            $csrf = new CSRFGuard();
             $smarty->assign("link_id", $link_id);
             $smarty->assign("link_title", $link_data['title']);
             $smarty->assign("token", $csrf->getToken());

@@ -25,7 +25,6 @@
  */
 require "includes/init.php";
 require "includes/Topic.class.php";
-require "includes/CSRFGuard.class.php";
 require "includes/Parser.class.php";
 
 if ($auth == true) {
@@ -39,8 +38,6 @@ if ($auth == true) {
             } else {
                 $current_page = intval($_GET['page']);
             }
-            // Create new anti-CSRF token
-            $csrf = new CSRFGuard();
             // Sticky topic
             if (@$_GET['sticky'] == 1) {
                 // Validate CSRF token

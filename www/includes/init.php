@@ -28,6 +28,7 @@ require_once("Config.ini.php");
 require_once("User.class.php");
 require_once("Smarty.class.php");
 require_once("Override.inc.php");
+require_once("CSRFGuard.class.php");
 
 $ls = gmdate("D, d M Y H:i:s") . " GMT";
 $es =  gmdate("D, d M Y H:i:s", 1)." GMT";
@@ -39,7 +40,7 @@ header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0
 header("X-Frame-Options: SAMEORIGIN");
 
 session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
-session_name("lue");
+session_name("ssid");
 session_start();
 
 #Initiate database connection
@@ -70,9 +71,18 @@ try{
 	
 	define("SITE_KEY", $sitekey);
 	
+    $csrf = new CSRFGuard();
+
 	$authUser = new User($db);
-	$auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
-	if($auth == TRUE){
+
+    if(isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])){
+        if($csrf->validateToken($_POST['token'])) {
+	       $auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
+        }
+    } else {
+        $auth = $authUser->checkAuthentication();
+    }
+	if($auth == true){
 		$smarty->assign("username", $authUser->getUsername());
 		$smarty->assign("user_id", $authUser->getUserID());
 		$authUser->awardKarma();
@@ -82,8 +92,8 @@ try{
 			$display = "no_access.tpl";
 			$page_title = "You have been banned";
 			$smarty->assign("message", $message);
-			$smarty->assign("reason", override\htmlentities($authUser->getDisciplineReason()));
-			require_once("deinit.php");
+			$smarty->assign("reason", htmlentities($authUser->getDisciplineReason()));
+			include "deinit.php";
 		}
 	}
 } catch(PDOException $e){

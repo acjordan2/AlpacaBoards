@@ -26,13 +26,11 @@
 require "includes/init.php";
 require "includes/Parser.class.php";
 require "includes/Message.class.php";
-require "includes/CSRFGuard.class.php";
 
 // Check authetication
 if ($auth === true) {
     // Check that message ID is valid
     if (is_numeric(@$_GET['id']) && is_numeric(@$_GET['topic'])) {
-        $csrf = new CSRFGuard();
         if (is_numeric(@$_GET['r'])) {
             $revision_no = intval($_GET['r']);
         } else {

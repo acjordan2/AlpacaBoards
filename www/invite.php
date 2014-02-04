@@ -26,12 +26,9 @@
 
 require "includes/init.php";
 require "includes/PHPMailer.class.php";
-require "includes/CSRFGuard.class.php";
 
 // Check authentication 
 if ($auth == false) {
-    // Create new anti-CSRF token
-    $csrf = new CSRFGuard();
     $smarty->assign("token", $csrf->getToken());
     // Validate email address and CSRF token
     if (isset($_POST['email']) 

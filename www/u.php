@@ -26,13 +26,10 @@
  
 require "includes/init.php";
 require "includes/Upload.class.php";
-require "includes/CSRFGuard.class.php";
 require "includes/PHPThumbnailer/ThumbLib.inc.php";
 
 // Check authentication
 if ($auth == true) {
-    // Crate new anti-CSRF token
-    $csrf = new CSRFGuard();
     if (isset($_POST['token'])) {
         // Valdate token
         if ($csrf->validateToken($_POST['token'])) {

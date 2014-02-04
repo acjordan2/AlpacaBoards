@@ -26,13 +26,10 @@
  
 require "includes/init.php";
 require "includes/Link.class.php";
-require "includes/CSRFGuard.class.php";
 require "includes/Parser.class.php";
 
 // Check authentication
 if ($auth === true) {
-    // Create new anti-CSRF token
-    $csrf = new CSRFGuard();
     // Edit existing link
     if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
         $link_edit = new Link($db, $authUser->getUserID(), $_GET['edit']);

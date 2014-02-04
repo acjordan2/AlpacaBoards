@@ -27,13 +27,10 @@
 require "includes/init.php";
 require "includes/Upload.class.php";
 require "includes/Parser.class.php";
-require "includes/CSRFGuard.class.php";
 require "includes/PHPThumbnailer/ThumbLib.inc.php";
 
 // Check authentication
 if ($auth == true) {
-    // Create new anti-CSRF token
-    $csrf = new CSRFGuard();
     $avatar = "";
     if (isset($_POST['go'])) {
         // Update profile information

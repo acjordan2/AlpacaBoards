@@ -26,7 +26,6 @@
  
 require "includes/init.php";
 require "includes/Link.class.php";
-require "includes/CSRFGuard.class.php";
 require "includes/Parser.class.php";
 
 // Check authentication
@@ -42,9 +41,6 @@ if ($auth === true) {
             } else {
                 $current_page = intval($_GET['page']);
             }
-            // Create anti-CSRF token
-            $csrf = new CSRFGuard();
-
             // Submit link vote between 
             // 0 and 10
             if (is_numeric(@$_POST['v']) 

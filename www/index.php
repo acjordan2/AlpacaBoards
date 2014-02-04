@@ -24,7 +24,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
 require "includes/init.php";
 
 // Check authentication
@@ -48,6 +47,7 @@ if ($auth === false) {
     }
     $smarty->assign("username", htmlentities(@$_POST['username']));
     $smarty->assign("message", $message);
+    $smarty->assign("token", $csrf->getToken());
     include "includes/deinit.php";
 } else {
     // If the suer is logged in, redirect
