@@ -25,8 +25,6 @@
  */
 
 require "includes/init.php";
-require "includes/CSRFGuard.class.php";
-
 
 // Check authentication
 if ($auth == true) {
@@ -34,7 +32,6 @@ if ($auth == true) {
 
     // Create an anti Cross-Site request
     // forgery token
-    $csrf = new CSRFGuard();
     $token = @$_POST['token'];
 
     // Spilt action; format is <sectom>_<action>
