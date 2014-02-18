@@ -39,9 +39,6 @@ header("Pragma: no-cache");
 header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
 header("X-Frame-Options: SAMEORIGIN");
 
-session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
-session_name("ssid");
-session_start();
 
 #Initiate database connection
 try{
@@ -78,6 +75,11 @@ try{
     if(isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])){
         if($csrf->validateToken($_POST['token'])) {
 	       $auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
+           if ($auth == true) { 
+                $csrf->resetToken();
+           }
+        } else {
+            $auth = false;
         }
     } else {
         $auth = $authUser->checkAuthentication();

@@ -36,7 +36,7 @@ if ($auth == true) {
 
     // Spilt action; format is <sectom>_<action>
     // ex link_vote for link voting. 
-    $action = explode("_", @$_POST['action']);
+    $action = explode("_", @$_REQUEST['action']);
     $section = @$action[0];
     $action = @$action[1];
 
@@ -90,7 +90,32 @@ if ($auth == true) {
             }
             break;
         }
-    }
+        case "topic":
+            include "includes/Topic.class.php";
+            include "includes/Parser.class.php";
+            switch($action){
+                case "subscribe":
+                    //$json = json_decode(file_get_contents("php://input"), true);
+                    $topic = new Topic($db, $_GET['topic_id'], $authUser->getUserID());
+                    $message_data = $topic->pollMessage();
+                    if (!is_null($message_data)) {
+                        $smarty->assign("topic_id", $message_data[0]['topic_id']);
+                        $smarty->assign("message", $message_data[0]['message']);
+                        $smarty->assign("message_id", $message_data[0]['message_id']);
+                        $smarty->assign("user_id", $message_data[0]['user_id']);
+                        $smarty->assign("username", $message_data[0]['username']);
+                        $smarty->assign("posted", $message_data[0]['posted']);
+                        $smarty->assign("revision_id", $message_data[0]['revision_id']);
+                        $smarty->assign("avatar", $message_data[0]['avatar']);
+                        $output = $smarty->fetch("ajax/message.tpl");
+                    } else {
+                        $output = null;
+                    }
+                    break;
+            } // End switch($action) for topic
+            break;
+    } // End switch($section)
+
     // JSON output
     print json_encode($output);
 } else {

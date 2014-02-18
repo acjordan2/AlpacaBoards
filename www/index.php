@@ -52,11 +52,21 @@ if ($auth === false) {
 } else {
     // If the suer is logged in, redirect
     // to last visted page if it exists.
-    // Otherwise, redirect to main.php
+    // Otherwise, redirect to main.
+    session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
+    session_name("r");
+    session_start();
     if (isset($_SESSION['redirect'])) {
-        $r = $_SESSION['redirect'];
-        unset($_SESSION['redirect']);
-        header("Location: ".$r);
+            $r = $_SESSION['redirect'];
+            if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    header("Location: ".$r);
     } else {
         header("Location: ./main.php");
     }

@@ -2,7 +2,7 @@
 /*
  * Topic.class.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -200,6 +200,57 @@ class Topic{
     		return TRUE;
 	   }	
 	}
+
+    public function pollMessage(){
+        $message_data = null;
+        $count = 0;
+        $sql = "SELECT Messages.topic_id, Messages.message_id, Messages.revision_no as revision_id,
+            Messages.user_id, Users.username, Users.avatar, UploadedImages.sha1_sum,
+            UploadedImages.thumb_width, UploadedImages.thumb_height, UploadLog.filename,
+            Messages.message, Messages.posted as posted
+            FROM Messages 
+            LEFT JOIN Users ON Users.user_id = Messages.user_id
+            LEFT JOIN UploadLog ON Users.avatar = UploadLog.uploadlog_id
+            LEFT JOIN UploadedImages On UploadedImages.image_id = UploadLog.image_id
+            LEFT JOIN TopicHistory ON TopicHistory.topic_id = Messages.topic_id
+            WHERE Messages.topic_id = ? AND Messages.message_id > TopicHistory.message_id
+            AND TopicHistory.user_id = ?";
+        $statement = $this->pdo_conn->prepare($sql);
+
+        while(is_null($message_data) && ($count < 20)) { 
+            $statement->execute(array($this->topic_id, $this->user_id));
+            if($statement->rowCount() > 0) {
+               for($i=0; $message_data_array=$statement->fetch(); $i++){
+                    if(!is_null($message_data_array['avatar'])){
+                        $avatar_extension = end(explode(".", $message_data_array['filename']));
+                        $message_data[$i]['avatar'] = $message_data_array['sha1_sum']."/".urlencode(substr($message_data_array['filename'],0,-1*(strlen($avatar_extension))))."jpg";
+                        $message_data[$i]['avatar_width'] = $message_data_array['thumb_width'];
+                        $message_data[$i]['avatar_height'] = $message_data_array['thumb_height'];
+                    }
+                    else {
+                        $message_data[$i]['avatar'] = NULL;
+                    }
+                    $message_data[$i]['message_id'] = $message_data_array['message_id'];
+                    $message_data[$i]['user_id'] = $message_data_array['user_id'];
+                    $message_data[$i]['username'] = $message_data_array['username'];
+                    
+                    $message_content = $message_data_array['message'];
+                    $parser = new Parser($this->pdo_conn);
+                    $message_content = $parser->parse($message_content);
+                    $message_content = override\makeURL($message_content);
+                    $message_data[$i]['message'] = $message_content;
+                    $message_data[$i]['topic_id'] = $message_data_array['topic_id'];
+                    $message_data[$i]['posted'] = $message_data_array['posted'];
+                    $message_data[$i]['revision_id'] = $message_data_array['revision_id'];
+                    $this->updateHistory($message_data[$i]['message_id'], 0);
+                }
+            } else {
+                    sleep(1);
+            }
+            $count++;
+        }
+        return $message_data;
+    }
 	
 	public function doesExist(){
 		return $this->exists;

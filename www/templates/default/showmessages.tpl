@@ -37,38 +37,39 @@
 {foreach from=$messages key=header item=table}
 	<div class="message-container" id="m{$table.message_id}">
 		<div class="message-top">
- 		<b>From:</b> <a href="./profile.php?user={$table.user_id}">{$table.username}</a> | 
-		<b>Posted:</b> {$table.posted|date_format:$dateformat} | 
-		{if isset($filter)}
-			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}">Unfilter</a>
-		{else}
-			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
-		{/if}
-		| <a href="./message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail
-		{if $table.revision_id > 1} 
-			({$table.revision_id} edits)
-		{elseif $table.revision_id == 1} 
-			({$table.revision_id} edit)
-		{/if}
-		</a> |
-		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}" 
-			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
-	</div>
-	<table class="message-body">
-		<tr>
-			<td msgid="t,{$topic_id},{$table.message_id}@{$table.revision_id}" class="message">
-				{$table.message|replace:"<!--\$i-->":$i++}
-			</td>
-			<td class="userpic">
-				<div class="userpic-holder">
-					{if $table.avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.avatar}" width="{$table.avatar_width}" height="{$table.avatar_height}" />{/if}
-				</div>
-			</td>
-		</tr>
-	</table>
+     		<b>From:</b> <a href="./profile.php?user={$table.user_id}">{$table.username}</a> | 
+    		<b>Posted:</b> {$table.posted|date_format:$dateformat} | 
+    		{if isset($filter)}
+    			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}">Unfilter</a>
+    		{else}
+    			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
+    		{/if}
+    		| <a href="./message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail
+    		{if $table.revision_id > 1} 
+    			({$table.revision_id} edits)
+    		{elseif $table.revision_id == 1} 
+    			({$table.revision_id} edit)
+    		{/if}
+    		</a> |
+    		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}" 
+    			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
+    	</div>
+    	<table class="message-body">
+    		<tr>
+    			<td msgid="t,{$topic_id},{$table.message_id}@{$table.revision_id}" class="message">
+    				{$table.message}
+    			</td>
+    			<td class="userpic">
+    				<div class="userpic-holder">
+    					{if $table.avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.avatar}" width="{$table.avatar_width}" height="{$table.avatar_height}" />{/if}
+    				</div>
+    			</td>
+    		</tr>
+    	</table>
 	</div>
 {$i = $i+1}
 {/foreach}
+</div>
 	<div class="infobar" id="u0_3">Page: 
 	{assign var="k" value=1}
 	{while $k <= $page_count}
@@ -84,35 +85,36 @@
 	<div class="infobar" id="u0_4">
 		There {if $num_readers < 2}is{else}are{/if} currently {$num_readers} {if $num_readers < 2}person{else}people{/if} reading this topic
 	</div>
-{literal}
-	<!--<script type="text/javascript">
-		//<![CDATA[
-		//onDOMContentLoaded(function(){new TopicManager(7758474, 1, 471, $("u0_1"), [new uiPagerBrowser($("u0_2"), "\/\/boards.endoftheinter.net\/showmessages.php?board=42&topic=7758474", 471, 1), new uiPagerEnum($("u0_3"), "\/\/boards.endoftheinter.net\/showmessages.php?board=42&topic=7758474", 471, 1)], $("u0_4"), ["144115188083614346",471], 0)})
-		//]]>
-	</script>-->
-{/literal}
 	<br />
 	<br />
 	{include file="footer.tpl"}
+    <script>
+        //var analytics = document.getElementById('u0_4');
+        (function poll(){
+            $.ajax({ url: "./ajax.php?action=topic_subscribe&topic_id={$topic_id}", success: function(data){
+                $("#u0_1").append(data);
+            }, dataType: "json", complete: poll, timeout: 6000000 });
+        })();
+    </script>
 	<a id="qptoggle" href="#">
 		<span id="open">+</span>
 		<span id="close" style="display:none">-</span>
 	</a>
 	<div id="pageexpander" style="height:280px;display:none;"></div>
 	<div id="quickpost" style="display:none;">
-	<form method="POST" action="./postmsg.php" name="quickposts" id="quickposts">
+	   <form method="POST" action="./postmsg.php" name="quickposts" id="quickposts">
 		<input type="hidden" name="topic" value="{$topic_id}" />
 		<input type="hidden" name="token" value="{$token}" />
 		<b>Your Message:</b><br />
 		<textarea id="qpmessage" name="message">
 
 ---
-				{$p_signature}
+{$p_signature}
 		</textarea>
 		<br />
 		<input type="submit" value="Post Message" name="submit"/>
-	</form>
-</div>
+	   </form>
+    </div>
 </div>
 </body>
 </html>

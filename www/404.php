@@ -36,6 +36,9 @@ if ($auth === true) {
 } else {
     // Set session varible with URL
     // to redirect to after login
+    session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
+    session_name("r");
+    session_start();
     $uri = $_SERVER['REQUEST_URI'];
     $_SESSION['redirect'] = trim(urldecode($uri));
     header("Location: ./");

@@ -27,10 +27,15 @@
 class CSRFGuard{
 	
 	private $pdo_conn;
+
+    private $csrf_token;
 	
 	function __construct(){
-		if(!isset($_SESSION['csrf_token']))	
-			$_SESSION['csrf_token'] = override\random(24);
+		if (!isset($_COOKIE['csrf'])) {
+            $this->resetToken();
+        } else {
+            $this->csrf_token = $_COOKIE['csrf'];
+        }
 	}
 	
 	private function websafeEncode($text){
@@ -48,11 +53,32 @@ class CSRFGuard{
 	}
 	
 	public function getToken(){
-		return $this->websafeEncode($_SESSION['csrf_token']);
+        $raw = $this->websafeDecode($this->csrf_token);
+        $token = explode("|", $raw);
+        $hmac_cookie = hash_hmac("sha1", $token[0], SITE_KEY, true);
+        if ($hmac_cookie == $token[1]) { 
+            $hash = hash_hmac("sha256", $raw, SITE_KEY, true);
+            return $this->websafeEncode($hash);
+        } else {
+            $this->resetToken();
+            return $this->getToken();
+        }
 	}
+
+    public function resetToken(){
+        $r = override\random(24);
+        $hmac = hash_hmac("sha1", $r, SITE_KEY, true);
+        $this->csrf_token = $this->websafeEncode($r."|".$hmac);
+        setcookie($name="csrf", $value=$this->csrf_token, $expire=-1, $path="/", 
+            $path=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+    }
 	
 	public function validateToken($request){
-		if($this->websafeDecode($request) == $_SESSION['csrf_token'])
+        $raw_request = $this->websafeDecode($request);
+        $raw_cookie = $this->websafeDecode($_COOKIE['csrf']);
+
+        $hmac_cookie = hash_hmac("sha256", $raw_cookie, SITE_KEY, true);
+		if($hmac_cookie == $raw_request) 
 			return TRUE;
 		else 
 			return FALSE;
