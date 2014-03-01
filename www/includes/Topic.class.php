@@ -121,7 +121,7 @@ class Topic{
 			$message_content = $message_data_array['message'];
 			$parser = new Parser($this->pdo_conn);
 			$message_content = $parser->parse($message_content);
-			$message_content = override\makeURL($message_content);
+			$message_content = autolink($message_content);
 			$message_data[$i]['message'] = $message_content;
 
 			
@@ -237,7 +237,7 @@ class Topic{
                     $message_content = $message_data_array['message'];
                     $parser = new Parser($this->pdo_conn);
                     $message_content = $parser->parse($message_content);
-                    $message_content = override\makeURL($message_content);
+                    $message_content = autolink($message_content);
                     $message_data[$i]['message'] = $message_content;
                     $message_data[$i]['topic_id'] = $message_data_array['topic_id'];
                     $message_data[$i]['posted'] = $message_data_array['posted'];

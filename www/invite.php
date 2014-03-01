@@ -28,7 +28,7 @@ require "includes/init.php";
 require "includes/PHPMailer.class.php";
 
 // Check authentication 
-if ($auth == false) {
+if ($auth == true) {
     $smarty->assign("token", $csrf->getToken());
     // Validate email address and CSRF token
     if (isset($_POST['email']) 
@@ -37,7 +37,9 @@ if ($auth == false) {
     ) {
         // Create random invite code
         // encoded using websafe base64
-        $invite_code = override\websafeEncode(override\random(32));
+        $invite_code = CSRFGuard::websafeEncode(
+            mcrypt_create_iv(33, MCRYPT_DEV_URANDOM)
+        );
         $sql = "INSERT INTO InviteTree (invite_code, email, invited_by, created)
             VALUES ('$invite_code', ?, ".$authUser->getUserID().", ".time().")";
         $statement = $db->prepare($sql);

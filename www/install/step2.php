@@ -61,7 +61,7 @@ function import_sql(){
 		while(!feof($file_handle)){
 			$sql .= fgets($file_handle);
 		}
-		$sql .= "\nINSERT INTO SiteOptions (sitename, sitekey) VALUES ('Sper.gs', \"".base64_encode(override\random(64))."\");";
+		$sql .= "\nINSERT INTO SiteOptions (sitename, sitekey) VALUES ('Sper.gs', \"".base64_encode(mcrypt_create_iv(64, MCRYPT_DEV_URANDOM)."\");";
 		$GLOBALS['db']->exec($sql);
 	}catch(PDOException $e){
 		print $e->getMessage();
@@ -108,15 +108,15 @@ if(isset($_POST['write_db'])){
 		</tr>
 		<tr>
 			<td>Database Host</td>
-			<td><input type="text" name="db_host" value="<?php @print override\htmlentities($db_host) ?>"/></td>
+			<td><input type="text" name="db_host" value="<?php @print htmlentities($db_host) ?>"/></td>
 		</tr>
 		<tr>
 			<td>Database Name</td>
-			<td><input type="text" name="db_name" value="<?php @print override\htmlentities($db_name); ?>"/></td>
+			<td><input type="text" name="db_name" value="<?php @print htmlentities($db_name); ?>"/></td>
 		</tr>
 		<tr>
 			<td>Database Username</td>
-			<td><input type="text" name="db_username" value="<?php @print override\htmlentities($db_user); ?>"/></td>
+			<td><input type="text" name="db_username" value="<?php @print htmlentities($db_user); ?>"/></td>
 		</tr>
 		<tr>
 			<td>Database Password</td>

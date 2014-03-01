@@ -38,14 +38,14 @@ class CSRFGuard{
         }
 	}
 	
-	private function websafeEncode($text){
+	public static function websafeEncode($text){
 		$search = array("+", "/", "=");
 		$replace = array("-", "_", ".");
 		$string = base64_encode($text);
 		return str_replace($search, $replace, $string);
 	}
 	
-	private function websafeDecode($text){
+	public static function websafeDecode($text){
 		$search = array("-", "_", ".");
 		$replace = array("+", "/", "=");
 		$string = str_replace($search, $replace, $text); 
@@ -66,7 +66,7 @@ class CSRFGuard{
 	}
 
     public function resetToken(){
-        $r = override\random(24);
+        $r = mcrypt_create_iv(26, MCRYPT_DEV_URANDOM);
         $hmac = hash_hmac("sha1", $r, SITE_KEY, true);
         $this->csrf_token = $this->websafeEncode($r."|".$hmac);
         setcookie($name="csrf", $value=$this->csrf_token, $expire=-1, $path="/", 

@@ -49,7 +49,7 @@ if ($auth == true) {
     // Set template page
     $display = "userlist.tpl";
     $page_title = "User List";
-    $smarty->assign("user_search", override\htmlentities($query));
+    $smarty->assign("user_search", htmlentities($query));
     include "includes/deinit.php";
 } else {
     include "404.php";

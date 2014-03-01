@@ -127,8 +127,8 @@ class Link
             
             $this->updateHistory();
             $row = $statement->fetch();
-            $row['url2'] = override\htmlentities($row['url']);
-            $row['url'] = override\makeURL(htmlentities($row['url']));
+            $row['url2'] = htmlentities($row['url']);
+            $row['url'] = autolink(htmlentities($row['url']));
             $row['title'] = htmlentities($row['title']);
             $row['raw_description'] = $row['description'];
             $row['description'] = $parser->parse($row['description']);
@@ -402,7 +402,7 @@ class Link
             if($link_data_array['link_id'] != null){
                 $link_data[$i]['link_id'] = $link_data_array['link_id'];
                 $link_data[$i]['user_id'] = $link_data_array['user_id'];
-                $link_data[$i]['title'] = override\htmlentities($link_data_array['title']);
+                $link_data[$i]['title'] = htmlentities($link_data_array['title']);
                 $link_data[$i]['created'] = $link_data_array['created'];
                 $link_data[$i]['NumberOfVotes'] = $link_data_array['NumberOfVotes'];
                 $link_data[$i]['rank'] = $link_data_array['rank'];

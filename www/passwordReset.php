@@ -40,7 +40,7 @@ if ($auth === false) {
         if ($statement->rowCount() == 1) {
             // Generate a radom password reset token
             // encded in websafe base64
-            $reset_token = override\websafeEncode(override\random(24));
+            $reset_token = CSRFGuard::websafeEncode(mcrypt_create_iv(24, MCRYPT_DEV_URANDOM));
             $results = $statement->fetch();
             $sql = "INSERT INTO PasswordResetRequests
                     (user_id, request_ip, token, created)

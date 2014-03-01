@@ -23,14 +23,8 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace override;
 require_once("Config.ini.php");
 require_once("Autolink.inc.php");
-
-function htmlentities($string){
-	$encoded = \htmlentities($string);
-	return $encoded;
-}
 
 function closeTags($html){
 	#put all opened tags into an array
@@ -57,13 +51,6 @@ function closeTags($html){
 		}
 	}
 	return $html;
-}
-
-function makeURL($URL) {
-	//$URL = eregi_replace('(((f|ht){1}tp(s)?://)[-a-zA-Z0-9;@:\+.~#?&//=]+)','<a href="\\1" target="_blank">\\1</a>', $URL);
-	//$URL = eregi_replace('((www\.)[-a-zA-Z0-9@:\+.~#?&//=]+)','<a href="http://\\1" target="_blank">\\1</a>', $URL);
-	//$URL = eregi_replace('([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,3})','<a href=\\1>\\1</a>', $URL);
-	return autolink($URL);
 }
 
 function random($size=24){
@@ -120,32 +107,4 @@ function websafeDecode($text){
 	$string = str_replace($search, $replace, $text); 
 	return base64_decode($string);
 }
-	
-function embedVideo($text) {
-    $text = preg_replace('~
-        # Match non-linked youtube URL in the wild. (Rev:20111012)
-        https?://         # Required scheme. Either http or https.
-        (?:[0-9A-Z-]+\.)? # Optional subdomain.
-        (?:               # Group host alternatives.
-          youtu\.be/      # Either youtu.be,
-        | youtube\.com    # or youtube.com followed by
-          \S*             # Allow anything up to VIDEO_ID,
-          [^\w\-\s]       # but char before ID is non-ID char.
-        )                 # End host alternatives.
-        ([\w\-]{11})      # $1: VIDEO_ID is exactly 11 chars.
-        (?=[^\w\-]|$)     # Assert next char is non-ID or EOS.
-        (?!               # Assert URL is not pre-linked.
-          [?=&+%\w]*      # Allow URL (query) remainder.
-          (?:             # Group pre-linked alternatives.
-            [\'"][^<>]*>  # Either inside a start tag,
-          | </a>          # or inside <a> element text contents.
-          )               # End recognized pre-linked alts.
-        )                 # End negative lookahead assertion.
-        [?=&+%\w-]*        # Consume any URL (query) remainder.
-        ~ix', 
-        '<iframe width="560" height="315" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
-        $text);
-    return $text;
-}
-
 ?>

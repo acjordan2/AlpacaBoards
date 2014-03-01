@@ -50,14 +50,14 @@ if ($auth === true) {
                 // Validate provided data
                 $error_msg = "";
                 if (isset($_POST['lurl'])) {
-                    if (!override\validateURL($_POST['lurl'])) {
+                    if (!validateURL($_POST['lurl'])) {
                         // Make sure URL is valid
                         $error_msg = "Please enter a valid URL<br />";
                     } elseif ($link_edit->checkURLExist($_POST['lurl'])) { 
                         // Prevent duplicate links
                         $error_msg = "A link with that URL already exists";
                     }
-                    $smarty->assign("lurl", override\htmlentities($_POST['lurl']));
+                    $smarty->assign("lurl", htmlentities($_POST['lurl']));
                 }
                 if (isset($_POST['title'])) {
                     // Check title lenght and remove blank
@@ -108,16 +108,16 @@ if ($auth === true) {
             $error_msg = "";
             // Validate provided data
             if (isset($_POST['lurl'])) {
-                if (!override\validateURL($_POST['lurl'])) {
+                if (!validateURL($_POST['lurl'])) {
                     $error_msg = "Please enter a valid URL<br />";
                 } elseif ($links->checkURLExist($_POST['lurl'])) {
                     // Prevent duplicate links
                     $error_msg = "A link with that URL already exists";
                 }
-                $smarty->assign("lurl", override\htmlentities($_POST['lurl']));
+                $smarty->assign("lurl", htmlentities($_POST['lurl']));
             }
             if (isset($_POST['title'])) {
-                $smarty->assign("title", override\htmlentities($_POST['title']));
+                $smarty->assign("title", htmlentities($_POST['title']));
                 if (strlen($_POST['title']) < 5 || strlen($_POST['title'] > 80)) {
                     $error_msg .= "The title must be between 5 and 80<br />";
                 }

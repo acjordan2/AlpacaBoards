@@ -5,10 +5,10 @@ Sper.gs Messaging Board
 * WebServer running PHP 5.3+
 * php5-curl (for ETI username check)
 * php5-json
-* php5-gd
-* php5-imagick
-* MySQL
-* Sphinx Search 
+* php5-gd or php5-imagick
+* php5-mcrypt
+* MySQL (Other databases might work but they are untested)
+* Sphinx Search (For full text search)
 * A mail server such as postfix (for sending out invites and password reset)
 
 ##Install Directions

@@ -71,7 +71,7 @@ if($auth == TRUE){
         if(@$_POST['preview'] == "Preview Message"){
             $smarty->assign("preview_message", TRUE);
             $message = new Message($db, 13);
-            $smarty->assign("p_message", override\makeURL($message->formatComments(override\closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
+            $smarty->assign("p_message", autolink($message->formatComments(closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
         }
         elseif(@$_POST['submit'] == "Post Message"){
             if($csrf->validateToken($_REQUEST['token'])){            
@@ -124,7 +124,7 @@ if($auth == TRUE){
         if(@$_POST['preview'] == "Preview Message"){
             $smarty->assign("preview_message", TRUE);
             $message = new Message($db, 13);
-            $smarty->assign("p_message", override\makeURL($message->formatComments(override\closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
+            $smarty->assign("p_message", autolink($message->formatComments(closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
         }
         elseif(@$_POST['submit'] == "Post Message"){
             if($csrf->validateToken($_REQUEST['token'])){            
@@ -147,7 +147,7 @@ if($auth == TRUE){
        if(@$_POST['preview'] == "Preview Message"){
             $smarty->assign("preview_message", TRUE);
             $message = new Message($db, 13);
-            $smarty->assign("p_message", override\makeURL($message->formatComments(override\closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
+            $smarty->assign("p_message", autolink($message->formatComments(closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
         }
        elseif(@$_POST['submit'] == "Post Message"){
            

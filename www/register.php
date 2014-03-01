@@ -31,7 +31,7 @@ if (isset($_GET['code'])) {
     // Validate invite code
     $invite_check = $authUser->checkInvite($_GET['code']);
     if ($invite_check) {
-        $smarty->assign("invite_code", override\htmlentities($_GET['code']));
+        $smarty->assign("invite_code", htmlentities($_GET['code']));
         $smarty->assign("invite", $invite_check);
     }
 }

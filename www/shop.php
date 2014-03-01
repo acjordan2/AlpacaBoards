@@ -26,7 +26,6 @@
  
 require "includes/init.php";
 require "includes/Shop.class.php";
-require "includes/CSRFGuard.class.php";
 
 // Check authentication
 if ($auth == true) {
@@ -39,7 +38,6 @@ if ($auth == true) {
         $smarty->assign("item", $item);
 
         // Create new anti-CSRF token
-        $csrf = new CSRFGuard();
         $smarty->assign("csrf_token", $csrf->getToken());
         if (@$_POST['submit'] == "Purchase" 
             // Purchase item

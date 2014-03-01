@@ -285,7 +285,7 @@ class User{
                 $char = $salt_char_set[mt_rand(0, strlen($salt_char_set)-1)];
                 $salt .= mt_rand(0,1) ? strtolower($char) : strtoupper($char);
             }**/
-            $salt = override\random(SALT_SIZE);
+            $salt = mcrypt_create_iv(SALT_SIZE, MCRYPT_DEV_URANDOM);
             $hash = hash_hmac("sha256", $salt.$aPassword, SITE_KEY, TRUE);
             $i = HASH_INTERATIONS;
             while($i--)
@@ -820,7 +820,7 @@ class User{
             $topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
             $topic_data[$i]['u_last_posted'] = $topic_data_array['u_last_posted'];
             //$topic_data[$i]['last_post'] = $topic_data_array['last_post'];
-            $topic_data[$i]['title'] = override\htmlentities($topic_data_array['title']);
+            $topic_data[$i]['title'] = htmlentities($topic_data_array['title']);
             //$topic_data[$i]['username'] = $topic_data_array['username'];
             //$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
             

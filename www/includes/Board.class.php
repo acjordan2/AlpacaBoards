@@ -117,7 +117,7 @@ class Board{
 		for($i=0; $topic_data_array = $statement->fetch(); $i++){
 			$topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
 			$topic_data[$i]['posted'] = $topic_data_array['posted'];
-			$topic_data[$i]['title'] = override\htmlentities($topic_data_array['title']);
+			$topic_data[$i]['title'] = htmlentities($topic_data_array['title']);
 			$topic_data[$i]['username'] = $topic_data_array['username'];
 			$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
 			# Inefficient - Find if another way is possible

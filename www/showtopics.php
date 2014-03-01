@@ -56,7 +56,7 @@ if ($auth === true) {
     // Set template variables
     $smarty->assign("username", $authUser->getUsername());
     $smarty->assign("board_id", $board_id);
-    $smarty->assign("board_title", override\htmlentities($board->getTitle()));
+    $smarty->assign("board_title", htmlentities($board->getTitle()));
     $smarty->assign("page_count", $board->getPageCount());
     $smarty->assign("current_page", $current_page);
     $smarty->assign("num_readers", $board->getReaders());
