@@ -38,7 +38,7 @@
 		<td><a href="./profile.php?user={$table.user_id}">{$table.username}</a></td>
 		<td>{$table.account_created|date_format:$dateformat}</td>
         	<td>{$table.last_active|date_format:$dateformat}</td>
-        	<td>{$table.value1 - $table.value2}</td>
+        	<td>{$table.karma}</td>
 	</tr>
 {/foreach}
 	</table>

@@ -35,7 +35,7 @@ if ($auth == true) {
     }
     // Get user list
     $query = @$_GET['user'];
-    $userlist = User::getUserList($db, $current_page, $query);
+    $userlist = $authUser->getUserList($db, $current_page, $query);
     $page_count = User::$page_count;
     if($page_count == 0) {
         $page_count = 1;

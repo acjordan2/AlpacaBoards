@@ -35,7 +35,7 @@ if (isset($_GET['code'])) {
         $smarty->assign("invite", $invite_check);
     }
 }
-if ($csrf->validateToken($_POST['token'])) {
+if ($csrf->validateToken(@$_POST['token'])) {
     if (isset($_POST['username']) && isset($_POST['email']) 
         && isset($_POST['password']) && isset($_POST['password2'])
     ) {

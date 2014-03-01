@@ -391,14 +391,21 @@ class User{
 		return 0;
 	}
 	
-	public function getContributionKarma(){
-		$sql = "SELECT SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank
+	public function getContributionKarma($user_id = null)
+    {
+		if($user_id == null){
+            $user_id = $this->user_id;
+        }
+        $sql = "SELECT SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank
 				FROM LinkVotes
 				LEFT JOIN Links USING (link_id)
-				WHERE Links.user_id = $this->user_id";
+				WHERE Links.user_id = $user_id";
 		$statement = $this->pdo_conn->query($sql);
 		$rank = $statement->fetch();
-		$contributionKarma = (int)($rank[0]/30);
+        $contributionKarma = (int)(pow(abs($rank[0])/15, (1/3)));
+		if ($rank[0] < 0) {
+            $contributionKarma = $contributionKarma * -1;
+        }
 		return $contributionKarma;
 	}
 	
@@ -601,7 +608,7 @@ class User{
 		return @$row[0]['average'];
 	}
 	
-	public static function getUserList(&$db, $page=1, $query=NULL){
+	public function getUserList(&$db, $page=1, $query=NULL){
 		$offset = 50 * ($page-1);
 		$user_search  = "";
 		if(!is_null($query)){
@@ -610,8 +617,10 @@ class User{
 			$query = "%".$query."%";
 			$user_search = "WHERE Users.username LIKE ?";
 		}
-		$sql = "SELECT Users.username, Users.user_id, Users.account_created, Users.last_active, SUM(Karma.value) as value1, SUM(ShopTransactions.value) as value2
-					FROM Users LEFT Join Karma using (user_id) LEFT JOIN ShopTransactions USING (user_id) $user_search GROUP BY Users.user_id ORDER BY User_id ASC LIMIT 50 OFFSET ?";
+		$sql = "SELECT Users.username, Users.user_id, Users.account_created, Users.last_active
+					FROM Users LEFT Join Karma using (user_id) LEFT JOIN ShopTransactions 
+                    USING (user_id) $user_search GROUP BY Users.user_id ORDER BY User_id 
+                    ASC LIMIT 50 OFFSET ?";
 		$statement = $db->prepare($sql);
 		if(!is_null($query))
 			$statement->execute(array($query, $offset));
@@ -623,7 +632,11 @@ class User{
 		self::$page_count = intval($row['count']/50);
 		if(self::$page_count % 50 != 0)
 			self::$page_count++;
-		return $statement->fetchAll();
+        $userList = $statement->fetchAll();
+        foreach($userList as $key => $value){
+            $userList[$key]['karma'] = $this->getContributionKarma($userList[$key]['user_id']);
+        }
+		return $userList;
 	}
 	/**
 	 * Update the user's private email address.
