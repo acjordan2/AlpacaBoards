@@ -858,6 +858,10 @@ class User{
 			setcookie($name=session_name(), $value='', $expire=1, $path="/", 
 						$domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
 		}
+		if(isset($_COOKIE['csrf'])){
+			setcookie($name="csrf", $value='', $expire=1, $path="/",
+				$domain=DOMAIN, $secure=USE_SSL, $httponly=true);
+		}
 	}
 }
 

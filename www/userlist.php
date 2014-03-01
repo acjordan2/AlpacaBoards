@@ -36,10 +36,14 @@ if ($auth == true) {
     // Get user list
     $query = @$_GET['user'];
     $userlist = User::getUserList($db, $current_page, $query);
+    $page_count = User::$page_count;
+    if($page_count == 0) {
+        $page_count = 1;
+    }
 
     // Set template variables
     $smarty->assign("userlist", $userlist);
-    $smarty->assign("page_count", User::$page_count);
+    $smarty->assign("page_count", $page_count);
     $smarty->assign("current_page", $current_page);
 
     // Set template page
