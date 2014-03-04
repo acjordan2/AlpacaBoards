@@ -24,6 +24,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+if (!function_exists("password_hash")){
+    include "Password.lib.php";
+}
+
 class User{
     
     /* PDO Database Connection */
@@ -56,6 +60,10 @@ class User{
     private $level = array();
     
     private $permissions;
+
+    private $hash_algorithm = PASSWORD_DEFAULT;
+
+    private $hash_options = array();
     
     public static $page_count;
     
@@ -85,22 +93,23 @@ class User{
         # Else use supplied credentials
         if(isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])){
             $statement = $this->pdo_conn->prepare("SELECT Users.user_id, Users.username, 
-                                                    Users.email, Users.private_email,
-                                                    Users.instant_messaging, Users.account_created,
-                                                    Users.last_active, Users.status, Users.avatar, UploadedImages.sha1_sum,
-                                                    UploadedImages.height, UploadedImages.width, UploadedImages.thumb_width,
-                                                    UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, Users.timezone, Users.level
-                                                 FROM Users
-                                                 LEFT JOIN UploadLog
-                                                 ON Users.avatar=UploadLog.uploadlog_id
-                                                 LEFT JOIN UploadedImages
-                                                 ON UploadLog.image_id = UploadedImages.image_id
-                                                 INNER JOIN Sessions
-                                                 on Users.user_id=Sessions.user_id
-                                                 WHERE 
-                                                    Sessions.session_key1=:session_key1 
-                                                    AND Sessions.session_key2=:session_key2
-                                                    AND Sessions.useragent=:useragent");
+                Users.email, Users.private_email,
+                Users.instant_messaging, Users.account_created,
+                Users.last_active, Users.status, Users.avatar, UploadedImages.sha1_sum,
+                UploadedImages.height, UploadedImages.width, UploadedImages.thumb_width,
+                UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, Users.timezone, Users.level
+                 FROM Users
+                 LEFT JOIN UploadLog
+                 ON Users.avatar=UploadLog.uploadlog_id
+                 LEFT JOIN UploadedImages
+                 ON UploadLog.image_id = UploadedImages.image_id
+                 INNER JOIN Sessions
+                 on Users.user_id=Sessions.user_id
+                 WHERE 
+                    Sessions.session_key1=:session_key1 
+                    AND Sessions.session_key2=:session_key2
+                    AND Sessions.useragent=:useragent");
+
             $session_data = array("session_key1" => $_COOKIE[AUTH_KEY1],
                                   "session_key2" => $_COOKIE[AUTH_KEY2],
                                   "useragent" => $_SERVER['HTTP_USER_AGENT']);
@@ -143,27 +152,31 @@ class User{
             if($statement->rowCount() == 1){
                 $statement->setFetchMode(PDO::FETCH_ASSOC);
                 $user_data = $statement->fetch();
-                $old_pass_auth = FALSE;
                 $new_pass_auth = FALSE;
-                if($user_data['old_password'] != null){
-                    $old_salt = "m*Uc98/'14B#\|omIQ,G:IrnpVM:zo";
-                    $old_password  = md5($old_salt.$aPassword);
-                    if(strcmp($old_password, $user_data['old_password']) === 0){
-                        $old_pass_auth = TRUE;
+                
+                # Split stored password into salt and hash
+                $salted_password = explode("\$", $user_data['password']);
+                $salt = $salted_password[1];
+                $password = $salted_password[2];
+                if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) === 0){
+                    $new_pass_auth = TRUE;
+                    $new_hash = password_hash($aPassword, $this->hash_algorithm, $this->hash_options);
+                    $this->setUserData($user_data);
+                    $this->updatePassword($new_hash);
+                } else {
+                    $new_pass_auth = password_verify($aPassword, $user_data['password']);
+                    if($new_pass_auth) {
+                        if (password_needs_rehash($user_data['password'], $this->hash_algorithm, $this->hash_options)) {
+                            $hash = password_hash($aPassword, $this->hash_algorithm, $this->hash_options);
+                            $this->setUserData($user_data);
+                            $this->updatePassword($hash);
+                        }
                     }
                 }
-                else{
-                    # Split stored password into salt and hash
-                    $salted_password = explode("\$", $user_data['password']);
-                    $salt = $salted_password[1];
-                    $password = $salted_password[2];
-                    if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) === 0)
-                        $new_pass_auth = TRUE;
-                }
+
                 # Compare the stored hash with the generated hash
-                if($new_pass_auth == TRUE || $old_pass_auth == TRUE){
+                if($new_pass_auth == TRUE){
                     $this->setUserData($user_data);
-                        $this->convertOldPassword($aPassword);
                     # Generate session keys
                     $session_key1 = hash("sha256", $this->user_id.$this->username.mt_rand());
                     $session_key2 = hash("sha256", $this->username.$this->user_id.mt_rand());
@@ -190,6 +203,9 @@ class User{
                                                                 " WHERE user_id=".$this->user_id);
                     $update_activity->execute();
                     return TRUE;
+                } else {
+                    // Prevent timing attacks
+                    password_hash("password", PASSWORD_DEFAULT);
                 }
             }
             else 
@@ -240,22 +256,19 @@ class User{
         }
     }
     
-    public function changePassword($aPassword1, $aPassword2, $reset=FALSE){
+    public function changePassword($oldPassword, $newPassword, $reset=false){
         $sql = "SELECT Users.password FROM Users WHERE Users.username='$this->username'";
         $statement = $this->pdo_conn->query($sql);
         if($statement->rowCount() == 1){
             $row = $statement->fetch();
-            $salted_password = explode("\$", $row['password']);
-            $salt = $salted_password[1];
-            $password = $salted_password[2];
-            if(strcmp($row['password'], $this->generatePasswordHash($aPassword1, $salt)) === 0 || $reset==TRUE){
-                $newPassword = $this->generatePasswordHash($aPassword2);
-                $sql2 = "UPDATE Users SET Users.password='$newPassword' WHERE Users.username='$this->username'";
+            if(password_verify($oldPassword, $row['password']) || $reset==true){
+                $newPassword_hash = password_hash($newPassword, $this->hash_algorithm, $this->hash_options);
+                $sql2 = "UPDATE Users SET Users.password='$newPassword_hash' WHERE Users.username='$this->username'";
                 $this->pdo_conn->query($sql2);
-                return TRUE;
+                return true;
             }
             else
-                return FALSE;
+                return false;
         }
     }
     
@@ -279,12 +292,6 @@ class User{
             $final_hash = "\$".base64_encode($aSalt)."\$".$hash;
         }
         else{
-            /**$salt = "";
-            $salt_char_set = "ABCDEFGHIJKLMNOPQRSTVUWXYZ1234567890`~!@#%^&*()_-+=,./;'[]\<>?:\"{}|";
-            for($i=0; $i<SALT_SIZE; $i++){
-                $char = $salt_char_set[mt_rand(0, strlen($salt_char_set)-1)];
-                $salt .= mt_rand(0,1) ? strtolower($char) : strtoupper($char);
-            }**/
             $salt = mcrypt_create_iv(SALT_SIZE, MCRYPT_DEV_URANDOM);
             $hash = hash_hmac("sha256", $salt.$aPassword, SITE_KEY, TRUE);
             $i = HASH_INTERATIONS;
@@ -296,8 +303,8 @@ class User{
         return $final_hash;
     }
     
-    private function convertOldPassword($aPassword){
-        $new_password = $this->generatePasswordHash($aPassword);
+    private function updatePassword($aPassword){
+        $new_password = $aPassword;
         $statement = $this->pdo_conn->prepare("UPDATE Users SET old_password='', password=:password WHERE user_id=:user_id");
         $statement->execute(array("password" => $new_password, "user_id" => $this->user_id));
     }
