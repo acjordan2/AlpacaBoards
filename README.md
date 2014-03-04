@@ -2,7 +2,7 @@ Sper.gs Messaging Board
 =======================
 
 ##REQUIREMENTS
-* WebServer running PHP 5.3+
+* WebServer running PHP 5.3.7+
 * php5-curl (for ETI username check)
 * php5-json
 * php5-gd or php5-imagick
