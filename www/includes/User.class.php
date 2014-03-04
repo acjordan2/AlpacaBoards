@@ -734,85 +734,162 @@ class User{
         
     }
     
+
+
     public function getDisciplineReason(){
-        $sql = "SELECT description FROM DisciplineHistory WHERE user_id = $this->user_id
-                    ORDER BY date DESC LIMIT 1";
+        $sql = "SELECT description FROM DisciplineHistory 
+            WHERE user_id = $this->user_id ORDER BY date DESC LIMIT 1";
         $statement = $this->pdo_conn->query($sql);
         $results = $statement->fetch();
         return $results['description'];
     }
     
-    public function checkInvite($invite_code){
+    /**
+    * Checks the supplied invite code
+    *
+    * @param string $invite_code Invite code supplied by the user
+    * 
+    * @return boolean True if invite code is valid
+    */
+
+    public function checkInvite($invite_code)
+    {
+        // Check if invite code exists in the database
         $sql = "SELECT invited_by FROM InviteTree WHERE invite_code 
-                COLLATE latin1_general_cs = ? and invited_user IS NULL and created > ".(time()-(60*60*72));
+                COLLATE latin1_general_cs = ? and invited_user IS 
+                NULL and created > ".(time()-(60*60*72));
+
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($invite_code));
         $rows = $statement->rowCount();
-        if($statement->rowCount() != 1){
-            $url = "http://boards.endoftheinter.net/scripts/login.php?username=".urlencode($invite_code)."&ip=".$_SERVER['REMOTE_ADDR'];
+
+        // If the invite code does not exist
+        // check ETI
+        if ($statement->rowCount() != 1) {
+            $url = "http://boards.endoftheinter.net/scripts/login.php?username="
+                .urlencode($invite_code)."&ip=".$_SERVER['REMOTE_ADDR'];
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_REFERER, "");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
             $output = curl_exec($curl);
-            if($output == ("1:". $request['username']))
+            if ($output == ("1:". $invite_code)) {
                 return true;
-            else return true;
-        }else{
+            } else {
+                return true;
+            }
+        } else {
             return true;
         }
     }
     
-    public function registerUser($request){
-        if(!preg_match('/[^A-z0-9.\-_\ ]/', $request['username'])){
+    /**
+    * Create a new user using the supplied information
+    *
+    * @param array $request POST request containing email, 
+    * username, password, and invite code
+    *
+    * @return int
+    */
+
+    public function registerUser($request)
+    {
+        // Check username against whitelist of allowed characters
+        // Alpha numerica characters, underscores, dashes, and spaces
+        // no special characters
+        if (!preg_match('/[^A-z0-9.\-_\ ]/', $request['username'])) {
+            // Check if a username exists
             $sql = "SELECT Users.user_id FROM Users where Users.username=?";
             $statement = $this->pdo_conn->prepare($sql);
             $statement->execute(array($request['username']));
-            if($statement->rowCount() == 1)
+            if ($statement->rowCount() == 1) {
                 return -1;
-            else{
-                if(!$this->checkInvite($request['invite_code']))
+            } else {
+                // Ensure the user has a valid invite code
+                if (!$this->checkInvite($request['invite_code'])) {
                     return -2;
-                else{
-                    $sql2 = "INSERT INTO Users (username, private_email, password, account_created)
-                                VALUES (?, ?, ?, ".time().")";
+                } else {
+                    // Everything is valid, add user
+                    $sql2 = "INSERT INTO Users (username, private_email, 
+                        password, account_created) VALUES (?, ?, ?, ".time().")";
+
                     $statement2 = $this->pdo_conn->prepare($sql2);
                     $data = array($request['username'], 
-                                  $request['email'], 
-                                  $this->generatePasswordHash($request['password']));
+                        $request['email'], 
+                        password_hash(
+                            $request['password'], 
+                            $this->hash_algorithm, 
+                            $this->hash_options
+                        )
+                    );
                     $statement2->execute($data);
-                    $sql3 = "UPDATE InviteTree SET invited_user=".$this->pdo_conn->lastInsertId()." WHERE invite_code=?";
+
+                    // Add new user to the invite tree of the inviter
+                    $sql3 = "UPDATE InviteTree SET invited_user="
+                        .$this->pdo_conn->lastInsertId()." WHERE invite_code=?";
                     $statement3 = $this->pdo_conn->prepare($sql3);
                     $statement3->execute(array($request['invite_code']));
-                    if($statement2->rowCount())
+                    if ($statement2->rowCount()) {
                         return 1;
+                    }
                 }
             }
         }
     }
     
-    public function checkInventory($class_id=NULL){
-        $sql = "SELECT DISTINCT ShopItems.name FROM ShopItems LEFT JOIN ShopTransactions USING(item_id) 
-                                                     LEFT JOIN Inventory USING (transaction_id)
-                                                     WHERE Inventory.user_id=$this->user_id
-                                                     AND ShopItems.item_id=5";
+    /**
+    * Check the inventory for an item
+    * 
+    * @param int $class_id
+    *
+    * @return List of requested items
+    * @todo Change to use for all items
+    */
+
+    public function checkInventory($class_id=null)
+    {
+        $sql = "SELECT DISTINCT ShopItems.name FROM ShopItems 
+            LEFT JOIN ShopTransactions USING(item_id) 
+            LEFT JOIN Inventory USING (transaction_id) 
+            WHERE Inventory.user_id=$this->user_id
+            AND ShopItems.item_id=5";
+
         $statement = $this->pdo_conn->query($sql);
         return $statement->fetchAll();
     }
     
-    public function getUploads(){
-        $sql = "SELECT UploadLog.filename, UploadedImages.sha1_sum, MaxCreated FROM (SELECT UploadLog.filename, 
-                    UploadLog.user_id, UploadLog.image_id, UploadedImages.sha1_sum, MAX(UploadLog.created) as MaxCreated
-                    FROM UploadLog LEFT JOIN UploadedImages USING(image_id) GROUP BY UploadLog.user_id, UploadLog.image_id) UploadLog
-                    LEFT JOIN UploadedImages ON UploadLog.image_id = UploadedImages.image_id
-                    WHERE UploadLog.user_id=".$this->user_id." GROUP BY UploadLog.user_id, UploadLog.image_id ORDER BY MaxCreated DESC";
+    /**
+    * Get a list of files uploaded by the user
+    *
+    * @return array List of files uploaded by the user
+    */
+
+    public function getUploads()
+    {
+        $sql = "SELECT UploadLog.filename, UploadedImages.sha1_sum, 
+            MaxCreated FROM (SELECT UploadLog.filename, UploadLog.user_id, 
+            UploadLog.image_id, UploadedImages.sha1_sum, MAX(UploadLog.created) 
+            as MaxCreated FROM UploadLog LEFT JOIN UploadedImages USING(image_id) 
+            GROUP BY UploadLog.user_id, UploadLog.image_id) UploadLog LEFT JOIN 
+            UploadedImages ON UploadLog.image_id = UploadedImages.image_id
+            WHERE UploadLog.user_id=".$this->user_id." GROUP BY UploadLog.user_id, 
+            UploadLog.image_id ORDER BY MaxCreated DESC";
+
         $statement = $this->pdo_conn->query($sql);
         $results = $statement->fetchAll();
         return $results;
     }
     
-    public function getCommentHistory(){
+    /**
+    * Get a list of topics that have been posted in
+    * by the current user.
+    * 
+    * @return array Topic data 
+    */
+
+    public function getCommentHistory()
+    {
         $sql = "SELECT DISTINCT Topics.topic_id, Boards.title as board_title, 
         Topics.title, Topics.board_id, MAX(Messages.posted) as u_last_posted 
             FROM Topics 
@@ -822,14 +899,11 @@ class User{
             GROUP BY Topics.topic_id ORDER BY Messages.posted DESC";
         $statement = $this->pdo_conn->query($sql);
         $topic_data = array();
-        for($i=0; $topic_data_array = $statement->fetch(); $i++){    
+        for ($i=0; $topic_data_array = $statement->fetch(); $i++) {    
             $topic_data[$i]['board_title'] = $topic_data_array['board_title'];
             $topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
             $topic_data[$i]['u_last_posted'] = $topic_data_array['u_last_posted'];
-            //$topic_data[$i]['last_post'] = $topic_data_array['last_post'];
             $topic_data[$i]['title'] = htmlentities($topic_data_array['title']);
-            //$topic_data[$i]['username'] = $topic_data_array['username'];
-            //$topic_data[$i]['user_id'] = $topic_data_array['user_id'];
             
             $sql2 = "SELECT MAX(Messages.posted) as last_post FROM Messages
                         WHERE Messages.topic_id=".$topic_data_array['topic_id'].
@@ -837,50 +911,62 @@ class User{
             $statement2 = $this->pdo_conn->query($sql2);
             $last_post = $statement2->fetchAll();
             
+            // Number of unread posts in a prevously visited topic
             $sql3 = "SELECT COUNT(Messages.message_id) as count FROM Messages
                         WHERE Messages.topic_id=".$topic_data_array['topic_id'].
                         " AND Messages.revision_no=0";
             $statement3 = $this->pdo_conn->query($sql3);
             $msg_count = $statement3->fetchAll();
-            # Inefficient - Find if another way is possible
-            /*
-            $get_count = $this->pdo_conn->prepare("SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
-                                                    WHERE topic_id = ?");
-            $get_count->execute(array($topic_data[$i]['topic_id']));
-            $statement2->execute(array($topic_data[$i]['topic_id']));
-            
-            $msg_count = $get_count->fetchAll();
-            $history_count = $statement2->fetchAll();
-            */
+
             $topic_data[$i]['last_post'] = $last_post[0][0];
             $topic_data[$i]['number_of_posts'] = $msg_count[0][0];
-            //$topic_data[$i]['history'] = $history_count[0]['count'];
-            //$topic_data[$i]['last_message'] = $history_count[0]['last_message'];
-
-                                                    
         }
         return $topic_data;
     }
 
-    public function logout(){
-        if(isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])){
-            $sql = "UPDATE Sessions SET session_key1=NULL, session_key2=NULL WHERE session_key1=? AND session_key2=?";
+    /**
+    * Destroys the user's current session by remove the session
+    * keys from the database and deleting all relevent cookies
+    *
+    * @return void
+    */
+
+    public function logout()
+    {
+        if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
+            // Remove session keys from the database
+            // invalidating the session server side
+            $sql = "UPDATE Sessions SET session_key1=NULL, session_key2=NULL 
+                WHERE session_key1=? AND session_key2=?";
             $statement = $this->pdo_conn->prepare($sql);
             $statement->execute(array($_COOKIE[AUTH_KEY1], $_COOKIE[AUTH_KEY2]));
-            setcookie($name=AUTH_KEY1, $value='', $expire=1, $path="/", 
-                        $domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
-            setcookie($name=AUTH_KEY2, $value='', $expire=1, $path="/",           
-                         $domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+
+            // Delete session keys from the browser
+            // invalidating the session client side
+            setcookie(
+                $name = AUTH_KEY1, $value = '', $expire = 1, $path = "/", 
+                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+            );
+            setcookie(
+                $name = AUTH_KEY2, $value = '', $expire = 1, $path = "/",           
+                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+            );
         }
-        if(isset($_COOKIE[session_name()])){                       
+        // Remove PHP session cookie
+        if (isset($_COOKIE[session_name()])) {                       
             $params = session_get_cookie_params();
             @session_destroy();
-            setcookie($name=session_name(), $value='', $expire=1, $path="/", 
-                        $domain=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+            setcookie(
+                $name = session_name(), $value = '', $expire = 1, $path = "/", 
+                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+            );
         }
-        if(isset($_COOKIE['csrf'])){
-            setcookie($name="csrf", $value='', $expire=1, $path="/",
-                $domain=DOMAIN, $secure=USE_SSL, $httponly=true);
+        // Remove anti-csrf cookie
+        if (isset($_COOKIE['csrf'])) {
+            setcookie(
+                $name = "csrf", $value = '', $expire = 1, $path = "/",
+                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+            );
         }
     }
 }
