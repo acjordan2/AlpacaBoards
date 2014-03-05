@@ -533,15 +533,35 @@ class User{
         return $this->timezone;
     }
     
-    public function checkPermissions($search){
+    /**
+    * Check if user has supplied permsion
+    *
+    * @param string $search The permission to search for
+    *
+    * @return int|null 1 if user has permission, 0 if the user doesnt, null on error
+    */
+    public function checkPermissions($search)
+    {
         return @$this->permissions[$search];
     }
     
-    public function getAccessLevel(){
+    /**
+    * Get the type of user account
+    *
+    * @return int ID of staff position type
+    */
+    public function getAccessLevel()
+    {
         return $this->level[0];
     }
     
-    public function getAccessTitle(){
+    /**
+    * Get the user title of a privileged account
+    * 
+    * @return int Title
+    */
+    public function getAccessTitle()
+    {
         return $this->level[1];
     }
     
