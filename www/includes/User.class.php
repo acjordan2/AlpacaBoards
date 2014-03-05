@@ -547,55 +547,104 @@ class User{
     
     /**
      * Update the user's email address.
-     * @param $aEmail Public Email Address
+     *
+     * @param string $aEmail Public Email Address
+     * 
+     * @return boolean True If email was updated sucessfully
      */
-    public function setEmail($aEmail){
-        $statement = $this->pdo_conn->prepare("UPDATE Users SET email=? WHERE user_id=".$this->user_id);
+    public function setEmail($aEmail)
+    {
+        $sql = "UPDATE Users SET email=? WHERE user_id=".$this->user_id;
+        $statement = $this->pdo_conn->prepare($sql);
         return $statement->execute(array($aEmail));
     }
     
-    public function getNumberOfPosts(){
-        $sql = "SELECT COUNT(DISTINCT(Messages.message_id)) AS count FROM Messages WHERE Messages.user_id=$this->user_id";
+    /**
+    * Get total number of posts from a given user
+    *
+    * @return int Number of posts
+    */
+    public function getNumberOfPosts()
+    {
+        $sql = "SELECT COUNT(DISTINCT(Messages.message_id)) AS count 
+            FROM Messages WHERE Messages.user_id=$this->user_id";
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetch();
         return $row['count'];
     }
     
-    public function getNumberOfTopics(){
-        $sql = "SELECT COUNT(topic_id) AS count FROM Topics WHERE Topics.user_id=$this->user_id";
+    /**
+    * Get total number created by a given user
+    *
+    * @return int Number of topics
+    */
+    public function getNumberOfTopics()
+    {
+        $sql = "SELECT COUNT(topic_id) AS count FROM Topics 
+            WHERE Topics.user_id=$this->user_id";
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetch();
         return $row['count'];
     }
     
-    public function getPostsInBestTopic(){
-        //$sql = "SELECT MAX(COUNT(DISTINCT(Messages.message_id))) AS count FROM Messages LEFT JOIN Topics USING(user_id) WHERE Topics.user_id=$this->user_id";
-        $sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) FROM Topics LEFT JOIN Messages using(topic_id) WHERE Topics.user_id=$this->user_id";
-        $sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) as count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE Topics.user_id=$this->user_id GROUP BY Topics.topic_id ORDER BY count DESC"; 
+    /**
+    * Get highest number of posts in topic created by a given user
+    *
+    * @return int Number of posts in the topic
+    */
+    public function getPostsInBestTopic()
+    {
+        $sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) 
+            as count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE 
+            Topics.user_id=$this->user_id GROUP BY Topics.topic_id 
+            ORDER BY count DESC"; 
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetchAll();
-        if(!empty($row))
+        if (!empty($row)) {
             return $row[0]['count'];
-        else
+        } else {
             return 0;
+        }
     }
     
-    public function getNoReplyTopics(){
-        $sql = "SELECT COUNT(Topics.topic_id) AS count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE Topics.user_id=$this->user_id GROUP BY Topics.topic_id HAVING COUNT(DISTINCT(Messages.Message_id))<2 ";
+    /**
+    * Get total number of topics made by a given user that have no replies
+    *
+    * @return int Number of topics
+    */
+    public function getNoReplyTopics()
+    {
+        $sql = "SELECT COUNT(Topics.topic_id) AS count FROM Topics 
+            LEFT JOIN Messages USING(topic_id) WHERE 
+            Topics.user_id=$this->user_id GROUP BY Topics.topic_id 
+            HAVING COUNT(DISTINCT(Messages.Message_id))<2 ";
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetchAll();
         return sizeof($row);
     }
     
-    public function getNumberOfLinks(){
-        $sql = "SELECT COUNT(Links.link_id) AS count FROM Links WHERE user_id=$this->user_id";
+    /**
+    * Get total number of links added from a given user
+    * 
+    * @return int Number of links
+    */
+    public function getNumberOfLinks()
+    {
+        $sql = "SELECT COUNT(Links.link_id) AS count 
+            FROM Links WHERE user_id=$this->user_id";
         $statement = $this->pdo_conn->query($sql);
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetchAll();
         return $row[0]['count'];
     }
     
-    public function getNumberOfVotes(){
+    /**
+    * Get total number of votes accumulated for all the links added by a given user
+    * 
+    * @return int Number of votes
+    */
+    public function getNumberOfVotes()
+    {
         $sql = "SELECT COUNT(LinkVotes.vote) as count FROM LinkVotes 
                     LEFT JOIN Links USING(link_id) 
                     WHERE Links.user_id = $this->user_id";
@@ -605,56 +654,93 @@ class User{
         return $row[0]['count'];
     }
     
-    public function getVoteAverage(){
+    /**
+    * Get the average rating for all added links 
+    * 
+    * @return float Vote average 
+    */
+    public function getVoteAverage()
+    {
         $sql = "SELECT SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) as average
-                    FROM LinkVotes LEFT JOIN Links USING(link_id) WHERE Links.user_id=$this->user_id 
-                    GROUP BY LinkVotes.link_id";
+            FROM LinkVotes LEFT JOIN Links USING(link_id) 
+            WHERE Links.user_id=$this->user_id GROUP BY LinkVotes.link_id";
         $statement = $this->pdo_conn->query($sql);
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetchAll();
         return @$row[0]['average'];
     }
     
-    public function getUserList(&$db, $page=1, $query=NULL){
+    /**
+    * Get a list of currently registered users, sign-up date, 
+    * last active data, and token count in groups of 50 records
+    *
+    * @param int    $page  The page number of the user list.
+    * @param string $query Username to search for
+    * 
+    * @return array List of users
+    */
+    public function getUserList($page=1, $query=null)
+    {
+        // Get users 50 at a time
         $offset = 50 * ($page-1);
         $user_search  = "";
-        if(!is_null($query)){
-            if(strlen($query) == 1)
+
+        // Search for a speficied username
+        if (!is_null($query)) {
+            if (strlen($query) == 1) {
                 $query = str_replace("%", "", $query);
+            }
             $query = "%".$query."%";
             $user_search = "WHERE Users.username LIKE ?";
         }
-        $sql = "SELECT Users.username, Users.user_id, Users.account_created, Users.last_active
-                    FROM Users LEFT Join Karma using (user_id) LEFT JOIN ShopTransactions 
-                    USING (user_id) $user_search GROUP BY Users.user_id ORDER BY User_id 
-                    ASC LIMIT 50 OFFSET ?";
-        $statement = $db->prepare($sql);
-        if(!is_null($query))
+        $sql = "SELECT Users.username, Users.user_id, Users.account_created, 
+            Users.last_active FROM Users LEFT Join Karma using (user_id) 
+            LEFT JOIN ShopTransactions USING (user_id) $user_search GROUP 
+            BY Users.user_id ORDER BY User_id ASC LIMIT 50 OFFSET ?";
+        $statement = $this->pdo_conn->prepare($sql);
+        if (!is_null($query)) {
             $statement->execute(array($query, $offset));
-        else
+        } else {
             $statement->execute(array($offset));
+        }
         $sql2 = "SELECT COUNT(Users.user_id) as count FROM Users";
-        $statement2 = $db->query($sql2);
+        $statement2 = $this->pdo_conn->query($sql2);
         $row = $statement2->fetch();
         self::$page_count = intval($row['count']/50);
-        if(self::$page_count % 50 != 0)
+        if (self::$page_count % 50 != 0) {
             self::$page_count++;
+        }
         $userList = $statement->fetchAll();
-        foreach($userList as $key => $value){
-            $userList[$key]['karma'] = $this->getContributionKarma($userList[$key]['user_id']);
+        foreach ($userList as $key => $value) {
+            $userList[$key]['karma'] 
+                = $this->getContributionKarma($userList[$key]['user_id']);
         }
         return $userList;
     }
+
     /**
      * Update the user's private email address.
-     * @param $aPrivateEmail Private Email Address
+     *
+     * @param string $aPrivateEmail Private Email Address
+     * 
+     * @return void;
      */
-    public function setPrivateEmail($aPrivateEmail){
-        
+    public function setPrivateEmail($aPrivateEmail)
+    {
+        //TODO
     }
     
-    public function setInstantMessaging($aInstantMessaging){
-        $sql = "UPDATE Users set instant_messaging = ? WHERE user_id = ".$this->user_id;
+    /**
+    * Update the instant messaging feild on the user's profile
+    * 
+    * @param string $aInstantMessaging Instant messaging handle
+    *
+    * @return void
+    */
+    public function setInstantMessaging($aInstantMessaging)
+    {
+        $sql = "UPDATE Users set instant_messaging = ? 
+            WHERE user_id = ".$this->user_id;
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($aInstantMessaging));
         $this->instant_messaging = $aInstantMessaging;
@@ -662,16 +748,23 @@ class User{
     
     /**
      * Update the user's account status.
-     * @param $aStatus -1 for banned, 0 for active, More than zero for number of days suspesion
+     *
+     * @param int    $aStatus     -1 for banned, 0 for active
+     * @param int    $aUser_id    User ID of the account to change status
+     * @param string $action      Short description for action taken 
+     * @param string $description Reason for performing action
+     *
+     * @return boolean True if status change is sucessful
      */
-    public function setStatus($aStatus, $aUser_id, $action, $description){
-        if($this->level > 0){
-            $is_authorized = FALSE;
-            if($aStatus == -1)
+    public function setStatus($aStatus, $aUser_id, $action, $description)
+    {
+        if ($this->level > 0) {
+            $is_authorized = false;
+            if ($aStatus == -1) {
                 $is_authorized = $this->checkPermissions("user_ban");
-            elseif($aStatus > 0)
+            } elseif ($aStatus > 0) {
                 $is_authorized = $this->checkPermissions("user_suspend");
-            elseif($aStatus = 0){
+            } elseif ($aStatus = 0) {
                 //unban or unsuspend code
             }
         
@@ -679,36 +772,53 @@ class User{
             $statement = $this->pdo_conn->prepare($sql);
             $statement->execute(array($aStatus, $aUser_id));
             
-            $sql2 = "INSERT INTO DisciplineHistory (user_id, mod_id, action_taken, description, date)
-                        VALUES (?, $this->user_id, ?, ?, ".time().")";
+            $sql2 = "INSERT INTO DisciplineHistory 
+                (user_id, mod_id, action_taken, description, date)
+                VALUES (?, $this->user_id, ?, ?, ".time().")";
             $statement2 = $this->pdo_conn->prepare($sql2);
             $statement2->execute(array($aUser_id, $action, $description));
-            return TRUE;
+            return true;
+        } else {
+            return false;
         }
-        else
-            return FALSE;
     }
     
     /**
      * Update the path of the user's avatar
-     * @param $aAvatar Path of the user's avatar
+     *
+     * @param int $image_id ID of the uploaded image to set the avatar too
+     *
+     * @return void
      */
-    public function setAvatar($image_id){
+    public function setAvatar($image_id)
+    {
         
-        $sql_getAvatarID = "SELECT UploadLog.filename, UploadedImages.width, UploadedImages.height, UploadedImages.sha1_sum FROM UploadLog
-                        LEFT JOIN UploadedImages USING(image_id) WHERE UploadLog.uploadlog_id = $image_id";
+        $sql_getAvatarID = "SELECT UploadLog.filename, UploadedImages.width, 
+            UploadedImages.height, UploadedImages.sha1_sum FROM UploadLog
+            LEFT JOIN UploadedImages USING(image_id) 
+            WHERE UploadLog.uploadlog_id = $image_id";
         $statement_getAvatarID = $this->pdo_conn->query($sql_getAvatarID);
         $result = $statement_getAvatarID->fetch();
-        $sql = "UPDATE Users set Users.avatar = $image_id WHERE user_id=".$this->user_id;
+        $sql = "UPDATE Users set Users.avatar = $image_id 
+            WHERE user_id=".$this->user_id;
         $statement = $this->pdo_conn->query($sql);
-        $this->avatar = array($result['sha1_sum'], $result['filename'], $result['width'], $result['height']);
+        $this->avatar = array(
+            $result['sha1_sum'], 
+            $result['filename'], 
+            $result['width'], 
+            $result['height']
+        );
     }
     
     /**
      * Update the user's signature
-     * @param Signature to be appended to every post
+     *
+     * @param string $aSignature to be appended to every post
+     *
+     * @return void
      */
-    public function setSignature($aSignature){
+    public function setSignature($aSignature)
+    {
         $sql = "UPDATE Users SET signature = ? WHERE user_id = ".$this->user_id;
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($aSignature));
@@ -717,9 +827,13 @@ class User{
     
     /**
      * Update the user's quote
-     * @param $aQuote The user's quote to be displayed on their profile
+     *
+     * @param string $aQuote The user's quote to be displayed on their profile
+     *
+     * @return void
      */
-    public function setQuote($aQuote){
+    public function setQuote($aQuote)
+    {
         $sql = "UPDATE Users SET quote = ? WHERE user_id = ".$this->user_id;
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($aQuote));
@@ -728,15 +842,24 @@ class User{
     
     /**
      * Update the user's timezone
-     * @param $aTimezone The user's timezone
+     *
+     * @param int $aTimezone The user's 
+     *
+     * @return void
      */
-    public function setTimezone($aTimezone){
+    public function setTimezone($aTimezone)
+    {
         
     }
     
 
-
-    public function getDisciplineReason(){
+    /**
+    * Get reason why user was banned or suspended
+    *
+    * @return string Displine description
+    */
+    public function getDisciplineReason()
+    {
         $sql = "SELECT description FROM DisciplineHistory 
             WHERE user_id = $this->user_id ORDER BY date DESC LIMIT 1";
         $statement = $this->pdo_conn->query($sql);
@@ -751,7 +874,6 @@ class User{
     * 
     * @return boolean True if invite code is valid
     */
-
     public function checkInvite($invite_code)
     {
         // Check if invite code exists in the database
@@ -792,7 +914,6 @@ class User{
     *
     * @return int
     */
-
     public function registerUser($request)
     {
         // Check username against whitelist of allowed characters
@@ -846,7 +967,6 @@ class User{
     * @return List of requested items
     * @todo Change to use for all items
     */
-
     public function checkInventory($class_id=null)
     {
         $sql = "SELECT DISTINCT ShopItems.name FROM ShopItems 
@@ -864,7 +984,6 @@ class User{
     *
     * @return array List of files uploaded by the user
     */
-
     public function getUploads()
     {
         $sql = "SELECT UploadLog.filename, UploadedImages.sha1_sum, 
@@ -887,7 +1006,6 @@ class User{
     * 
     * @return array Topic data 
     */
-
     public function getCommentHistory()
     {
         $sql = "SELECT DISTINCT Topics.topic_id, Boards.title as board_title, 
@@ -930,7 +1048,6 @@ class User{
     *
     * @return void
     */
-
     public function logout()
     {
         if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
