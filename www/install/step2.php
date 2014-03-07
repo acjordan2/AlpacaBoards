@@ -61,7 +61,7 @@ function import_sql(){
 		while(!feof($file_handle)){
 			$sql .= fgets($file_handle);
 		}
-		$sql .= "\nINSERT INTO SiteOptions (sitename, sitekey) VALUES ('Sper.gs', \"".base64_encode(mcrypt_create_iv(64, MCRYPT_DEV_URANDOM)."\");";
+		$sql .= "\nINSERT INTO SiteOptions (sitename, sitekey) VALUES ('Sper.gs', \"".base64_encode(mcrypt_create_iv(64, MCRYPT_DEV_URANDOM))."\");";
 		$GLOBALS['db']->exec($sql);
 	}catch(PDOException $e){
 		print $e->getMessage();
