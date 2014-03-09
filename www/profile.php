@@ -49,9 +49,6 @@ if ($auth === true) {
             if (isset($_GET['mod_action'])
                 && $authUser->checkPermissions($_GET['mod_action'])
             ) {
-                // Create an anti-CSRF token
-                include "includes/CSRFGuard.class.php";
-                $csrf = new CSRFGuard();
                 $smarty->assign("token", $csrf->getToken());
                 $smarty->assign("mod_action", $_GET['mod_action']);
 
