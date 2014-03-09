@@ -269,7 +269,8 @@ class User{
      * 
      * @return void
      */
-    private function setUserData($user_data){
+    private function setUserData($user_data)
+    {
         @$filename_array = explode(".", $user_data['filename']);
         $this->user_id = $user_data['user_id'];
         $this->username = $user_data['username'];
@@ -279,19 +280,19 @@ class User{
         @$this->password = $user_data['password'];
         $this->last_active = $user_data['last_active'];
         $this->status = $user_data['status'];
-        $this->avatar = @array('sha1_sum' => $user_data['sha1_sum'], 
+        $this->avatar = @array('sha1_sum' => $user_data['sha1_sum'],
                                'filename' => $filename_array[0],
-                               'extension' => $filename_array[1], 
+                               'extension' => $filename_array[1],
                                'width' =>    $user_data['width'],
-                               'height' => $user_data['height'], 
-                               'thumb_width' => $user_data['thumb_width'], 
+                               'height' => $user_data['height'],
+                               'thumb_width' => $user_data['thumb_width'],
                                'thumb_height' => $user_data['thumb_height']);
         $this->signature = $user_data['signature'];
         $this->quote = $user_data['quote'];
         $this->timezone = $user_data['timezone'];
         $this->account_created = $user_data['account_created'];
         $this->level[0] = $user_data['level'];
-        if($this->level != 0){
+        if ($this->level != 0) {
                 $sql = "SELECT * FROM StaffPermissions WHERE position_id = ".$this->level[0];
                 $statement = $this->pdo_conn->query($sql);
                 $this->permissions = $statement->fetch();
@@ -302,54 +303,77 @@ class User{
         }
     }
     
-    public function changePassword($oldPassword, $newPassword, $reset=false){
+    /**
+     * Change the user's password
+     * 
+     * @param  string  $oldPassword The user's current password
+     * @param  string  $newPassword The user's new password
+     * @param  boolean $reset       True if the user forgot their password and needs to reset it
+     * 
+     * @return boolean              True if password was changed successfully
+     */
+    public function changePassword($oldPassword, $newPassword, $reset = false)
+    {
         $sql = "SELECT Users.password FROM Users WHERE Users.username='$this->username'";
         $statement = $this->pdo_conn->query($sql);
-        if($statement->rowCount() == 1){
+        if ($statement->rowCount() == 1) {
             $row = $statement->fetch();
-            if(password_verify($oldPassword, $row['password']) || $reset==true){
+            if (password_verify($oldPassword, $row['password']) || $reset == true) {
                 $newPassword_hash = password_hash($newPassword, $this->hash_algorithm, $this->hash_options);
                 $sql2 = "UPDATE Users SET Users.password='$newPassword_hash' WHERE Users.username='$this->username'";
                 $this->pdo_conn->query($sql2);
                 return true;
-            }
-            else
+            } else {
                 return false;
+            }
         }
     }
     
     /**
-     * Generate a hash from a supplied password and salt. If no salt is
+     * @deprecated Generate a hash from a supplied password and salt. If no salt is
      * provided, one is created.
+     *
+     * @param string $aPassoword Plaintext password to be hashed
+     * @param string $aSalt pre-defined salt to be used to compute hash
      * 
-     * @param $aPassoword Plaintext password to be hashed
-     * @param $aSalt pre-defined salt to be used in the hash calculation
-     * @return Concatenated salt and hash; Format $salt$hash
+     * @return string Concatenated salt and hash; Format $salt$hash
      */
-    private function generatePasswordHash($aPassword=null, $aSalt=null){
+    private function generatePasswordHash($aPassword = null, $aSalt = null)
+    {
         $final_hash = "";
-        if(!is_null($aPassword) && !is_null($aSalt)){
+        // If password and salt exist, create a matching hash
+        if (!is_null($aPassword) && !is_null($aSalt)) {
             $aSalt = base64_decode($aSalt);
-            $hash = hash_hmac("sha256", $aSalt.$aPassword, SITE_KEY, TRUE);
+            $hash = hash_hmac("sha256", $aSalt.$aPassword, SITE_KEY, true);
             $i = HASH_INTERATIONS;
-            while($i--)
-                $hash = hash_hmac("sha256", $aSalt.$hash, SITE_KEY, TRUE);
-            $hash = hash_hmac("sha256", $aSalt.$hash, SITE_KEY, FALSE);
+            while ($i--) {
+                $hash = hash_hmac("sha256", $aSalt.$hash, SITE_KEY, true);
+            }
+            $hash = hash_hmac("sha256", $aSalt.$hash, SITE_KEY, false);
             $final_hash = "\$".base64_encode($aSalt)."\$".$hash;
-        }
-        else{
+        } else {
+            // Salt does not exist, which means this is a new password
+            // and we need to generate a new salt
             $salt = mcrypt_create_iv(SALT_SIZE, MCRYPT_DEV_URANDOM);
-            $hash = hash_hmac("sha256", $salt.$aPassword, SITE_KEY, TRUE);
+            $hash = hash_hmac("sha256", $salt.$aPassword, SITE_KEY, true);
             $i = HASH_INTERATIONS;
-            while($i--)
-                $hash = hash_hmac("sha256", $salt.$hash, SITE_KEY, TRUE);
-            $hash = hash_hmac("sha256", $salt.$hash, SITE_KEY, FALSE);
+            while ($i--) {
+                $hash = hash_hmac("sha256", $salt.$hash, SITE_KEY, true);
+            }
+            $hash = hash_hmac("sha256", $salt.$hash, SITE_KEY, false);
             $final_hash =  "\$".base64_encode($salt)."\$".$hash;
         }
         return $final_hash;
     }
     
-    private function updatePassword($aPassword){
+    /**
+     * Update the user's password in the database.
+     * Used mainly for when a password needs to be rehashed
+     *
+     * @param  string $aPassword New password hash for the user
+     */
+    private function updatePassword($aPassword)
+    {
         $new_password = $aPassword;
         $statement = $this->pdo_conn->prepare("UPDATE Users SET old_password='', password=:password WHERE user_id=:user_id");
         $statement->execute(array("password" => $new_password, "user_id" => $this->user_id));
