@@ -68,16 +68,23 @@ class User{
     public static $page_count;
     
     /**
+     * Create a new user
+     * 
      * @param db_connection Database connection object, passed by reference
+     * @param int $aUserID  Create a user by specifiying a user ID
+     * 
+     * @return void
     */
-    function __construct(&$db_connection, $aUserID=null){
-        ##Pass DB connection by reference
+    public function __construct(&$db_connection, $aUserID = null) 
+    {
+        // Pass DB connection by reference
         $this->pdo_conn = &$db_connection;
-        if(!is_null($aUserID)){
+        if (!is_null($aUserID)) {
             $this->user_id=$aUserID;
             $this->getUserByID();
         }
     }
+
     /**
      * Authenticate the user. If session cookies do not exist, supplied
      * username and password are checked. Session cookies crated upon 
@@ -85,19 +92,22 @@ class User{
      * 
      * @param $aUsername Username
      * @param $aPassword Plaintext password
-     * @return TRUE if authentication is successful
+     * 
+     * @return boolean True if authentication is successful
      */
-    public function checkAuthentication($aUsername=null, $aPassword=null){
-        # Check if session cookies exit.
-        # If true, use cookies to check authentication
-        # Else use supplied credentials
-        if(isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])){
-            $statement = $this->pdo_conn->prepare("SELECT Users.user_id, Users.username, 
+    public function checkAuthentication($aUsername = null, $aPassword = null)
+    {
+        // Check if session cookies exit.
+        // If true, use cookies to check authentication
+        // Else use supplied credentials
+        if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
+            $sql = "SELECT Users.user_id, Users.username, 
                 Users.email, Users.private_email,
                 Users.instant_messaging, Users.account_created,
                 Users.last_active, Users.status, Users.avatar, UploadedImages.sha1_sum,
                 UploadedImages.height, UploadedImages.width, UploadedImages.thumb_width,
-                UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, Users.timezone, Users.level
+                UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, 
+                Users.timezone, Users.level
                  FROM Users
                  LEFT JOIN UploadLog
                  ON Users.avatar=UploadLog.uploadlog_id
@@ -108,64 +118,78 @@ class User{
                  WHERE 
                     Sessions.session_key1=:session_key1 
                     AND Sessions.session_key2=:session_key2
-                    AND Sessions.useragent=:useragent");
+                    AND Sessions.useragent=:useragent";
+            $statement = $this->pdo_conn->prepare($sql);
 
             $session_data = array("session_key1" => $_COOKIE[AUTH_KEY1],
                                   "session_key2" => $_COOKIE[AUTH_KEY2],
                                   "useragent" => $_SERVER['HTTP_USER_AGENT']);
             $statement->execute($session_data);
             
-            if($statement->rowCount() == 1){
+            if ($statement->rowCount() == 1) {
                 $statement->setFetchMode(PDO::FETCH_ASSOC);
-                #Fetch all user data
+                // Fetch all user data
                 $this->setUserData($statement->fetch());
-                $update_activity = $this->pdo_conn->prepare("UPDATE Users SET last_active=".time().
-                                                            " WHERE user_id=".$this->user_id);
+                $sql_updateActivity = "UPDATE Users SET last_active=".time()." WHERE user_id=".$this->user_id;
+                $update_activity = $this->pdo_conn->prepare($sql_updateActivity);
                 $update_activity->execute();
-                $update_activity = $this->pdo_conn->prepare("UPDATE Sessions SET last_active=".time().
-                                                            " WHERE session_key1=:session_key1 AND session_key2=:session_key2");
+                $sql_updateActivity2 = "UPDATE Sessions SET last_active=".time()." WHERE session_key1=:session_key1 AND session_key2=:session_key2";
+                $update_activity = $this->pdo_conn->prepare($sql_updateActivity2);
                 $update_activity->bindParam(":session_key1", $_COOKIE[AUTH_KEY1]);
                 $update_activity->bindParam(":session_key2", $_COOKIE[AUTH_KEY2]);
                 $update_activity->execute();
-                return TRUE;
+                return true;
+            } else {
+                // Cookies are invalid, remove them
+                setcookie(
+                    $name = AUTH_KEY1,
+                    $value = "",
+                    $expire = -1,
+                    $path = "/",
+                    $domain = DOMAIN,
+                    $secure = USE_SSL,
+                    $httponly = true
+                );
+                setcookie(
+                    $name = AUTH_KEY2,
+                    $value = "",
+                    $expire = -1,
+                    $path = "/",
+                    $domain = DOMAIN,
+                    $secure = USE_SSL,
+                    $httponly = true
+                );
             }
-            else{
-                setcookie($name=AUTH_KEY1, $value="", $expire=-1, $path="/", 
-                                $path=DOMAIN, $secure=USE_SSL, $httponly=TRUE); 
-                setcookie($name=AUTH_KEY2, $value="", $expire=-1, $path="/", 
-                                $path=DOMAIN, $secure=USE_SSL, $httponly=TRUE); 
-            }
-            
-        }
-        # Check supplied username and password
-        elseif(!is_null($aUsername) && !is_null($aPassword)){
-            $statement = $this->pdo_conn->prepare("SELECT user_id, username, 
-                                                    email, private_email, password, old_password,
-                                                    instant_messaging, account_created,
-                                                    last_active, status, avatar,
-                                                    signature, quote, timezone, level 
-                                                  FROM Users 
-                                                  WHERE username=:username");
+        } elseif (!is_null($aUsername) && !is_null($aPassword)) {
+            // Check supplied username and password
+            $sql = "SELECT user_id, username, 
+                email, private_email, password, old_password,
+                instant_messaging, account_created,
+                last_active, status, avatar,
+                signature, quote, timezone, level 
+              FROM Users 
+              WHERE username=:username";
+            $statement = $this->pdo_conn->prepare($sql);
             $statement->bindParam(":username", $aUsername);
             $statement->execute();
             
-            if($statement->rowCount() == 1){
+            if ($statement->rowCount() == 1) {
                 $statement->setFetchMode(PDO::FETCH_ASSOC);
                 $user_data = $statement->fetch();
-                $new_pass_auth = FALSE;
+                $new_pass_auth = false;
                 
-                # Split stored password into salt and hash
+                // Split stored password into salt and hash
                 $salted_password = explode("\$", $user_data['password']);
                 $salt = $salted_password[1];
                 $password = $salted_password[2];
-                if(strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) === 0){
-                    $new_pass_auth = TRUE;
+                if (strcmp($user_data['password'], $this->generatePasswordHash($aPassword, $salt)) === 0) {
+                    $new_pass_auth = true;
                     $new_hash = password_hash($aPassword, $this->hash_algorithm, $this->hash_options);
                     $this->setUserData($user_data);
                     $this->updatePassword($new_hash);
                 } else {
                     $new_pass_auth = password_verify($aPassword, $user_data['password']);
-                    if($new_pass_auth) {
+                    if ($new_pass_auth) {
                         if (password_needs_rehash($user_data['password'], $this->hash_algorithm, $this->hash_options)) {
                             $hash = password_hash($aPassword, $this->hash_algorithm, $this->hash_options);
                             $this->setUserData($user_data);
@@ -174,53 +198,75 @@ class User{
                     }
                 }
 
-                # Compare the stored hash with the generated hash
-                if($new_pass_auth == TRUE){
+                // Compare the stored hash with the generated hash
+                if ($new_pass_auth == true) {
                     $this->setUserData($user_data);
-                    # Generate session keys
-                    $session_key1 = hash("sha256", $this->user_id.$this->username.mt_rand());
-                    $session_key2 = hash("sha256", $this->username.$this->user_id.mt_rand());
-                    # Set session cookies
-                    setcookie($name=AUTH_KEY1, $value=$session_key1, $expire=0, $path="/", 
-                                $path=DOMAIN, $secure=USE_SSL, $httponly=TRUE); 
-                    setcookie($name=AUTH_KEY2, $value=$session_key2, $expire=0, $path="/", 
-                                $path=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
-                    # Associate session cookies with IP address and user agent
+                    // Generate session keys
+                    $session_key1 = hash(
+                        "sha256",
+                        $this->user_id.$this->username.mcrypt_create_iv(32, MCRYPT_DEV_URANDOM)
+                    );
+                    $session_key2 = hash(
+                        "sha256",
+                        $this->username.$this->user_id.mcrypt_create_iv(32, MCRYPT_DEV_URANDOM)
+                    );
+                    // Set session cookies
+                    setcookie(
+                        $name = AUTH_KEY1,
+                        $value = $session_key1,
+                        $expire = 0,
+                        $path = "/",
+                        $domain = DOMAIN,
+                        $secure = USE_SSL,
+                        $httponly = true
+                    );
+                    setcookie(
+                        $name = AUTH_KEY2,
+                        $value = $session_key2,
+                        $expire = 0,
+                        $path = "/",
+                        $path = DOMAIN,
+                        $secure = USE_SSL,
+                        $httponly = true
+                    );
+                    // Associate session cookies with IP address and user agent
                     $session_data = array("user_id" => $this->user_id,
                                           "session_key1" => $session_key1,
                                           "session_key2" => $session_key2,
-                                          "created"    => time(), 
+                                          "created"    => time(),
                                           "last_active" => time(),
                                           "ip" => $_SERVER['REMOTE_ADDR'],
                                           "useragent" => $_SERVER['HTTP_USER_AGENT']);
-                    # Insert sessoin data into the database
-                    $start_session = $this->pdo_conn->prepare("INSERT INTO Sessions
-                                                            (user_id, session_key1, session_key2, created, last_active, ip, useragent)
-                                                           VALUES
-                                                            (:user_id, :session_key1, :session_key2, :created, :last_active, :ip, :useragent)");
+                    // Insert sessoin data into the database
+                    $sql_startSession = "INSERT INTO Sessions
+                        (user_id, session_key1, session_key2, created, last_active, ip, useragent)
+                        VALUES (:user_id, :session_key1, :session_key2, :created, :last_active, :ip, :useragent)";
+                    $start_session = $this->pdo_conn->prepare($sql_startSession);
                     $start_session->execute($session_data);
-                    $update_activity = $this->pdo_conn->prepare("UPDATE Users SET last_active=".time().
-                                                                " WHERE user_id=".$this->user_id);
+
+                    $sql_updateActivity = "UPDATE Users SET last_active=".time()." WHERE user_id=".$this->user_id;
+                    $update_activity = $this->pdo_conn->prepare($sql_updateActivity);
                     $update_activity->execute();
-                    return TRUE;
+                    return true;
                 } else {
                     // Prevent timing attacks
                     password_hash("password", PASSWORD_DEFAULT);
                 }
+            } else {
+                return false;
             }
-            else 
-                return FALSE;
             
+        } else {
+            return false;
         }
-        else
-            return FALSE;
     }
     
     /**
      * Set global user variables from an associative array using the
      * structure from the Users table
      * 
-     * @param $user_data Array of user data extracted from the Users table
+     * @param array $user_data Array of user data extracted from the Users table
+     * 
      * @return void
      */
     private function setUserData($user_data){
