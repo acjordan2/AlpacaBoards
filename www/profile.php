@@ -31,7 +31,7 @@ require "includes/Parser.class.php";
 if ($auth === true) {
     // Get profile for provided user ID.
     // If no ID is provided, use the ID
-    // of the current logged in user. 
+    // of the current logged in user.
     $user_id = @$_GET['user'];
     if (is_null($user_id)) {
         $user_id=$authUser->getUserID();
