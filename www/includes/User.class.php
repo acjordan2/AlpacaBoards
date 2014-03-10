@@ -28,7 +28,7 @@ if (!function_exists("password_hash")){
     include "Password.lib.php";
 }
 
-class User{
+class User {
     
     /* PDO Database Connection */
     private $pdo_conn;
@@ -75,7 +75,7 @@ class User{
      * 
      * @return void
     */
-    public function __construct(&$db_connection, $aUserID = null) 
+    public function __construct(&$db_connection, $aUserID = null)
     {
         // Pass DB connection by reference
         $this->pdo_conn = &$db_connection;
@@ -133,7 +133,8 @@ class User{
                 $sql_updateActivity = "UPDATE Users SET last_active=".time()." WHERE user_id=".$this->user_id;
                 $update_activity = $this->pdo_conn->prepare($sql_updateActivity);
                 $update_activity->execute();
-                $sql_updateActivity2 = "UPDATE Sessions SET last_active=".time()." WHERE session_key1=:session_key1 AND session_key2=:session_key2";
+                $sql_updateActivity2 = "UPDATE Sessions SET last_active=".time().
+                    " WHERE session_key1=:session_key1 AND session_key2=:session_key2";
                 $update_activity = $this->pdo_conn->prepare($sql_updateActivity2);
                 $update_activity->bindParam(":session_key1", $_COOKIE[AUTH_KEY1]);
                 $update_activity->bindParam(":session_key2", $_COOKIE[AUTH_KEY2]);
@@ -375,7 +376,8 @@ class User{
     private function updatePassword($aPassword)
     {
         $new_password = $aPassword;
-        $statement = $this->pdo_conn->prepare("UPDATE Users SET old_password='', password=:password WHERE user_id=:user_id");
+        $sql = "UPDATE Users SET old_password='', password=:password WHERE user_id=:user_id";
+        $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array("password" => $new_password, "user_id" => $this->user_id));
     }
     
@@ -383,40 +385,58 @@ class User{
      * Verify that user supplied email address
      * is valid
      * 
-     * @param $aEmail Email address to validate
-     * @return TRUE if email is valid
+     * @param string $aEmail Email address to validate
+     * 
+     * @return boolean True if email is valid
      */
-    public function validateEmail($aEmail){
-        if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $aEmail)){
-            return FALSE;
+    public function validateEmail($aEmail)
+    {
+        if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $aEmail)) {
+            return false;
         }
-        # Split it into sections to make life easier
+        // Split it into sections to make life easier
         $email_array = explode("@", $aEmail);
         $local_array = explode(".", $email_array[0]);
-        for ($i = 0; $i < sizeof($local_array); $i++){
-            if(!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
-                ↪'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",$local_array[$i])){
-                return FALSE;
-            }        
+        for ($i = 0; $i < sizeof($local_array); $i++) {
+            if (!ereg(
+                "^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&
+                ↪'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$",
+                $local_array[$i]
+            )) {
+                return false;
+            }
         }
-        # Check if domain is IP. If not, 
-        # it should be valid domain name
-        if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])){
+        // Check if domain is IP. If not,
+        // it should be valid domain name
+        if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) {
             $domain_array = explode(".", $email_array[1]);
             if (sizeof($domain_array) < 2) {
-                return TRUE; // Not enough parts to domain
+                return true; // Not enough parts to domain
             }
             for ($i = 0; $i < sizeof($domain_array); $i++) {
-                if(!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
-                    ↪([A-Za-z0-9]+))$",$domain_array[$i])){
-                    return FALSE;
+                if (!ereg(
+                    "^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|
+                    ↪([A-Za-z0-9]+))$",
+                    $domain_array[$i]
+                )) {
+                    return false;
                 }
             }
         }
-        return TRUE;
+        return true;
     }
     
-    public function awardKarma(){
+    /**
+     * Award a user karma in timed intervals on login
+     * Once a day for 14 days, then once a week for 16 
+     * weeks, then once every 2 weeks for 30 weeks, then
+     * once a month. 
+     * 
+     * 
+     * @return void
+     */
+    public function awardKarma()
+    {
         $sql = "SELECT COUNT(Karma.created) as count, 
                        MAX(Karma.created) as created
                 FROM Karma
@@ -424,53 +444,80 @@ class User{
         $statement = $this->pdo_conn->query($sql);
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         $row = $statement->fetch();
-        if($row['count'] < 14 && time() > $row['created'] + (60*60*24)){
+        if ($row['count'] < 14 && time() > $row['created'] + (60*60*24)) {
             $sql = "INSERT INTO Karma (user_id, value, created)
                         VALUES ($this->user_id, 1, ".time().")";
             $this->pdo_conn->query($sql);
-        }
-        elseif($row['count'] < 30 && time() > $row['created'] + (60*60*24*7)){
+        } elseif ($row['count'] < 30 && time() > $row['created'] + (60*60*24*7)) {
             $sql = "INSERT INTO Karma (user_id, value, created)
                         VALUES ($this->user_id, 1, ".time().")";
             $this->pdo_conn->query($sql);
-        }
-        elseif($row['count'] < 60 && time() > $row['created'] + (60*60*24*14)){
+        } elseif ($row['count'] < 60 && time() > $row['created'] + (60*60*24*14)) {
             $sql = "INSERT INTO Karma (user_id, value, created)
                         VALUES ($this->user_id, 1, ".time().")";
             $this->pdo_conn->query($sql);
-        }
-        elseif(time() > $row['created'] + (60*60*24*28)){
+        } elseif (time() > $row['created'] + (60*60*24*28)) {
             $sql = "INSERT INTO Karma (user_id, value, created)
                         VALUES ($this->user_id, 1, ".time().")";
             $this->pdo_conn->query($sql);
         }
     }
     
-    public function getKarma(){
+    /**
+     * Get total number of karma
+     *
+     * @return int karma
+     */
+    public function getKarma()
+    {
         return ($this->getGoodKarma() + $this->getContributionKarma()) - $this->getBadKarma();
     }
     
-    public function getCredits(){
-        $sql = "SELECT SUM(Karma.value) as value1, (SELECT SUM(ShopTransactions.value) FROM ShopTransactions WHERE user_id=$this->user_id) as value2
-                FROM Karma 
-                WHERE Karma.user_id=$this->user_id
-                GROUP BY user_id";
+    /**
+     * Get number of credits
+     * 
+     * @return int Total amount of credits
+     */
+    public function getCredits()
+    {
+         $sql = "SELECT SUM(Karma.value) as value1, (SELECT SUM(ShopTransactions.value)
+            FROM ShopTransactions WHERE user_id=$this->user_id) as value2
+            FROM Karma WHERE Karma.user_id=$this->user_id GROUP BY user_id";
         $statement = $this->pdo_conn->query($sql);
         $row = $statement->fetch();
         return intval($row['value1']-$row['value2']) + $this->getContributionKarma();
     }
     
-    public function getGoodKarma(){
+    /**
+     * Get a user's good karma
+     * 
+     * @return int Amount of good karma
+     */
+    public function getGoodKarma()
+    {
         return 0;
     }
     
-    public function getBadKarma(){
+    /**
+     * Get a user's bad karma
+     * 
+     * @return int Amount of bad karma
+     */
+    public function getBadKarma()
+    {
         return 0;
     }
     
+    /**
+     * Get a user's contribution karma accumulated from adding links
+     * 
+     * @param  int $user_id user id of the user
+     * 
+     * @return int Amount of contribution karma
+     */
     public function getContributionKarma($user_id = null)
     {
-        if($user_id == null){
+        if ($user_id == null) {
             $user_id = $this->user_id;
         }
         $sql = "SELECT SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank
@@ -486,14 +533,21 @@ class User{
         return $contributionKarma;
     }
     
-    private function getUserByID(){
+    /**
+     * Get user information by a supplied user ID
+     * 
+     * @return void
+     */
+    private function getUserByID()
+    {
         $sql = "SELECT Users.user_id, Users.username, 
                        Users.email, Users.private_email,
                        Users.instant_messaging, Users.account_created,
                        Users.last_active, Users.status, Users.avatar,
                        Users.signature, Users.quote, Users.timezone, Users.level, UploadedImages.sha1_sum,
                        UploadedImages.height, UploadedImages.width, UploadedImages.thumb_width,
-                       UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote, Users.timezone, Users.level
+                       UploadedImages.thumb_height, UploadLog.filename, Users.signature, Users.quote,
+                       Users.timezone, Users.level
                 FROM Users
                 LEFT JOIN UploadLog
                      ON Users.avatar=UploadLog.uploadlog_id
@@ -502,104 +556,156 @@ class User{
                 WHERE Users.user_id=?";
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($this->user_id));
-        if($statement->rowCount() == 1){
-            $this->exist = TRUE;
+        if ($statement->rowCount() == 1) {
+            $this->exist = true;
             $statement->setFetchMode(PDO::FETCH_ASSOC);
             $this->setUserData($statement->fetch());
-        }else
-            $this->exist = FALSE;
+        } else {
+            $this->exist = false;
+        }
     }
     
-    public function getInventory(){
-        $sql = "SELECT Inventory.transaction_id, ShopItems.name, ShopItems.description FROM Inventory LEFT JOIN ShopTransactions USING(transaction_id) LEFT JOIN ShopItems USING(item_id) 
-                    WHERE Inventory.user_id=$this->user_id";
+    /**
+     * Get purchased items and unused items from the user's inventory
+     * 
+     * @return array Array of inventory items
+     */
+    public function getInventory()
+    {
+        $sql = "SELECT Inventory.transaction_id, ShopItems.name, ShopItems.description 
+            FROM Inventory LEFT JOIN ShopTransactions USING(transaction_id) 
+            LEFT JOIN ShopItems USING(item_id) WHERE Inventory.user_id=$this->user_id";
         $statement = $this->pdo_conn->query($sql);
         return $statement->fetchAll();
-        
     }
     
-    public function doesExist(){
+    /**
+     * Check if the user exists
+     * 
+     * @return boolean True if the user exists
+     */
+    public function doesExist()
+    {
         return $this->exist;
     }
     
     /**
-     * @return The user's ID
+     * Get the user's user ID
+     * 
+     * @return int The user's ID
      */
-    public function getUserID(){
+    public function getUserID()
+    {
         return $this->user_id;
     }
     
     /**
-     * @return The user's username
+     * Get the user's username
+     * 
+     * @return string The user's username
      */
-    public function getUsername(){
+    public function getUsername()
+    {
         return $this->username;
     }
     
     /**
-     * @return The user's public email address
+     * Get the user's public email address
+     * 
+     * @return string The user's public email address
      */
-    public function getEmail(){
+    public function getEmail()
+    {
         return $this->email;
     }
     
     /**
-     * @return The user's private email address
+     * Get the user's private email address
+     * 
+     * @return string The user's private email address
      */
-    public function getPrivateEmail(){
+    public function getPrivateEmail()
+    {
         return $this->private_email;
     }
     
-    /**
-     *@return The time the user's account was created in a Unix timestamp
+   /**
+     * The date and time the account was created
+     * 
+     *@return int The time the user's account was created in a Unix timestamp
      */
-    public function getAccountCreated(){
+    public function getAccountCreated()
+    {
         return $this->account_created;
     }
     
     /**
-     * @return The time the user was last active in a Unix timestamp
+     * The time the user was last active 
+     * 
+     * @return int The time the user was last active in a Unix timestamp
      */
-    public function getLastActive(){
+    public function getLastActive()
+    {
         return $this->last_active;
     }
     
     /**
-     * @return The current status of the users account
+     * Get the user's account status
+     * 
+     * @return int The current status of the users account
      */
-    public function getStatus(){
+    public function getStatus()
+    {
         return $this->status;
     }
     
     /**
-     * @return Location of the user's avatar
+     * Get the user's avatar
+     * 
+     * @return array Avatar path information
      */
-    public function getAvatar(){
+    public function getAvatar()
+    {
         return $this->avatar;
     }
     
-    public function getInstantMessaging(){
+    /**
+     * Get instant messaging handle
+     * 
+     * @return string Instant messaging handle
+     */
+    public function getInstantMessaging()
+    {
         return $this->instant_messaging;
     }
     
     /**
+     * Get the user's signature
+     * 
      * @return the user's signature
      */
-    public function getSignature(){
+    public function getSignature()
+    {
         return $this->signature;
     }
     
     /**
-     * @return The user's quote
+     * Get the user's quote
+     * 
+     * @return string The user's quote
      */
-    public function getQuote(){
+    public function getQuote()
+    {
         return $this->quote;
     }
     
     /**
-     * @return The user's timezone
+     * Get the user's timezone
+     * 
+     * @return string The user's timezone
      */
-    public function getTimezone(){
+    public function getTimezone()
+    {
         return $this->timezone;
     }
     
@@ -687,7 +793,7 @@ class User{
         $sql = "SELECT Topics.topic_id, COUNT(DISTINCT(Messages.message_id)) 
             as count FROM Topics LEFT JOIN Messages USING(topic_id) WHERE 
             Topics.user_id=$this->user_id GROUP BY Topics.topic_id 
-            ORDER BY count DESC"; 
+            ORDER BY count DESC";
         $statement= $this->pdo_conn->query($sql);
         $row = $statement->fetchAll();
         if (!empty($row)) {
@@ -769,7 +875,7 @@ class User{
     * 
     * @return array List of users
     */
-    public function getUserList($page=1, $query=null)
+    public function getUserList($page = 1, $query = null)
     {
         // Get users 50 at a time
         $offset = 50 * ($page-1);
@@ -802,7 +908,7 @@ class User{
         }
         $userList = $statement->fetchAll();
         foreach ($userList as $key => $value) {
-            $userList[$key]['karma'] 
+            $userList[$key]['karma']
                 = $this->getContributionKarma($userList[$key]['user_id']);
         }
         return $userList;
@@ -893,9 +999,9 @@ class User{
             WHERE user_id=".$this->user_id;
         $statement = $this->pdo_conn->query($sql);
         $this->avatar = array(
-            $result['sha1_sum'], 
-            $result['filename'], 
-            $result['width'], 
+            $result['sha1_sum'],
+            $result['filename'],
+            $result['width'],
             $result['height']
         );
     }
@@ -1026,11 +1132,11 @@ class User{
                         password, account_created) VALUES (?, ?, ?, ".time().")";
 
                     $statement2 = $this->pdo_conn->prepare($sql2);
-                    $data = array($request['username'], 
-                        $request['email'], 
+                    $data = array($request['username'],
+                        $request['email'],
                         password_hash(
-                            $request['password'], 
-                            $this->hash_algorithm, 
+                            $request['password'],
+                            $this->hash_algorithm,
                             $this->hash_options
                         )
                     );
@@ -1057,7 +1163,7 @@ class User{
     * @return List of requested items
     * @todo Change to use for all items
     */
-    public function checkInventory($class_id=null)
+    public function checkInventory($class_id = null)
     {
         $sql = "SELECT DISTINCT ShopItems.name FROM ShopItems 
             LEFT JOIN ShopTransactions USING(item_id) 
@@ -1107,7 +1213,7 @@ class User{
             GROUP BY Topics.topic_id ORDER BY Messages.posted DESC";
         $statement = $this->pdo_conn->query($sql);
         $topic_data = array();
-        for ($i=0; $topic_data_array = $statement->fetch(); $i++) {    
+        for ($i=0; $topic_data_array = $statement->fetch(); $i++) {
             $topic_data[$i]['board_title'] = $topic_data_array['board_title'];
             $topic_data[$i]['topic_id'] = $topic_data_array['topic_id'];
             $topic_data[$i]['u_last_posted'] = $topic_data_array['u_last_posted'];
@@ -1151,31 +1257,49 @@ class User{
             // Delete session keys from the browser
             // invalidating the session client side
             setcookie(
-                $name = AUTH_KEY1, $value = '', $expire = 1, $path = "/", 
-                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+                $name = AUTH_KEY1,
+                $value = '',
+                $expire = 1,
+                $path = "/",
+                $domain = DOMAIN,
+                $secure = USE_SSL,
+                $httponly = true
             );
             setcookie(
-                $name = AUTH_KEY2, $value = '', $expire = 1, $path = "/",           
-                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+                $name = AUTH_KEY2,
+                $value = '',
+                $expire = 1,
+                $path = "/",
+                $domain = DOMAIN,
+                $secure = USE_SSL,
+                $httponly = true
             );
         }
         // Remove PHP session cookie
-        if (isset($_COOKIE[session_name()])) {                       
+        if (isset($_COOKIE[session_name()])) {
             $params = session_get_cookie_params();
             @session_destroy();
             setcookie(
-                $name = session_name(), $value = '', $expire = 1, $path = "/", 
-                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+                $name = session_name(),
+                $value = '',
+                $expire = 1,
+                $path = "/",
+                $domain = DOMAIN,
+                $secure = USE_SSL,
+                $httponly = true
             );
         }
         // Remove anti-csrf cookie
         if (isset($_COOKIE['csrf'])) {
             setcookie(
-                $name = "csrf", $value = '', $expire = 1, $path = "/",
-                $domain = DOMAIN, $secure = USE_SSL, $httponly = true
+                $name = "csrf",
+                $value = '',
+                $expire = 1,
+                $path = "/",
+                $domain = DOMAIN,
+                $secure = USE_SSL,
+                $httponly = true
             );
         }
     }
 }
-
-?>
