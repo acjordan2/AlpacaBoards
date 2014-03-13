@@ -154,6 +154,14 @@
 			</d>
 		</tr>
 		{/if}
+		{if $mod_site_options == 1}
+		<tr>
+			<td colspan="2">
+				<a href="./siteoptions.php">Site Options</a>
+			</d>
+		</tr>
+		{/if}
+
 {/if}
 	</table>
 	

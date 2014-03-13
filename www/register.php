@@ -26,51 +26,60 @@
  
 require "includes/init.php";
 
-// Create new anti-CSRF token
-if (isset($_GET['code'])) {
-    // Validate invite code
-    $invite_check = $authUser->checkInvite($_GET['code']);
-    if ($invite_check) {
-        $smarty->assign("invite_code", htmlentities($_GET['code']));
-        $smarty->assign("invite", $invite_check);
+if ($site->getRegistrationStatus() == 0) {
+    die("Site Registration is closed");
+} elseif ($site->getRegistrationStatus() == 1) {
+    // Create new anti-CSRF token
+    if (isset($_GET['code'])) {
+        // Validate invite code
+        $invite_check = $authUser->checkInvite($_GET['code']);
+        if ($invite_check) {
+            $smarty->assign("invite_code", htmlentities($_GET['code']));
+            $smarty->assign("invite", $invite_check);
+        } else {
+            die("This site is currently invite only");
+        }
+    } else {
+        die("This site is currently invite only");
     }
-}
-if ($csrf->validateToken(@$_POST['token'])) {
-    if (isset($_POST['username']) && isset($_POST['email']) 
-        && isset($_POST['password']) && isset($_POST['password2'])
-    ) {
-        $error_msg = "";
-        $smarty->assign("username", htmlentities($_POST['username']));
-        $smarty->assign("email", htmlentities($_POST['email']));
+} elseif ($site->getRegistrationStatus() == 2) {
+    if ($csrf->validateToken(@$_POST['token'])) {
+        if (isset($_POST['username']) && isset($_POST['email'])
+            && isset($_POST['password']) && isset($_POST['password2'])
+        ) {
+            $error_msg = "";
+            $smarty->assign("username", htmlentities($_POST['username']));
+            $smarty->assign("email", htmlentities($_POST['email']));
 
-        // Validate supplied data
-        if (strlen($_POST['password']) < 8) {
-            $error_msg = "Password must be at least 8 characters<br />";
-        }
-        if ($_POST['password'] != $_POST['password2']) {
-            $error_msg .= "Password don't match<br />";
-        }
-        if (!$authUser->validateEmail($_POST['email'])) {
-            $error_msg .= "Please enter a valid email address";
-        }
-        // Validate username does not exist and
-        // check invite code. Then create account
-        if ($error_msg == "") {
-            $status = $authUser->registerUser($_POST);
-            switch($status){
-            case -1:
-                $error_msg = "That username already exists<br />";
-                break;
-            case -2:
-                $error_msg 
-                    = "Invalid invite code. Invite codes are case sensitive<br />";
-                break;
-            case 1:
-                header("Location: ./index.php?m=1");
-                break;
+            // Validate supplied data
+            if (strlen($_POST['password']) < 8) {
+                $error_msg = "Password must be at least 8 characters<br />";
             }
+            if ($_POST['password'] != $_POST['password2']) {
+                $error_msg .= "Password don't match<br />";
+            }
+            if (!$authUser->validateEmail($_POST['email'])) {
+                $error_msg .= "Please enter a valid email address";
+            }
+            // Validate username does not exist and
+            // check invite code. Then create account
+            if ($error_msg == "") {
+                $status = $authUser->registerUser($_POST);
+                switch($status){
+                    case -1:
+                        $error_msg = "That username already exists<br />";
+                        break;
+                    case -2:
+                        $error_msg
+                            = "Invalid invite code. Invite codes are case sensitive<br />";
+                        break;
+                    case 1:
+                        header("Location: ./index.php?m=1");
+                        break;
+                }
+            }
+            $smarty->assign("message", $error_msg);
         }
-        $smarty->assign("message", $error_msg);
     }
 }
 $smarty->assign("token", $csrf->getToken());
@@ -78,4 +87,3 @@ $smarty->assign("token", $csrf->getToken());
 $display = "register.tpl";
 $page_title = "Register";
 require "includes/deinit.php";
-?>

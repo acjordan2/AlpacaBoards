@@ -1,6 +1,6 @@
 <?php
 /*
- * userlist.php
+ * siteoptions.php
  * 
  * Copyright (c) 2014 Andrew Jordan
  * 
@@ -25,32 +25,36 @@
  */
  
 require "includes/init.php";
+require "includes/Parser.class.php";
 
 // Check authentication
-if ($auth == true) {
-    if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
-        $current_page = 1;
+if ($auth === true) {
+    if ($authUser->checkPermissions("site_options")) {
+        if (isset($_POST['token'])) {
+            if ($csrf->validateToken($_POST['token'])) {
+                $site->updateSiteOptions(
+                    $_POST['sitename'],
+                    (int)$_POST['registration'],
+                    (int)$_POST['invites']
+                );
+                header("location: ./siteoptions.php?m=1");
+                exit();
+            }
+        }
+        if (@$_GET['m'] == 1) {
+            $message = "Site Options Updated!";
+            $smarty->assign("message", $message);
+        }
+        $smarty->assign("token", $csrf->getToken());
+        $smarty->assign("registration_status", $site->getRegistrationStatus());
+        $smarty->assign("invite_status", $site->getInviteStatus());
+
+        $page_title = "Site Options";
+        $display = "siteoptions.tpl";
+        include "includes/deinit.php";
     } else {
-        $current_page = intval($_GET['page']);
+        include "403.php"; // User does not have access to this page
     }
-    // Get user list
-    $query = @$_GET['user'];
-    $userlist = $authUser->getUserList($current_page, $query);
-    $page_count = User::$page_count;
-    if ($page_count == 0) {
-        $page_count = 1;
-    }
-
-    // Set template variables
-    $smarty->assign("userlist", $userlist);
-    $smarty->assign("page_count", $page_count);
-    $smarty->assign("current_page", $current_page);
-
-    // Set template page
-    $display = "userlist.tpl";
-    $page_title = "User List";
-    $smarty->assign("user_search", htmlentities($query));
-    include "includes/deinit.php";
 } else {
-    include "404.php";
+    include "403.php"; // User not logged in
 }

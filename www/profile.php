@@ -45,7 +45,7 @@ if ($auth === true) {
             
             // Check account permissions. If
             // account has moderator privelages,
-            // allow moderation actions. 
+            // allow moderation actions.
             if (isset($_GET['mod_action'])
                 && $authUser->checkPermissions($_GET['mod_action'])
             ) {
@@ -54,37 +54,37 @@ if ($auth === true) {
 
                 // Perform actions
                 switch ($_GET['mod_action']) {
-                case "user_ban":
-                    if ($profile_user->getStatus() == -1) {
-                            $message = "User has already been banned!";
-                    }
-                    $action_taken = "User has been banned";
-                    if ($authUser->getUserID() == $profile_user->getUserID()) {
-                        $message = "You can't ban youself!";
-                    }
-                    if (isset($message)) {
-                        $smarty->assign("message", $message);
-                    } else {
-                        if (isset($_POST['submit'])) {
-                            if ($csrf->validateToken($_REQUEST['token'])) {
-                                if ($authUser->setStatus(
-                                    -1, 
-                                    $profile_user->getUserID(), 
-                                    $action_taken, 
-                                    $_POST['description']
-                                )) {
-                                    $message = $profile_user->getUsername()
-                                        ." has been banned";
-                                    $smarty->assign("message", $message);
+                    case "user_ban":
+                        if ($profile_user->getStatus() == -1) {
+                                $message = "User has already been banned!";
+                        }
+                        $action_taken = "User has been banned";
+                        if ($authUser->getUserID() == $profile_user->getUserID()) {
+                            $message = "You can't ban youself!";
+                        }
+                        if (isset($message)) {
+                            $smarty->assign("message", $message);
+                        } else {
+                            if (isset($_POST['submit'])) {
+                                if ($csrf->validateToken($_REQUEST['token'])) {
+                                    if ($authUser->setStatus(
+                                        -1,
+                                        $profile_user->getUserID(),
+                                        $action_taken,
+                                        $_POST['description']
+                                    )) {
+                                        $message = $profile_user->getUsername()
+                                            ." has been banned";
+                                        $smarty->assign("message", $message);
+                                    }
                                 }
                             }
                         }
-                    }
-                    $smarty->assign("p_user_id", $profile_user->getUserID());
-                    $smarty->assign("p_username", $profile_user->getUsername());
-                    $smarty->assign("action_taken", $action_taken);
-                    $page_title = "Ban ".$profile_user->getUsername();
-                    break;
+                        $smarty->assign("p_user_id", $profile_user->getUserID());
+                        $smarty->assign("p_username", $profile_user->getUsername());
+                        $smarty->assign("action_taken", $action_taken);
+                        $page_title = "Ban ".$profile_user->getUsername();
+                        break;
                 }
                 $display = "mod_actions.tpl";
             } else {
@@ -92,7 +92,7 @@ if ($auth === true) {
                 $avatar = $profile_user->getAvatar();
                 if (!is_null($avatar)) {
                     $smarty->assign(
-                        "avatar", 
+                        "avatar",
                         $avatar['sha1_sum']."/".
                         urlencode($avatar['filename'].".".$avatar['extension'])
                     );
@@ -101,7 +101,7 @@ if ($auth === true) {
                 }
                 
                 // Parse for HTML tags, encode
-                // dangerous tags. 
+                // dangerous tags.
                 $parser = new Parser($db);
                 $signature = $profile_user->getSignature();
                 $signature = $parser->parse($signature);
@@ -113,7 +113,7 @@ if ($auth === true) {
                     $quote = "";
                 }
                 
-                // Assign template variables 
+                // Assign template variables
                 $smarty->assign("p_username", $profile_user->getUsername());
                 $smarty->assign("p_user_id", $profile_user->getUserID());
                 $smarty->assign("p_status", $profile_user->getStatus());
@@ -121,7 +121,7 @@ if ($auth === true) {
                 $smarty->assign("good_karma", $profile_user->getGoodKarma());
                 $smarty->assign("bad_karma", $profile_user->getBadKarma());
                 $smarty->assign(
-                    "contribution_karma", 
+                    "contribution_karma",
                     $profile_user->getContributionKarma()
                 );
                 $smarty->assign("credit", $profile_user->getCredits());
@@ -130,7 +130,7 @@ if ($auth === true) {
                 $smarty->assign("signature", $signature);
                 $smarty->assign("quote", $quote);
                 $smarty->assign(
-                    "instant_messaging", 
+                    "instant_messaging",
                     $authUser->getInstantMessaging()
                 );
                 $smarty->assign("public_email", $authUser->getEmail());
@@ -138,8 +138,12 @@ if ($auth === true) {
                 $smarty->assign("access_level", $authUser->getAccessLevel());
                 $smarty->assign("access_title", $authUser->getAccessTitle());
                 $smarty->assign(
-                    "mod_user_ban", 
+                    "mod_user_ban",
                     $authUser->checkPermissions("user_ban")
+                );
+                $smarty->assign(
+                    "mod_site_options",
+                    $authUser->checkPermissions("site_options")
                 );
 
                 // Set page template
@@ -150,10 +154,9 @@ if ($auth === true) {
         } else {
             include "404.php";
         }
-    } else { 
+    } else {
         include "404.php";
     }
 } else {
     include "404.php";
 }
-?>

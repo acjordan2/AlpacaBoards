@@ -31,8 +31,8 @@ require "includes/PHPMailer.class.php";
 if ($auth == true) {
     $smarty->assign("token", $csrf->getToken());
     // Validate email address and CSRF token
-    if (isset($_POST['email']) 
-        && $csrf->validateToken(@$_POST['token']) == true 
+    if (isset($_POST['email'])
+        && $csrf->validateToken(@$_POST['token']) == true
         && $authUser->validateEmail($_POST['email']) == true
     ) {
         // Create random invite code

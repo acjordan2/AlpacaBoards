@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-if (!function_exists("password_hash")){
+if (!function_exists("password_hash")) {
     include "Password.lib.php";
 }
 

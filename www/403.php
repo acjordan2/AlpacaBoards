@@ -1,6 +1,6 @@
 <?php
 /*
- * userlist.php
+ * 403.php
  * 
  * Copyright (c) 2014 Andrew Jordan
  * 
@@ -24,33 +24,4 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require "includes/init.php";
-
-// Check authentication
-if ($auth == true) {
-    if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
-        $current_page = 1;
-    } else {
-        $current_page = intval($_GET['page']);
-    }
-    // Get user list
-    $query = @$_GET['user'];
-    $userlist = $authUser->getUserList($current_page, $query);
-    $page_count = User::$page_count;
-    if ($page_count == 0) {
-        $page_count = 1;
-    }
-
-    // Set template variables
-    $smarty->assign("userlist", $userlist);
-    $smarty->assign("page_count", $page_count);
-    $smarty->assign("current_page", $current_page);
-
-    // Set template page
-    $display = "userlist.tpl";
-    $page_title = "User List";
-    $smarty->assign("user_search", htmlentities($query));
-    include "includes/deinit.php";
-} else {
-    include "404.php";
-}
+require "404.php";

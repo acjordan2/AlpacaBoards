@@ -36,23 +36,23 @@ class Parser
 
     private $_newline;
 
-    static $element_count;
+    private static $element_count;
 
     /**
     * Create new Parser Object and set allowed HTML tags
     *
     * @param PDO $db Database connection object
     */
-    function __construct($db) 
+    public function __construct($db)
     {
         libxml_use_internal_errors(true);
         // White list of allowed tags => attributes
-        $this->allowed_tags = array("b" => null, 
-                                    "i" => null, 
-                                    "u" => null, 
+        $this->allowed_tags = array("b" => null,
+                                    "i" => null,
+                                    "u" => null,
                                     "pre" => null,
-                                    "html" => null, 
-                                    "body" => null, 
+                                    "html" => null,
+                                    "body" => null,
                                     "#text" => null,
                                     "img"    => "src",
                                     "quote" => "msgid",
@@ -81,7 +81,7 @@ class Parser
             $html = " ";
         }
         $this->doc->loadHTML($html);
-        // Create a recurisve iterator 
+        // Create a recurisve iterator
         // to get all nodes in a document
         // starting with the children
         $dit = new RecursiveIteratorIterator(
@@ -91,11 +91,11 @@ class Parser
 
         foreach ($dit as $node) {
             // If tag is not in whitelist,
-            // create a textnode with data 
+            // create a textnode with data
             // and attributes from the tag
             if (!array_key_exists($node->nodeName, $this->allowed_tags)) {
                 // Ignore CDATA fields. Not necessary
-                // since all invalid tags will be 
+                // since all invalid tags will be
                 // entity encoded
                 if ($node->nodeName != "#cdata-section") {
                     $text = "<".$node->nodeName;
@@ -104,7 +104,7 @@ class Parser
                         foreach ($node->attributes as $attr) {
                             $text .= $attr->nodeName."=\"".$attr->nodeValue."\"";
                         }
-                    }    
+                    }
                     if (!empty($node->nodeValue)) {
                         $text .= ">".$node->nodeValue."</".$node->nodeName.">";
                     } else {
@@ -118,9 +118,10 @@ class Parser
                     if (!is_null($this->allowed_tags[$node->nodeName])) {
                         // Get allowed attributes for tag
                         $allowed_attributes = explode(
-                            "|", $this->allowed_tags[$node->nodeName]
+                            "|",
+                            $this->allowed_tags[$node->nodeName]
                         );
-                    }    
+                    }
                     // Remove invalid attributes
                     // Keep ones that are whitelisted
                     for ($i=$node->attributes->length - 1; $i>=0; $i--) {
@@ -133,26 +134,26 @@ class Parser
                 // Processing for special tags
                 // quote, spoiler, img
                 switch ($node->nodeName) {
-                case "img":
-                    $imgNode = $this->_createImageNode($node);
-                    $node->parentNode->replaceChild($imgNode, $node);
-                    break;
-                case "quote":
-                    $quoteNode = $this->_createQuoteNode($node);
-                    $node->parentNode->replaceChild($quoteNode, $node);
-                    break;
-                case "spoiler":
-                    $spoilerNode = $this->_createSpoilerNode($node);
-                    $node->parentNode->replaceChild($spoilerNode, $node);
-                    break;
+                    case "img":
+                        $imgNode = $this->_createImageNode($node);
+                        $node->parentNode->replaceChild($imgNode, $node);
+                        break;
+                    case "quote":
+                        $quoteNode = $this->_createQuoteNode($node);
+                        $node->parentNode->replaceChild($quoteNode, $node);
+                        break;
+                    case "spoiler":
+                        $spoilerNode = $this->_createSpoilerNode($node);
+                        $node->parentNode->replaceChild($spoilerNode, $node);
+                        break;
                 }
             }
             
 
         }
-        $this->doc->removeChild($this->doc->firstChild);            
-        return $this->_cleanup($this->doc->saveHTML()); 
-    } 
+        $this->doc->removeChild($this->doc->firstChild);
+        return $this->_cleanup($this->doc->saveHTML());
+    }
 
     /**
     * Parse image tags to put them in a div container 
@@ -200,7 +201,7 @@ class Parser
     * @return DOMElement
     */
     private function _createQuoteNode($node)
-    {    
+    {
         if ($node->hasAttribute("msgid")) {
             $msgid = $node->getAttribute("msgid");
             // Verify the msgid attribute is in the right
@@ -238,7 +239,8 @@ class Parser
                 // Add profile link to quote header
                 $quote_author = $this->doc->createElement("a", $results['username']);
                 $quote_author->setAttribute(
-                    "href", "./profile.php?id=".$results['user_id']
+                    "href",
+                    "./profile.php?id=".$results['user_id']
                 );
             
                 // Date of original quote
@@ -276,7 +278,7 @@ class Parser
     *
     * @return DOMElement
     */
-    private function _createSpoilerNode($node) 
+    private function _createSpoilerNode($node)
     {
         $count = Parser::getElementCount();
         // Create container for all the spoiler tags
@@ -323,7 +325,7 @@ class Parser
         $closed_span->appendChild($onOpen_span);
 
         $script = $this->doc->createElement(
-            "script", 
+            "script",
             "$(document).ready(function(){llmlSpoiler($(\"#s0_".$count."\"));});"
         );
         $script->setAttribute("type", "text/javascript");

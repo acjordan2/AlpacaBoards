@@ -782,3 +782,5 @@ INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
 INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`) VALUES
 (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
+ALTER TABLE  `SiteOptions` ADD  `registration` INT( 1 ) NOT NULL ,
+ADD  `invites` INT( 1 ) NOT NULL ;

@@ -39,14 +39,15 @@ if ($auth == true) {
 
         // Create new anti-CSRF token
         $smarty->assign("csrf_token", $csrf->getToken());
-        if (@$_POST['submit'] == "Purchase" 
+        if (@$_POST['submit'] == "Purchase"
             // Purchase item
-            && is_numeric(@$_POST['item']) 
-            && $csrf->validateToken(@$_POST['token']) 
+            && is_numeric(@$_POST['item'])
+            && $csrf->validateToken(@$_POST['token'])
             && $authUser->getCredits() > $item['price']
         ) {
-            if($shop->purchaseItem($item_id))
+            if ($shop->purchaseItem($item_id)) {
                 header("Location: ./inventory.php");
+            }
         }
         // Set template display page
         $display = "item.tpl";
@@ -63,4 +64,3 @@ if ($auth == true) {
 } else {
     include "404.php";
 }
-?>

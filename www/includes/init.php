@@ -2,7 +2,7 @@
 /*
  * init.php
  * 
- * Copyright (c) 2013 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -29,6 +29,7 @@ require_once("User.class.php");
 require_once("Smarty.class.php");
 require_once("Override.inc.php");
 require_once("CSRFGuard.class.php");
+require_once("Site.class.php");
 
 $ls = gmdate("D, d M Y H:i:s") . " GMT";
 $es =  gmdate("D, d M Y H:i:s", 1)." GMT";
@@ -49,6 +50,17 @@ try{
 	$db->setAttribute(PDO::ATTR_EMULATE_PREPARES,false);
 	$db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	
+    $site = new Site($db);
+
+    $sql_site = "SELECT sitename, sitekey FROM SiteOptions";
+    $statement_site = $db->query($sql_site);
+    $results_site = $statement_site->fetch();
+    $sitekey = base64_decode($site->getSiteKey());
+    $sitename = htmlentities($site->getSiteName());
+    
+    define("SITE_KEY", $sitekey);
+    define("SITENAME", $sitename);
+
 	// Templating System Setup
 	$smarty = new Smarty();
 	$smarty->template_dir = TEMPLATE_DIR."/default";
@@ -60,13 +72,6 @@ try{
 	$smarty->assign("dateformat", DATE_FORMAT_SMARTY);
 	$smarty->assign("board_id", 42);
 	$smarty->assign("base_image_url", BASE_IMAGE_URL);
-	
-	$sql_sitekey = "SELECT sitekey FROM SiteOptions";
-	$statement_sitekey = $db->query($sql_sitekey);
-	$results_sitekey = $statement_sitekey->fetch();
-	$sitekey = base64_decode($results_sitekey['sitekey']);
-	
-	define("SITE_KEY", $sitekey);
 	
     $csrf = new CSRFGuard();
 
@@ -99,7 +104,7 @@ try{
 		}
 	}
 } catch(PDOException $e){
-	print $e->getMessage();
+	die($e->getMessage());
 	print "Error :(";
 }
 ?>
