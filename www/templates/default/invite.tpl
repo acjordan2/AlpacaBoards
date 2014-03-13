@@ -1,6 +1,7 @@
 {include file="header.tpl"}
 	<h1>Send Invite</h1>
 {if $message != NULL}<h2><em>{$message}</em></h2><br />{/if}
+{if $invite_status != 0}
 	<form action="invite.php" method="post" autocomplete="off">
 		<input type="hidden" name="token" value="{$token}" />
 		<table class="grid">
@@ -16,6 +17,7 @@
 			</tr>
 		</table>
 	</form>
+{/if}
 	<br />
 	<br />
 	{include file="footer.tpl"}

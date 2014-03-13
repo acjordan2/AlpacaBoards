@@ -145,6 +145,7 @@ if ($auth === true) {
                     "mod_site_options",
                     $authUser->checkPermissions("site_options")
                 );
+                $smarty->assign("invite_status", $site->getInviteStatus());
 
                 // Set page template
                 $display = "profile.tpl";

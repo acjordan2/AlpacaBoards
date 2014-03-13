@@ -119,9 +119,11 @@
 		<tr>
 			<td colspan="2"><a href="./inventory.php">View My Inventory</a></td>
 		</tr>
+        {if $invite_status != 0}
 		<tr>
 			<td colspan="2"><a href="./invite.php">Invite a User</a></td>
 		</tr>
+        {/if}
 	<!--
 		<tr>
 			<td colspan="2"><a href="./showfavorites.php">View My Tagged Topics</a></td>
