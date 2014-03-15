@@ -772,6 +772,8 @@ INSERT INTO `LinkCategories` (`category_id`, `name`) VALUES
 (13, 'Fail'),
 (14, 'Website');
 
+ALTER TABLE  `StaffPermissions` ADD  `site_options` INT( 1 ) NOT NULL ;
+
 INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `class_id`) VALUES
 (4, 'Invite', 50, 'Buy an invite to give to another user.', 1, 0),
 (5, 'Pin Topic', 10, 'pin a topic on the main board for 24 hours', 1, 1);
@@ -779,8 +781,10 @@ INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `c
 INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
 (1, 'Adminstrator');
 
-INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`) VALUES
-(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
+(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 ALTER TABLE  `SiteOptions` ADD  `registration` INT( 1 ) NOT NULL ,
 ADD  `invites` INT( 1 ) NOT NULL ;
+
+ALTER TABLE  `StaffPermissions` ADD  `site_options` INT( 1 ) NOT NULL ;

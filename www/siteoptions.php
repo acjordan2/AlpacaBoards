@@ -29,6 +29,7 @@ require "includes/Parser.class.php";
 
 // Check authentication
 if ($auth === true) {
+    print $authUser->checkPermissions("site_options");
     if ($authUser->checkPermissions("site_options")) {
         if (isset($_POST['token'])) {
             if ($csrf->validateToken($_POST['token'])) {
