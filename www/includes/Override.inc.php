@@ -107,4 +107,15 @@ function websafeDecode($text){
     $string = str_replace($search, $replace, $text); 
     return base64_decode($string);
 }
-?>
+
+
+
+function getRootWebPath($root_path) {
+    $request = $_SERVER['REQUEST_URI'];
+    $root_array = explode("/", $root_path);
+    $request_array = explode("/", $request);
+    print sizeof($root_array);
+    $path = $request;
+    print $root_path."<br />";
+    return $path;
+}

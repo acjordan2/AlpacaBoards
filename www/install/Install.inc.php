@@ -1,6 +1,7 @@
 <?php
 $install = true;
 
+require_once("../includes/functions.php");
 require_once("../includes/Config.ini.php");
 require_once("../includes/Override.inc.php");
 

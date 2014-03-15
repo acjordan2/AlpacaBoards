@@ -24,27 +24,21 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-$time = explode(' ', microtime());
-$start = $time[1] + $time[0];
 
-$root_path_array = explode("/", dirname(__FILE__));
-$root_path = "";
-
-for($i=0; $i<sizeof($root_path_array)-1; $i++){
-	$root_path .= $root_path_array[$i]."/";
-}
-$root_path = substr($root_path, 0, strlen($root_path)-1);
+$root_path = get_root_path();
 
 set_include_path(get_include_path().PATH_SEPARATOR.$root_path."/includes/smarty");
 
-if(file_exists($root_path."/includes/Database.ini.php"))
-	require_once("Database.ini.php");
-elseif(!isset($install))
-	header("Location: ./install/");
+if (file_exists($root_path."/includes/Database.ini.php")) {
+    require_once("Database.ini.php");
+} elseif (!isset($install)) {
+    header("Location: ./install/");
+}
+
 
 ##Sitewide Settings
-define("DOMAIN", "");
-define("BASE_IMAGE_URL", "usercontent/i");
+//define("DOMAIN", ""); // Override default settings
+define("BASE_IMAGE_URL", "./usercontent/i");
 
 ##Search Settings
 define("SEARCHD_PATH", "/usr/bin/searchd");
@@ -55,11 +49,8 @@ define("SPHINX_CONFIG", "/var/www/Sper.gs/sphinx/sphinx.conf");
 
 ##Security Settings
 define("SALT_SIZE", 16);
-define("USE_SSL", FALSE);
+define("USE_SSL", false);
 define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
-
-$pre_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,quote[msgid],spoiler[caption],img[src|style]";
-$post_allowed_elements = "b,strong,i,em,u,strike,s,del,br,pre,div[class|msgid],a[href],span[class|id],safescript[type],img[src|style|data-original|width|height],safediv[class]";
 
 ##Authentication Cookie Names
 define("AUTH_KEY1", "sessionid");
@@ -72,6 +63,3 @@ define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
 define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");
 define("DATE_FORMAT_SMARTY", "%m/%d/%Y %l:%M:%S %p");
 define("DATE_FORMAT", "n/j/Y g:i:s A");
-
-
-?>
