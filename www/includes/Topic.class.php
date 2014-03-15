@@ -75,6 +75,7 @@ class Topic{
 				Messages.user_id,
 				Users.username,
 				Users.avatar,
+                Users.level,
 				UploadedImages.sha1_sum,
 				UploadedImages.thumb_width,
 				UploadedImages.thumb_height,
@@ -117,6 +118,7 @@ class Topic{
 			$message_data[$i]['message_id'] = $message_data_array['message_id'];
 			$message_data[$i]['user_id'] = $message_data_array['user_id'];
 			$message_data[$i]['username'] = $message_data_array['username'];
+            $message_data[$i]['level'] = $message_data_array['level'];
 			
 			$message_content = $message_data_array['message'];
 			$parser = new Parser($this->pdo_conn);

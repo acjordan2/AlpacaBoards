@@ -115,6 +115,7 @@ if ($auth === true) {
                 
                 // Assign template variables
                 $smarty->assign("p_username", $profile_user->getUsername());
+                $smarty->assign("p_level", $profile_user->getAccessLevel());
                 $smarty->assign("p_user_id", $profile_user->getUserID());
                 $smarty->assign("p_status", $profile_user->getStatus());
                 $smarty->assign("p_karma", $profile_user->getKarma());

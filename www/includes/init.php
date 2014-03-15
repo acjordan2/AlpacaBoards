@@ -56,7 +56,7 @@ if (file_exists($root_path."/includes/Database.ini.php")) {
 }
 
 if (verify_domain($_SERVER['HTTP_HOST'])) {
-    define("DOMAIN", htmlentities($_SERVER['HTTP_HOST']));
+    define("DOMAIN", htmlentities(trim($_SERVER['HTTP_HOST'])));
 } else {
     define("DOMAIN", "");
 }
@@ -127,5 +127,3 @@ try {
     //die($e->getMessage());
     print "Error :(";
 }
-
-?>

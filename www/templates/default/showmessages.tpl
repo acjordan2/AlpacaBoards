@@ -62,6 +62,7 @@
     			<td class="userpic">
     				<div class="userpic-holder">
     					{if $table.avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.avatar}" width="{$table.avatar_width}" height="{$table.avatar_height}" />{/if}
+                        {if $table.level == 1}<center style="padding: 4px 2px;"><b style="color:red">Administrator</b></center>{/if}
     				</div>
     			</td>
     		</tr>

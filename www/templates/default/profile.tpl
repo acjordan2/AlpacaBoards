@@ -20,7 +20,7 @@
 		</tr>
 		<tr>
 			<td>User Name</td>
-			<td>{$p_username} ({$p_karma})</td>
+			<td>{$p_username} ({if $p_level == 1}<b style="color:red">Administrator</b>{else}$karma{/if})</td>
 		</tr>
 		<tr>
 			<td>User ID</td>
