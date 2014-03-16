@@ -20,10 +20,9 @@
 		<input type="hidden" name="l" value="{$link_data.link_id}" />
 		<input type="hidden" name="token" value={$token} /> | 
 		<a href="./linkreport.php?l={$link_data.link_id}">Report Link</a>
+        {if $user_id == $link_data.user_id}| <a href="./addlink.php?edit={$link_data.link_id}">Edit link</a>{/if}
 	</form>
-{if $user_id == $link_data.user_id}
-	| <a href="./addlink.php?edit={$link_data.link_id}">Edit link</a> 
-{else}
+{if $user_id != $link_data.user_id}
 	<form action="./linkme.php?l={$link_data.link_id}" method="POST" id="link_vote">
 		<b>Vote:</b>{for $i=0; $i<=10; $i++}<button id="v" name="v" value="{$i}">{$i}</button>{/for}
 		<input type="hidden" name="action" value="link_vote" />
