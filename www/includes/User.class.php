@@ -231,17 +231,21 @@ class User {
                         $httponly = true
                     );
                     // Associate session cookies with IP address and user agent
+                    $headers = apache_request_headers();
+                    $x_forward = $headers["X-Forwarded-For"];
+                    
                     $session_data = array("user_id" => $this->user_id,
                                           "session_key1" => $session_key1,
                                           "session_key2" => $session_key2,
                                           "created"    => time(),
                                           "last_active" => time(),
                                           "ip" => $_SERVER['REMOTE_ADDR'],
+                                          "x_forwarded_for" => $x_forward,
                                           "useragent" => $_SERVER['HTTP_USER_AGENT']);
                     // Insert sessoin data into the database
                     $sql_startSession = "INSERT INTO Sessions
-                        (user_id, session_key1, session_key2, created, last_active, ip, useragent)
-                        VALUES (:user_id, :session_key1, :session_key2, :created, :last_active, :ip, :useragent)";
+                        (user_id, session_key1, session_key2, created, last_active, ip, x_forwarded_for, useragent)
+                        VALUES (:user_id, :session_key1, :session_key2, :created, :last_active, :ip, :x_forwarded_for, :useragent)";
                     $start_session = $this->pdo_conn->prepare($sql_startSession);
                     $start_session->execute($session_data);
 
