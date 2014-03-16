@@ -29,56 +29,45 @@ require "includes/PHPMailer.class.php";
 
 // Check authentication 
 if ($auth == true) {
+    $invites = false;
     if ($site->getInviteStatus() == 0) {
         $message = "Invites are disabled";
-    } else {
-        $smarty->assign("token", $csrf->getToken());
-        // Validate email address and CSRF token
+    } elseif ($site->getInviteStatus() == 1) {
+        $inventory = $authUser->getInventory(4);
+        if (sizeof($inventory) > 0) {
+            $invites = true;
+            if (isset($_POST['email'])
+                && $csrf->validateToken(@$_POST['token']) == true
+            ) {
+                if ($authUser->inviteUser($_POST['email'], $inventory[0]['transaction_id'])) {
+                    $message = "Invite has been sent!";
+                } else {
+                    $message = "Error sending invite";
+                }
+            }
+        } else {
+            $invites = false;
+            $message = "you do not have any invites to give,
+                they can be purchased in the <a href=\"./shop.php\">token shop</a>";
+        }
+
+    } elseif ($site->getInviteStatus() == 2) {
+        $invites = true;
         if (isset($_POST['email'])
             && $csrf->validateToken(@$_POST['token']) == true
             && $authUser->validateEmail($_POST['email']) == true
         ) {
-            // Create random invite code
-            // encoded using websafe base64
-            $invite_code = CSRFGuard::websafeEncode(
-                mcrypt_create_iv(33, MCRYPT_DEV_URANDOM)
-            );
-            $sql = "INSERT INTO InviteTree (invite_code, email, invited_by, created)
-                VALUES ('$invite_code', ?, ".$authUser->getUserID().", ".time().")";
-            $statement = $db->prepare($sql);
-            $statement->execute(array($_POST['email']));
-            
-            // Send out invite email
-            $mail = new PHPMailer();
-            $email = $_POST['email'];
-            $mail->From = "no-reply@".DOMAIN;
-            $mail->FromName = "Do Not Reply";
-            $mail->AddAddress($email);
-
-            $mail->WordWrap = 50;
-            $mail->IsHTML(true);
-
-            $mail->Subject = "You have been invited to ".SITENAME;
-            $mail->Body    = "The user ".$authUser->getUsername()." has invited you to
-                join ".SITENAME." and has specified this address (".$email.") as your 
-                email. If you do not know this person, please disregard.<br /><br />
-                <br />To confirm your invite, click on the folowing link:<br /><br />
-                http://".DOMAIN."/register.php?code=$invite_code<br /><br />
-                After you register, you will be able to use your account. Please take 
-                note that if you do not use this invite in the next 3 days, 
-                it will expire.";
-            $mail->AltBody = "This is the body in plain text for non-HTML mail clients";
-
-            if (!$mail->Send()) {
-                $message = "Error sending invite";
+            if ($authUser->inviteUser($_POST['email'])) {
+                    $message = "Invite has been sent!";
             } else {
-                $message = "Invite has been sent";
+                $message = "Error sending invite";
             }
         }
     }
     // Set template variables
     $smarty->assign("message", @$message);
-    $smarty->assign("invite_status", $site->getInviteStatus());
+    $smarty->assign("invite_status", $invites);
+    $smarty->assign("token", $csrf->getToken());
     // Set template page
     $display = "invite.tpl";
     $page_title = "Send Invite";
@@ -86,5 +75,3 @@ if ($auth == true) {
 } else {
     include "404.php";
 }
-
-?>

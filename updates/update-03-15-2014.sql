@@ -1,0 +1,1 @@
+ALTER TABLE  `InviteTree` ADD  `transaction_id` INT( 11 ) NULL AFTER  `created` ;

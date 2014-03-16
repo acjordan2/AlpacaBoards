@@ -39,4 +39,3 @@ if ($auth == true) {
 } else {
     include  "404.php";
 }
-?>

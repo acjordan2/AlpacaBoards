@@ -24,18 +24,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-$root_path = get_root_path();
-
-set_include_path(get_include_path().PATH_SEPARATOR.$root_path."/includes/smarty");
-
-if (file_exists($root_path."/includes/Database.ini.php")) {
-    require_once("Database.ini.php");
-} elseif (!isset($install)) {
-    header("Location: ./install/");
-}
-
-
 ##Sitewide Settings
 //define("DOMAIN", ""); // Override default settings
 define("BASE_IMAGE_URL", "./usercontent/i");

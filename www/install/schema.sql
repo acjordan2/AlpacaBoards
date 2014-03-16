@@ -788,3 +788,4 @@ ALTER TABLE  `SiteOptions` ADD  `registration` INT( 1 ) NOT NULL ,
 ADD  `invites` INT( 1 ) NOT NULL ;
 
 ALTER TABLE  `StaffPermissions` ADD  `site_options` INT( 1 ) NOT NULL ;
+ALTER TABLE  `InviteTree` ADD  `transaction_id` INT( 11 ) NULL AFTER  `created` ;

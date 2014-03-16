@@ -567,15 +567,23 @@ class User {
     
     /**
      * Get purchased items and unused items from the user's inventory
+     *
+     * @param  int $item_id The ID of the item to filter by, if none is provided all items are returned
      * 
      * @return array Array of inventory items
      */
-    public function getInventory()
+    public function getInventory($item_id = null)
     {
-        $sql = "SELECT Inventory.transaction_id, ShopItems.name, ShopItems.description 
+        $sql = "SELECT Inventory.transaction_id, ShopTransactions.item_id, ShopItems.name, ShopItems.description 
             FROM Inventory LEFT JOIN ShopTransactions USING(transaction_id) 
             LEFT JOIN ShopItems USING(item_id) WHERE Inventory.user_id=$this->user_id";
-        $statement = $this->pdo_conn->query($sql);
+        if ((int) $item_id != 0) {
+            $sql .= " AND ShopTransactions.item_id = ? ORDER BY ShopTransactions.date ASC";
+            $statement = $this->pdo_conn->prepare($sql);
+            $statement->execute(array($item_id));
+        } else {
+            $statement = $this->pdo_conn->query($sql);
+        }
         return $statement->fetchAll();
     }
     
@@ -1236,6 +1244,68 @@ class User {
             $topic_data[$i]['number_of_posts'] = $msg_count[0][0];
         }
         return $topic_data;
+    }
+
+    /**
+     * Invite a new user to the site by sending an email with an invite code. 
+     *
+     * @param  string $email Email address to send invite
+     * @param  int $transaction_id Transaction ID for the purchased invite, only tracked if invites are not open
+     *
+     * @todo  Return unused invites to the inventory after they have been expired
+     * 
+     * @return  boolean True if invite was sent successfully. 
+     */
+
+    public function inviteUser($email, $transaction_id = null)
+    {
+        if ($this->validateEmail($email)) {
+            $invite_code = CSRFGuard::websafeEncode(
+                mcrypt_create_iv(33, MCRYPT_DEV_URANDOM)
+            );
+
+            $sql = "INSERT INTO InviteTree (invite_code, email, invited_by, transaction_id, created)
+                    VALUES ('$invite_code', ?, ".$this->getUserID().", ?, ".time().")";
+            $statement = $this->pdo_conn->prepare($sql);
+            $statement->execute(array($_POST['email'], $transaction_id));
+
+            if ($transaction_id != null) {
+                $sql_removeFromInventory = "DELETE FROM Inventory WHERE transaction_id = $transaction_id";
+                $statement = $this->pdo_conn->query($sql_removeFromInventory);
+            }
+
+            $mail = new PHPMailer();
+            $email = $_POST['email'];
+            $mail->From = "no-reply@".DOMAIN;
+            $mail->FromName = "Do Not Reply";
+            $mail->AddAddress($email);
+
+            $mail->WordWrap = 50;
+            $mail->IsHTML(true);
+
+            $mail->Subject = "You have been invited to ".SITENAME;
+            $mail->Body    = "The user ".$this->getUsername()." has invited you to
+                join ".SITENAME." and has specified this address (".$email.") as your 
+                email. If you do not know this person, please disregard.<br /><br />
+                <br />To confirm your invite, click on the folowing link:<br /><br />
+                ".BASEURL."/register.php?code=$invite_code<br /><br />
+                After you register, you will be able to use your account. Please take 
+                note that if you do not use this invite in the next 3 days, 
+                it will expire.";
+            $mail->AltBody = "The user ".$this->getUsername()." has invited you to
+                join ".SITENAME." and has specified this address (".$email.") as your 
+                email. If you do not know this person, please disregard.\n\n
+                To confirm your invite, click on the folowing link:\n\n
+                ".BASEURL."/register.php?code=$invite_code\n\n
+                After you register, you will be able to use your account. Please take 
+                note that if you do not use this invite in the next 3 days, 
+                it will expire.";
+
+            return $mail->Send();
+        } else {
+            return false;
+        }
+
     }
 
     /**

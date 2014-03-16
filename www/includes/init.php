@@ -79,6 +79,8 @@ try {
     
     define("SITE_KEY", $sitekey);
     define("SITENAME", $sitename);
+    define("BASEURL", $base_url);
+    define("ROOTPATH", $root_path);
 
     // Templating System Setup
     $smarty = new Smarty();
