@@ -94,6 +94,14 @@ try {
     $smarty->assign("board_id", 42);
     $smarty->assign("base_url", $base_url);
     $smarty->assign("base_image_url", BASE_IMAGE_URL);
+
+    if (defined('DEBUG')) {
+        if (DEBUG == true){
+            $smarty->assign("debug", true);
+        }
+    } else {
+        $smarty->assign("debug", false);
+    }
     
     $csrf = new CSRFGuard();
 
@@ -126,6 +134,11 @@ try {
         }
     }
 } catch(PDOException $e) {
-    //die($e->getMessage());
-    print "Error :(";
+    if (defined(DEBUG)){
+        if (DEBUG == true){
+            print $e->getMessage();
+        }
+    } else {
+        print "Error :(";
+    }
 }

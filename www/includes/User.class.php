@@ -232,7 +232,7 @@ class User {
                     );
                     // Associate session cookies with IP address and user agent
                     $headers = apache_request_headers();
-                    $x_forward = $headers["X-Forwarded-For"];
+                    $x_forward = @$headers["X-Forwarded-For"];
                     
                     $session_data = array("user_id" => $this->user_id,
                                           "session_key1" => $session_key1,

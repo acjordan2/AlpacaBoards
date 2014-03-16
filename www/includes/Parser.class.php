@@ -54,6 +54,7 @@ class Parser
                                     "html" => null,
                                     "body" => null,
                                     "#text" => null,
+                                    "p" => null, // allowed for a work around
                                     "img"    => "src",
                                     "quote" => "msgid",
                                     "spoiler" => "caption");
@@ -80,6 +81,7 @@ class Parser
         if ($html == null) {
             $html = " ";
         }
+
         $this->doc->loadHTML($html);
         // Create a recurisve iterator
         // to get all nodes in a document
@@ -97,6 +99,7 @@ class Parser
                 // Ignore CDATA fields. Not necessary
                 // since all invalid tags will be
                 // entity encoded
+                die($node->nodeValue);
                 if ($node->nodeName != "#cdata-section") {
                     $text = "<".$node->nodeName;
                     if ($node->hasAttributes()) {
@@ -122,6 +125,7 @@ class Parser
                             $this->allowed_tags[$node->nodeName]
                         );
                     }
+
                     // Remove invalid attributes
                     // Keep ones that are whitelisted
                     for ($i=$node->attributes->length - 1; $i>=0; $i--) {
@@ -130,6 +134,13 @@ class Parser
                             $node->removeAttributeNode($attribute);
                         }
                     }
+                }
+                // Workaround - if a text node comes before markup
+                // the entire block will be converted to a textnode
+                // instead of parsed. Adding the <p> tag to allowed tags
+                // and remove margins to prevent line breaks fixes the problem.
+                if ($node->nodeName == "p") {
+                    $node->setAttribute("style", "margin-bottom:0px;margin-top:0px");
                 }
                 // Processing for special tags
                 // quote, spoiler, img
