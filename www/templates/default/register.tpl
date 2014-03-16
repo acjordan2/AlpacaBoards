@@ -10,9 +10,7 @@
 	</head>
 	<body>
 		<h1>Register</h1>
-		<br />
-		{if isset($message)}{$message}{/if}
-		<br />
+		{if isset($message)}<br />{$message}<br />{/if}
 		<br />
 		<form action="" method="POST" autocomplete="OFF">
 		  <fieldset style="width:250px;">
