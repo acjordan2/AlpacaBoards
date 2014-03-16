@@ -1107,7 +1107,7 @@ class User {
             if ($output == ("1:". $invite_code)) {
                 return true;
             } else {
-                return true;
+                return false;
             }
         } else {
             return true;
@@ -1122,22 +1122,22 @@ class User {
     *
     * @return int
     */
-    public function registerUser($request)
+    public function registerUser($request, $inviteStatus)
     {
         // Check username against whitelist of allowed characters
         // Alpha numerica characters, underscores, dashes, and spaces
         // no special characters
-        if (!preg_match('/[^A-z0-9.\-_\ ]/', $request['username'])) {
-            // Check if a username exists
-            $sql = "SELECT Users.user_id FROM Users where Users.username=?";
-            $statement = $this->pdo_conn->prepare($sql);
-            $statement->execute(array($request['username']));
-            if ($statement->rowCount() == 1) {
-                return -1;
-            } else {
-                // Ensure the user has a valid invite code
-                if (!$this->checkInvite($request['invite_code'])) {
-                    return -2;
+        // Ensure the user has a valid invite code
+        if (!$this->checkInvite($request['invite_code']) && $inviteStatus == 1) {
+            return -2;
+        } else {
+            if (!preg_match('/[^A-z0-9.\-_\ ]/', $request['username'])) {
+                // Check if a username exists
+                $sql = "SELECT Users.user_id FROM Users where Users.username=?";
+                $statement = $this->pdo_conn->prepare($sql);
+                $statement->execute(array($request['username']));
+                if ($statement->rowCount() == 1) {
+                    return -1;
                 } else {
                     // Everything is valid, add user
                     $sql2 = "INSERT INTO Users (username, private_email, 

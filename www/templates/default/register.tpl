@@ -32,9 +32,9 @@
 			Password (Again):<br />
 			<input type="password" name="password2" id="password2" style="width:100%;" />
 			<br /><br />
-			{if !isset($invite)}Invite Code:<br />
+			{if $registration_status == 1}{if !isset($invite)}Invite Code:<br />
 			<input type="text" name="invite_code" style="width:100%;" value="" />
-			<br /><br />{/if}
+			<br /><br />{/if}{/if}
 			<input type="submit" value="Register">
 		  </fieldset>
 		</form>
