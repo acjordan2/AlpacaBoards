@@ -2,6 +2,9 @@
 $install = true;
 
 require_once("../includes/functions.php");
+
+$root_path = get_root_path();
+
 require_once("../includes/Config.ini.php");
 require_once("../includes/Override.inc.php");
 
