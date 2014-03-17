@@ -29,10 +29,10 @@ require "includes/init.php";
 // Check authetication 
 if ($auth == true) {
     // Possible error messages
-    $error_msg[0] = "Password updated!";
-    $error_msg[1] = "Passwords must be at least 8 characters long";
-    $error_msg[2] = "Passwords don't match";
-    $error_msg[4] = "Old password is incorrect";
+    $error_msg[0] = $GLOBALS['locale_messages']['account']['password_updated'];
+    $error_msg[1] = $GLOBALS['locale_messages']['account']['error']['password_length'];
+    $error_msg[2] = $GLOBALS['locale_messages']['account']['error']['password_change_match'];
+    $error_msg[4] = $GLOBALS['locale_messages']['account']['error']['password_old_check'];
     $message = array();
     
     // Set error messages based

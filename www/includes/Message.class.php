@@ -72,9 +72,9 @@ Class Message{
 		$this->revision_id = $data['revision_no'];
         $this->message_deleted = $data['deleted'];
         if($this->message_deleted == 1) {
-            $this->message = "[This message has been deleted]";
+            $this->message = $GLOBALS['locale_messages']['message']['deleted'];
         } elseif ($this->message_deleted == 2) {
-            $this->message = "[This message has been deleted by a moderator]";
+            $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
         } else {
 		  $this->message = $data['message'];
         }
@@ -223,9 +223,9 @@ class MessageRevision Extends Message{
 		$this->revision_id = $data['revision_no'];
         $this->message_deleted = $data['deleted'];
         if ($data['deleted'] == 1){
-            $this->message = "[This message was deleted at the request of the original poster]";
+            $this->message = $GLOBALS['locale_messages']['message']['deleted'];
         } elseif ($data['deleted'] == 2) {
-            $this->message = '[This message has been deleted by a moderator]';
+            $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
         } else {
           $this->revision_id = 0;
 		  $this->message = $data['message'];

@@ -36,13 +36,13 @@ if ($auth === false) {
     // If redirected from register.php
     // show "Account Created" message
     if (@$_GET['m'] == 1) {
-        $message = "Account Created!";
+        $message = $GLOBALS['locale_messages']['account']['created'];
     }
 
     // If an incorrect username or password was 
     // provided, show error message
     if (isset($_POST['username']) || isset($_POST['password'])) {
-        $message = "Invalid username or password.".
+        $message = $GLOBALS['locale_messages']['login']['error'].
                    " <a href=\"./passwordReset.php\">Forgot password</a>?";
     }
     $smarty->assign("username", htmlentities(@$_POST['username']));
@@ -53,7 +53,7 @@ if ($auth === false) {
     // If the suer is logged in, redirect
     // to last visted page if it exists.
     // Otherwise, redirect to main.
-    session_set_cookie_params(0, "/", DOMAIN, USE_SSL, TRUE);
+    session_set_cookie_params(0, "/", DOMAIN, USE_SSL, true);
     session_name("r");
     session_start();
     if (isset($_SESSION['redirect'])) {

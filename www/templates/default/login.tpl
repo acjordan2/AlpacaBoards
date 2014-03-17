@@ -11,10 +11,10 @@
         <form action="" method="POST" autocomplete="off">
           <fieldset style="width:250px;">
             <br />
-            Username:<br />
+            {$sm_labels.username}:<br />
             <input type="text" name="username" value="{$username}" style="width:100%;">
             <br /><br />
-            Password:<br />
+            {$sm_labels.password}:<br />
             <input type="password" name="password" style="width:100%;">
             <br /><br />
             <input type="submit" value="Login">
@@ -22,6 +22,6 @@
           <input type="hidden" name="token" value="{$token}" />
         </form>
         <br />
-        <a href="./register.php">Sign up</a> | <a href="./passwordReset.php">Forgot password?</a>
+        <a href="./register.php">{$sm_labels.sign_up}</a> | <a href="./passwordReset.php">{$sm_labels.forgot_password}?</a>
     </body>
 </html>

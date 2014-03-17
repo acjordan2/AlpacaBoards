@@ -124,9 +124,9 @@ class Topic{
             $message_data[$i]['deleted'] = $message_data_array['deleted'];
             
             if ($message_data_array['deleted'] == 1) {
-                $message_content = "[This message was deleted at the request of the original poster]";
+                $message_content = $GLOBALS['locale_messages']['message']['deleted'];
             } elseif ($message_data_array['deleted'] == 2) {
-                $message_content = "[This message has been deleted by a moderator]";
+                $message_content = $GLOBALS['locale_messages']['message']['deleted_moderator'];
             } else {
                 $message_content = $message_data_array['message'];
                 $parser = new Parser($this->pdo_conn);

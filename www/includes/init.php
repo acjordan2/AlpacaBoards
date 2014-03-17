@@ -39,6 +39,10 @@ require_once("Override.inc.php");
 require_once("CSRFGuard.class.php");
 require_once("Site.class.php");
 
+require_once("includes/localization/en_US/messages.inc.php");
+require_once("includes/localization/en_US/labels.inc.php");
+
+
 $ls = gmdate("D, d M Y H:i:s") . " GMT";
 $es =  gmdate("D, d M Y H:i:s", 1)." GMT";
 
@@ -94,6 +98,7 @@ try {
     $smarty->assign("board_id", 42);
     $smarty->assign("base_url", $base_url);
     $smarty->assign("base_image_url", BASE_IMAGE_URL);
+    $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
     if (defined('DEBUG')) {
         if (DEBUG == true){
