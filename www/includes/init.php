@@ -39,8 +39,8 @@ require_once("Override.inc.php");
 require_once("CSRFGuard.class.php");
 require_once("Site.class.php");
 
-require_once("includes/localization/en_US/messages.inc.php");
-require_once("includes/localization/en_US/labels.inc.php");
+require_once("./localization/en_US/messages.inc.php");
+require_once("./localization/en_US/labels.inc.php");
 
 
 $ls = gmdate("D, d M Y H:i:s") . " GMT";
