@@ -1122,7 +1122,7 @@ class User {
     *
     * @return int
     */
-    public function registerUser($request, $inviteStatus)
+    public function registerUser($request, $inviteStatus = 0)
     {
         // Check username against whitelist of allowed characters
         // Alpha numerica characters, underscores, dashes, and spaces
