@@ -47,6 +47,13 @@ if ($auth === true) {
         if ($message->doesExist()) {
             // Get message contents and parse them
             // for HTML tags. 
+            if (isset($_POST['action'])){
+                if ($_POST['action'] == 1 && $authUser->getUserID() == $message->getUserID() && $message->isDeleted() == 0) {
+                    if ($csrf->validateToken($_POST['token'])) {
+                        $message->deleteMessage($_POST['action']);
+                    }
+                }
+            }
             $message_content = $message->getMessage();
             $parser = new Parser($db);
             $message_content = $parser->parse($message_content);
@@ -88,6 +95,7 @@ if ($auth === true) {
                 $smarty->assign("m_user_id", $message->getUserID());
                 $smarty->assign("m_username", $message->getUsername());
                 $smarty->assign("token", $csrf->getToken());
+                $smarty->assign("message_deleted", $message->isDeleted());               
                 $smarty->assign("m_avatar", $message->getAvatar());
 
                 // Set template page

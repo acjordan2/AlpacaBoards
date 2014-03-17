@@ -20,6 +20,8 @@ Class Message{
 	
 	protected $link_title;
 
+    protected $message_deleted;
+
 	protected $user_avatar;
 	
 	function __construct(&$db_connection, $aMessage_id, $aUser_id=NULL, $is_link=FALSE){
@@ -41,7 +43,8 @@ Class Message{
 			$sql = "SELECT Messages.topic_id,
 						 Messages.revision_no as revision_no,
 						 Messages.user_id,
-						 Messages.message
+						 Messages.message,
+                         Messages.deleted
 					FROM
 						Messages
 					WHERE Messages.message_id = ?";
@@ -67,7 +70,14 @@ Class Message{
 			$this->topic_id = $data['topic_id'];
 		$this->user_id = $data['user_id'];
 		$this->revision_id = $data['revision_no'];
-		$this->message = $data['message'];
+        $this->message_deleted = $data['deleted'];
+        if($this->message_deleted == 1) {
+            $this->message = "[This message has been deleted]";
+        } elseif ($this->message_deleted == 2) {
+            $this->message = "[This message has been deleted by a moderator]";
+        } else {
+		  $this->message = $data['message'];
+        }
 	}
 		
 	public function getRevisions(){
@@ -113,6 +123,10 @@ Class Message{
 	public function getRevisionID(){
 		return $this->revision_id;
 	}
+
+    public function isDeleted(){
+        return $this->message_deleted;
+    }
 		
 }
 
@@ -131,6 +145,10 @@ class MessageRevision Extends Message{
 	private $username;
 	
 	private $posted;
+
+    protected $message_deleted;
+
+    protected $message;
 	
 	protected $is_link;
 	
@@ -159,6 +177,7 @@ class MessageRevision Extends Message{
 						 Messages.revision_no as revision_no,
 						 Messages.user_id,
 						 Messages.message,
+                         Messages.deleted,
 						 Users.username,
 						 Topics.title as topic_title,
 						 Boards.title as board_title,
@@ -202,7 +221,15 @@ class MessageRevision Extends Message{
 		
 		$this->user_id = $data['user_id'];
 		$this->revision_id = $data['revision_no'];
-		$this->message = $data['message'];
+        $this->message_deleted = $data['deleted'];
+        if ($data['deleted'] == 1){
+            $this->message = "[This message was deleted at the request of the original poster]";
+        } elseif ($data['deleted'] == 2) {
+            $this->message = '[This message has been deleted by a moderator]';
+        } else {
+          $this->revision_id = 0;
+		  $this->message = $data['message'];
+        }
 		$this->posted = $data['posted'];
 		$this->username = $data['username'];
 		/*$this->user_avatar = array("height" => $data['thumb_height'],
@@ -212,6 +239,18 @@ class MessageRevision Extends Message{
 		$tmp_user = new User($this->pdo_conn, $this->user_id);
 		$this->user_avatar = $tmp_user->getAvatar();
 	}
+
+    public function deleteMessage($action)
+    {
+        if ($action != 1 && $action != 2) {
+            return false;
+        } else {
+            $sql = "UPDATE Messages SET deleted = ? WHERE message_id = ".$this->message_id;
+            $statement = $this->pdo_conn->prepare($sql);
+            $this->message = "[This message has been deleted]";
+            return $statement->execute(array($action));
+        }
+    }
 	
 	public function getUsername(){
 		return $this->username;
@@ -241,5 +280,13 @@ class MessageRevision Extends Message{
 		return $this->user_avatar;
 	}
 	
+    public function getMessage(){
+        return $this->message;
+    }
+
+    public function isDeleted(){
+        return $this->message_deleted;
+    }
+    
 }
 ?>

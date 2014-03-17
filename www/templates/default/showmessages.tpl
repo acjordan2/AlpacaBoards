@@ -45,11 +45,11 @@
     			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
     		{/if}
     		| <a href="./message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail
-    		{if $table.revision_id > 1} 
+    		{if $table.deleted == 0}{if $table.revision_id > 1} 
     			({$table.revision_id} edits)
     		{elseif $table.revision_id == 1} 
     			({$table.revision_id} edit)
-    		{/if}
+    		{/if}{/if}
     		</a> |
     		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}" 
     			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>

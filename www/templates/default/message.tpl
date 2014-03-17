@@ -26,7 +26,7 @@
 		</table>
 	</div>
 	<br />
-{if $user_id == $m_user_id}
+{if $user_id == $m_user_id && $message_deleted == 0}
 	<form method="get" action="./postmsg.php" style="display:inline;">
 		<input type="hidden" name="id" value="{$message_id}" />
 		<input type="hidden" name="{if $link == TRUE}link{else}topic{/if}" value="{$topic_id}" />
@@ -38,11 +38,12 @@
 	<form method="post" action="./message.php?id={$message_id}&amp;{if $link == TRUE}link={$topic_id}{else}topic={$topic_id}{/if}&amp;r={$revision_no}" style="display:inline;">
 		<input type="hidden" name="token" value="{$token}" />
 		<input type="hidden" name="action"value="1" />
-		<!--<input type="submit" value="Delete this message" onclick="return confirm(&quot;Are you sure you want to delete this message&quot;)" />-->
+		<input type="submit" value="Delete this message" onclick="return confirm(&quot;Are you sure you want to delete this message&quot;)" />
 	</form>
 	<br />
 	<br />
 {/if}
+{if $message_deleted == 0}
 	<h3>Revisions</h3>    
 {foreach from=$revision_history item='table'}
 		#{$table.revision_no + 1} 
@@ -52,6 +53,7 @@
 		{$table.posted|date_format:$dateformat}
 		{if $revision_no == $table.revision_no}</b>{else}</a>{/if}<br />
 {/foreach}
+{/if}
 	<br />
 	<br />
 	<br />
