@@ -790,3 +790,4 @@ ADD  `invites` INT( 1 ) NOT NULL ;
 ALTER TABLE  `StaffPermissions` ADD  `site_options` INT( 1 ) NOT NULL ;
 ALTER TABLE  `InviteTree` ADD  `transaction_id` INT( 11 ) NULL AFTER  `created` ;
 ALTER TABLE  `Sessions` ADD  `x_forwarded_for` VARCHAR( 16 ) NULL AFTER  `ip` ;
+ALTER TABLE  `Messages` ADD  `deleted` INT( 1 ) NOT NULL AFTER  `message` ;

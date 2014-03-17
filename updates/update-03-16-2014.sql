@@ -1,0 +1,1 @@
+ALTER TABLE  `Messages` ADD  `deleted` INT( 1 ) NOT NULL AFTER  `message` ;
