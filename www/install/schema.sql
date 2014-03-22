@@ -1,13 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 3.4.10.1deb1
+-- version 4.0.6deb1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jun 09, 2013 at 01:13 PM
--- Server version: 5.5.31
--- PHP Version: 5.3.10-1ubuntu3.6
+-- Generation Time: Mar 22, 2014 at 02:19 PM
+-- Server version: 5.5.35-0ubuntu0.13.10.2
+-- PHP Version: 5.5.3-1ubuntu2.2
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `install_test`
+-- Database: `spergs`
 --
 
 -- --------------------------------------------------------
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `Inventory` (
   PRIMARY KEY (`inventory_id`),
   KEY `user_id` (`user_id`),
   KEY `transaction_id` (`transaction_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -147,11 +147,12 @@ CREATE TABLE IF NOT EXISTS `InviteTree` (
   `invite_code` varchar(45) NOT NULL,
   `email` text NOT NULL,
   `created` int(11) unsigned NOT NULL,
+  `transaction_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`invite_id`),
   KEY `invited_by` (`invited_by`),
   KEY `Invited_user` (`Invited_user`),
   KEY `invite_code` (`invite_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -221,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `LinkHistory` (
   PRIMARY KEY (`link_history_id`),
   UNIQUE KEY `link_id` (`link_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -239,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `LinkMessages` (
   PRIMARY KEY (`message_id`,`revision_no`),
   KEY `link_id` (`link_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -272,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `LinksCategorized` (
   PRIMARY KEY (`link_cat_id`),
   KEY `link_id` (`link_id`,`category_id`),
   KEY `category_id` (`category_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -319,6 +320,7 @@ CREATE TABLE IF NOT EXISTS `Messages` (
   `topic_id` int(10) unsigned NOT NULL,
   `revision_no` int(10) unsigned NOT NULL,
   `message` varchar(8192) NOT NULL,
+  `deleted` int(1) NOT NULL,
   `posted` int(10) unsigned NOT NULL,
   PRIMARY KEY (`message_id`,`revision_no`),
   KEY `user_id` (`user_id`),
@@ -356,10 +358,11 @@ CREATE TABLE IF NOT EXISTS `Sessions` (
   `created` int(10) unsigned NOT NULL,
   `last_active` int(11) NOT NULL,
   `ip` varchar(16) NOT NULL,
+  `x_forwarded_for` varchar(16) DEFAULT NULL,
   `useragent` varchar(256) NOT NULL,
   PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -392,7 +395,7 @@ CREATE TABLE IF NOT EXISTS `ShopTransactions` (
   PRIMARY KEY (`transaction_id`),
   KEY `user_id` (`user_id`),
   KEY `item_id` (`item_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -402,7 +405,9 @@ CREATE TABLE IF NOT EXISTS `ShopTransactions` (
 
 CREATE TABLE IF NOT EXISTS `SiteOptions` (
   `sitename` varchar(256) NOT NULL,
-  `sitekey` varchar(512) NOT NULL
+  `sitekey` varchar(512) NOT NULL,
+  `registration` int(1) NOT NULL,
+  `invites` int(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -426,6 +431,7 @@ CREATE TABLE IF NOT EXISTS `StaffPermissions` (
   `topic_delete_message` int(1) unsigned NOT NULL,
   `topic_message_history` int(1) unsigned NOT NULL,
   `topic_pin` int(1) unsigned NOT NULL,
+  `site_options` int(1) NOT NULL,
   PRIMARY KEY (`position_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -527,7 +533,7 @@ CREATE TABLE IF NOT EXISTS `UploadLog` (
   PRIMARY KEY (`uploadlog_id`),
   KEY `image_id` (`image_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -742,19 +748,54 @@ ALTER TABLE `Users`
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+-- phpMyAdmin SQL Dump
+-- version 4.0.6deb1
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Mar 22, 2014 at 02:21 PM
+-- Server version: 5.5.35-0ubuntu0.13.10.2
+-- PHP Version: 5.5.3-1ubuntu2.2
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Database: `spergs`
+--
+
+--
+-- Dumping data for table `BoardCategories`
+--
 
 INSERT INTO `BoardCategories` (`category_id`, `title`) VALUES
 (1, 'Social Boards'),
 (2, 'Special Boards');
 
+--
+-- Dumping data for table `Boards`
+--
+
 INSERT INTO `Boards` (`board_id`, `category_id`, `title`, `description`) VALUES
 (42, 1, 'Life, the Universe, and Everything', 'What ever.'),
 (754, 2, 'Fish Farm', 'Staff only');
 
+--
+-- Dumping data for table `ItemClass`
+--
+
 INSERT INTO `ItemClass` (`class_id`, `type`) VALUES
 (1, 'topic');
+
+--
+-- Dumping data for table `LinkCategories`
+--
 
 INSERT INTO `LinkCategories` (`category_id`, `name`) VALUES
 (1, 'Funny'),
@@ -772,22 +813,35 @@ INSERT INTO `LinkCategories` (`category_id`, `name`) VALUES
 (13, 'Fail'),
 (14, 'Website');
 
-ALTER TABLE  `StaffPermissions` ADD  `site_options` INT( 1 ) NOT NULL ;
+--
+-- Dumping data for table `ShopItems`
+--
 
 INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `class_id`) VALUES
 (4, 'Invite', 50, 'Buy an invite to give to another user.', 1, 0),
 (5, 'Pin Topic', 10, 'pin a topic on the main board for 24 hours', 1, 1);
 
-INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
-(1, 'Adminstrator');
+--
+-- Dumping data for table `SiteOptions`
+--
+
+INSERT INTO `SiteOptions` (`sitename`, `sitekey`, `registration`, `invites`) VALUES
+('Sper.gs', '3ohb+XDoyRaE1JPYkg8yl6rubIiVU0WKEcxUAKEajummXA+427pjiU0hf/ByIAmJGxciVdLWsuB14+7MP1o72g==', 2, 2);
+
+--
+-- Dumping data for table `StaffPermissions`
+--
 
 INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
 (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
-ALTER TABLE  `SiteOptions` ADD  `registration` INT( 1 ) NOT NULL ,
-ADD  `invites` INT( 1 ) NOT NULL ;
+--
+-- Dumping data for table `StaffPositions`
+--
 
-ALTER TABLE  `StaffPermissions` ADD  `site_options` INT( 1 ) NOT NULL ;
-ALTER TABLE  `InviteTree` ADD  `transaction_id` INT( 11 ) NULL AFTER  `created` ;
-ALTER TABLE  `Sessions` ADD  `x_forwarded_for` VARCHAR( 16 ) NULL AFTER  `ip` ;
-ALTER TABLE  `Messages` ADD  `deleted` INT( 1 ) NOT NULL AFTER  `message` ;
+INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
+(1, 'Adminstrator');
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
