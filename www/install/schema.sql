@@ -828,12 +828,7 @@ INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `c
 INSERT INTO `SiteOptions` (`sitename`, `sitekey`, `registration`, `invites`) VALUES
 ('Sper.gs', '3ohb+XDoyRaE1JPYkg8yl6rubIiVU0WKEcxUAKEajummXA+427pjiU0hf/ByIAmJGxciVdLWsuB14+7MP1o72g==', 2, 2);
 
---
--- Dumping data for table `StaffPermissions`
---
 
-INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
-(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 --
 -- Dumping data for table `StaffPositions`
@@ -841,6 +836,14 @@ INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_su
 
 INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
 (1, 'Adminstrator');
+
+--
+-- Dumping data for table `StaffPermissions`
+--
+
+INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
+(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
