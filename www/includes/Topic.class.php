@@ -145,7 +145,7 @@ class Topic{
     }
     
     public function postMessage($aMessage, $aMessage_id=null){
-        
+
         if(is_null($aMessage_id)){
             $statement = $this->pdo_conn->prepare("INSERT INTO Messages ( user_id,
                                                               topic_id, 
@@ -158,8 +158,11 @@ class Topic{
             $data = array("user_id" =>  $this->user_id,
                           "topic_id" => $this->topic_id,
                           "message"  => $aMessage);
-            if($statement->execute($data))
+            if($statement->execute($data)) {
+                        $parser = new Parser($this->pdo_conn);
+                        $parser->map($aMessage, $this->user_id, $this->topic_id);
                 return TRUE;
+            }
             else
                 return FALSE;
         }else{

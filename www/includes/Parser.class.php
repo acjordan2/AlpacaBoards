@@ -178,6 +178,7 @@ class Parser
     {
         $img_div = $this->doc->createElement("div");
         $img_div->setAttribute("class", "imgs");
+
         $src = explode("/", $node->getAttribute("src"));
         if ($src[sizeof($src)-1] != "grey.gif") {
             $hash = $src[sizeof($src)-2];
@@ -194,12 +195,16 @@ class Parser
             $statement->execute(array($hash));
             $results = $statement->fetch();
 
+            $img_a = $this->doc->createElement('a');
+            $img_a->setAttribute("href", "./imagemap.php?hash=".htmlentities($hash));
+
             $img = $this->doc->createElement("img");
             $img->setAttribute("width", $results[0]);
             $img->setAttribute("height", $results[1]);
             $img->setAttribute("data-original", implode("/", $src));
             $img->setAttribute("src", "./templates/default/images/grey.gif");
-            $img_div->appendChild($img);
+            $img_a->appendChild($img);
+            $img_div->appendChild($img_a);
             return $img_div;
         }
     }
@@ -377,5 +382,50 @@ class Parser
         $html = str_replace("</body>", "", $html);
 
         return $html;
+    }
+
+    /**
+     * Map images and quotes when messages are posted in order to keep track
+     * of when and where images are used and popular quotes. 
+     * 
+     * @param  string $message The message being posted
+     * @param  int $user_id    The user id of the user submitting the message
+     * 
+     * @return boolean         True if suscessful
+     */
+    public function map($message, $user_id, $topic_id)
+    {
+        $this->doc->loadHTML($message);
+        $imgs = $this->doc->getElementsByTagName('img');
+
+        foreach ($imgs as $img) {
+            if (!$this->_recursiveCheckParent($img, "quote")) {
+                $src = explode("/", $img->getAttribute("src"));
+                $hash = $src[sizeof($src)-2];
+                
+                $sql_getImageId = "SELECT image_id FROM UploadedImages WHERE sha1_sum = ?";
+                $statement_getImageId = $this->pdo_conn->prepare($sql_getImageId);
+                $statement_getImageId->execute(array($hash));
+                $image_id = $statement_getImageId->fetch();
+                
+                $sql_imageMap = "INSERT INTO ImageMap (user_id, image_id, topic_id)
+                    VALUES ($user_id, ".$image_id[0].", ?)";
+                $statement_imageMap = $this->pdo_conn->prepare($sql_imageMap);
+                $statement_imageMap->execute(array($topic_id));
+            }
+        }        
+    }
+
+    private function _recursiveCheckParent($node, $parentName)
+    {
+        $pnode = $node;
+        while (is_object($pnode->parentNode)) {
+            $pnode = $pnode->parentNode;
+            if ($pnode->nodeName == $parentName) {
+                return true;
+                break;
+            }
+        }
+        return false;
     }
 }

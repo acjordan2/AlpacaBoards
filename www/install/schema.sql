@@ -566,6 +566,19 @@ CREATE TABLE IF NOT EXISTS `Users` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `ImageMap`
+--
+
+DROP TABLE IF EXISTS `ImageMap`;
+CREATE TABLE IF NOT EXISTS `ImageMap` (
+  `map_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `image_id` int(11) NOT NULL,
+  `topic_id` int(11) NOT NULL,
+  PRIMARY KEY (`map_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
 -- Constraints for dumped tables
 --
 
