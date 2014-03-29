@@ -56,15 +56,31 @@ class ImageMap
             }
            
             $sql_getImageMap = "SELECT Distinct(UploadedImages.sha1_sum), UploadedImages.thumb_height, 
-                UploadedImages.thumb_width, Topics.title, ImageMap.topic_id FROM Topics LEFT JOIN 
+                UploadedImages.thumb_width, Topics.title, ImageMap.topic_id, UploadLog.filename FROM Topics LEFT JOIN 
                 ImageMap USING(topic_id) LEFT JOIN UploadedImages using(image_id) LEFT JOIN UploadLog 
                 using(image_id) WHERE ($topic_id_var) AND ImageMap.image_id != ".$topic_id_array[0][1].
                 " ORDER BY ImageMap.map_id DESC";
 
             $statement = $this->pdo_conn->query($sql_getImageMap);
-            return $results = $statement->fetchAll();
+            $results = $statement->fetchAll();
+
+            foreach ($results as $key => $value) {
+                $results[$key]['title'] = htmlentities($results[$key]['title']);
+                $results[$key]['filename'] = htmlentities($results[$key]['filename']);
+                $results[$key]['filename_url'] = urlencode($results[$key]['filename']);
+            }
+            return $results;
         } else {
             return false;
         }
+    }
+
+    public function getFileNameFromHash($hash)
+    {
+        $sql = "SELECT UploadLog.filename From UploadLog LEFT JOIN UploadedImages USING(image_id) 
+            WHERE UploadedImages.sha1_sum = ? ORDER BY UploadLog.uploadlog_id ASC LIMIT 1";
+        $statement= $this->pdo_conn->prepare($sql);
+        $statement->execute(array($hash));
+        return $statement->fetch();
     }
 }

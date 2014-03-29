@@ -31,9 +31,11 @@ require "includes/Topic.class.php";
 if ($auth == true) {
     $im = new ImageMap($db);
     $images = $im->getImageMapByHash($_GET['hash']);
+    $filename = htmlentities(array_shift($im->getFileNameFromHash($_GET['hash'])));
     $page_title = "Image Map";
     $display = "imagemap.tpl";
     $smarty->assign("images", $images);
+    $smarty->assign("filename", $filename);
     include "includes/deinit.php";
 } else {
     include "includes/404.php";
