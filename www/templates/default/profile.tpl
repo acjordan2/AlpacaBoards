@@ -20,7 +20,7 @@
 		</tr>
 		<tr>
 			<td>User Name</td>
-			<td>{$p_username} ({if $p_level == 1}<b style="color:red">Administrator</b>{else}{$karma}{/if})</td>
+			<td>{$p_username} ({if $p_level == 1}<b style="color:red">Administrator</b>{else}{$p_karma}{/if})</td>
 		</tr>
 		<tr>
 			<td>User ID</td>
@@ -137,10 +137,10 @@
 				<a href="//wiki.endoftheinter.net/index.php/User:Adrek">User Page</a>
 			</td>
 		</tr>
+    -->
 		<tr>
 			<td colspan="2"><a href="./imagemap.php">View My Image Map Entry</a></td>
 		</tr>
-	-->
 {/if}
 		<tr>
 			<td colspan="2"><a href="./loser.php?user={$p_user_id}">View {if $user_id == $p_user_id}My{else}{$p_username}'s{/if} Stats</a></td>

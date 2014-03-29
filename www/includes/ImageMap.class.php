@@ -83,4 +83,21 @@ class ImageMap
         $statement->execute(array($hash));
         return $statement->fetch();
     }
+
+    public function getImageMapForUser($user_id)
+    {
+        $sql_getImageMap = "SELECT DISTINCT(ImageMap.image_id), UploadedImages.sha1_sum, UploadedImages.thumb_height, 
+                UploadedImages.thumb_width, Topics.title, ImageMap.topic_id, UploadLog.filename, MAX(ImageMap.image_id) FROM Topics LEFT JOIN 
+                ImageMap USING(topic_id) LEFT JOIN UploadedImages using(image_id) LEFT JOIN UploadLog 
+                using(image_id) WHERE ImageMap.user_id = $user_id GROUP BY ImageMap.image_id ORDER BY ImageMap.map_id DESC";
+         $statement = $this->pdo_conn->query($sql_getImageMap);
+        $results = $statement->fetchAll();
+
+        foreach ($results as $key => $value) {
+            $results[$key]['title'] = htmlentities($results[$key]['title']);
+            $results[$key]['filename'] = htmlentities($results[$key]['filename']);
+            $results[$key]['filename_url'] = urlencode($results[$key]['filename']);
+        }
+        return $results;
+    }
 }

@@ -30,8 +30,13 @@ require "includes/Topic.class.php";
 
 if ($auth == true) {
     $im = new ImageMap($db);
-    $images = $im->getImageMapByHash($_GET['hash']);
-    $filename = htmlentities(array_shift($im->getFileNameFromHash($_GET['hash'])));
+    if (isset($_GET['hash'])) {
+        $images = $im->getImageMapByHash($_GET['hash']);
+        $filename = htmlentities(array_shift($im->getFileNameFromHash($_GET['hash'])));
+    } else {
+        $filename = "User ".$authUser->getUsername();
+        $images = $im->getImageMapForUser($authUser->getUserID());
+    }
     $page_title = "Image Map";
     $display = "imagemap.tpl";
     $smarty->assign("images", $images);
