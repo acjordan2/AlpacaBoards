@@ -29,6 +29,9 @@ class ImageMap
     
     private $pdo_conn;
 
+    /** Filename of the parent image for the image map */
+    private $filename;
+
     public function __construct(&$db)
     {
         $this->pdo_conn = $db;
@@ -36,24 +39,32 @@ class ImageMap
 
     public function getImageMapByHash($hash)
     {
-        //$sql = "SELECT ImageMap.topic_id, ImageMap.image_id 
-        //    FROM UploadedImages LEFT JOIN ImageMap using(image_id) WHERE UploadedImages.image_id = 1";
         
-        $sql = "SELECT ImageMap.topic_id FROM UploadedImages LEFT JOIN ImageMap using(image_id) WHERE sha1_sum = ?";
+        $sql = "SELECT ImageMap.topic_id, ImageMap.image_id FROM UploadedImages 
+            LEFT JOIN ImageMap using(image_id) WHERE sha1_sum = ?";
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($hash));
-        $topic_id_array = $statement->fetchAll();
-        $topic_id_var = "ImageMap.topic_id=".$topic_id_array[0][0];
-        if (sizeof($topic_id_array) > 1) {
-            array_shift($topic_id_array);
-            foreach($topic_id_array as $topic_id) {
-                $topic_id_var .= " OR ImageMap.topic_id=".$topic_id[0];
+
+        if ($statement->rowCount() != 0) {
+            $topic_id_array = $statement->fetchAll();
+            $topic_id_var = "ImageMap.topic_id=".$topic_id_array[0][0];
+            if (sizeof($topic_id_array) > 1) {
+                array_shift($topic_id_array);
+                foreach ($topic_id_array as $topic_id) {
+                    $topic_id_var .= " OR ImageMap.topic_id=".$topic_id[0];
+                }
             }
+           
+            $sql_getImageMap = "SELECT Distinct(UploadedImages.sha1_sum), UploadedImages.thumb_height, 
+                UploadedImages.thumb_width, Topics.title, ImageMap.topic_id FROM Topics LEFT JOIN 
+                ImageMap USING(topic_id) LEFT JOIN UploadedImages using(image_id) LEFT JOIN UploadLog 
+                using(image_id) WHERE ($topic_id_var) AND ImageMap.image_id != ".$topic_id_array[0][1].
+                " ORDER BY ImageMap.map_id DESC";
+
+            $statement = $this->pdo_conn->query($sql_getImageMap);
+            return $results = $statement->fetchAll();
+        } else {
+            return false;
         }
-       
-       $sql_getImageMap = "SELECT UploadedImages.sha1_sum, UploadedImages.thumb_height, UploadedImages.thumb_width, Topics.title, ImageMap.topic_id
-            FROM Topics LEFT JOIN ImageMap USING(topic_id) LEFT JOIN UploadedImages using(image_id) LEFT JOIN UploadLog using(image_id) WHERE $topic_id_var";
-       $statement = $this->pdo_conn->query($sql_getImageMap);
-       return $results = $statement->fetchAll();
     }
 }

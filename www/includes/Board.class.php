@@ -207,8 +207,11 @@ class Board
             $data2 = array("user_id" => $this->user_id,
                             "topic_id" => $topic_id,
                             "message" => $message);
-            if($statement2->execute($data2))
+            if($statement2->execute($data2)){
+                $parser = new Parser($this->pdo_conn);
+                $parser->map($message, $this->user_id, $topic_id);
                 return $topic_id;
+            }
             else
                 return FALSE;
         }
