@@ -12,12 +12,11 @@
 		<h1>Register</h1>
 		{if isset($message)}<br />{$message}<br />{/if}
 		<br />
-		<form action="" method="POST" autocomplete="OFF">
+		<form action="register.php" method="POST" autocomplete="OFF">
 		  <fieldset style="width:250px;">
 			<legend><small>Enter your details:</small></legend>
 			<br />
 			<input type="hidden" name="token" value="{$token}" />
-			{if isset($invite)}<input type="hidden" name="invite_code" value="{$invite_code}" />{/if}
 			Desired Username:<br />
 			<input type="text" name="username" style="width:100%;" value="{if isset($username)}{$username}{/if}"/>
 			<br /><br />
@@ -30,7 +29,7 @@
 			Password (Again):<br />
 			<input type="password" name="password2" id="password2" style="width:100%;" />
 			<br /><br />
-			{if $registration_status == 1}{if !isset($invite)}Invite Code:<br />
+			{if $registration_status == 1}{if isset($invite)}<input type="hidden" name="invite_code" value="{$invite_code}" />{else}Invite Code:<br />
 			<input type="text" name="invite_code" style="width:100%;" value="" />
 			<br /><br />{/if}{/if}
 			<input type="submit" value="Register">
