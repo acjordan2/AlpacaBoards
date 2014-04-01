@@ -19,7 +19,7 @@
 				<td msgid="t,{$topic_id},{$message_id}@{$revision_no}" class="message">{$message}</td>
 				<td class="userpic">
 					<div class="userpic-holder">
-						{if $m_avatar != NULL}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$m_avatar.sha1_sum}/{$m_avatar.filename}.jpg" width="{$m_avatar.thumb_width}" height="{$m_avatar.thumb_height}" />{/if}
+						{if $m_avatar != NULL}<a href="./imagemap.php?hash={$m_avatar.sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$m_avatar.sha1_sum}/{$m_avatar.filename}.jpg" width="{$m_avatar.thumb_width}" height="{$m_avatar.thumb_height}" /></a>{/if}
 					</div>
 				</td>
 	        	</tr>
