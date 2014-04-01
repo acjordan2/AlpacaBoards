@@ -94,7 +94,7 @@ if ($auth === true) {
                     $smarty->assign(
                         "avatar",
                         $avatar['sha1_sum']."/".
-                        urlencode($avatar['filename'].".".$avatar['extension'])
+                        urlencode($avatar['filename'])
                     );
                     $smarty->assign("avatar_width", $avatar['width']);
                     $smarty->assign("avatar_height", $avatar['height']);

@@ -32,7 +32,7 @@ if ($auth == true) {
     $im = new ImageMap($db);
     if (isset($_GET['hash'])) {
         $images = $im->getImageMapByHash($_GET['hash']);
-        $filename = htmlentities(array_shift($im->getFileNameFromHash($_GET['hash'])));
+        $filename = htmlentities(@array_shift($im->getFileNameFromHash($_GET['hash'])));
     } else {
         $filename = "User ".$authUser->getUsername();
         $images = $im->getImageMapForUser($authUser->getUserID());

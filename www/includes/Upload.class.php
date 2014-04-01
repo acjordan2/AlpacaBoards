@@ -76,7 +76,6 @@
 				$sql_getImageID = "SELECT image_id FROM UploadedImages WHERE sha1_sum='$sha1_sum'";
 				$statement_getImageID = $this->pdo_conn->query($sql_getImageID);
 				$result = $statement_getImageID->fetch();
-				print $result['image_id'];
 				$sql_dupeUpload = "INSERT INTO UploadLog (user_id, image_id, filename, created)
 											VALUES(".$this->user_id.", ".$result['image_id'].", ?, ".time().")";
 				$statement_dupeUpload = $this->pdo_conn->prepare($sql_dupeUpload);

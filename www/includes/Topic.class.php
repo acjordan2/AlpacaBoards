@@ -113,6 +113,7 @@ class Topic{
                 $message_data[$i]['avatar'] = $message_data_array['sha1_sum']."/".urlencode(substr($message_data_array['filename'],0,-1*(strlen($avatar_extension))))."jpg";
                 $message_data[$i]['avatar_width'] = $message_data_array['thumb_width'];
                 $message_data[$i]['avatar_height'] = $message_data_array['thumb_height'];
+                $message_data[$i]['sha1_sum'] = $message_data_array['sha1_sum'];
             }
             else {
                 $message_data[$i]['avatar'] = NULL;

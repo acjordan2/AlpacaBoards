@@ -284,7 +284,7 @@ class User {
         $this->last_active = $user_data['last_active'];
         $this->status = $user_data['status'];
         $this->avatar = @array('sha1_sum' => $user_data['sha1_sum'],
-                               'filename' => $filename_array[0],
+                               'filename' => $user_data['filename'],
                                'extension' => $filename_array[1],
                                'width' =>    $user_data['width'],
                                'height' => $user_data['height'],
@@ -671,7 +671,7 @@ class User {
     
     /**
      * Get the user's avatar
-     * 
+     *
      * @return array Avatar path information
      */
     public function getAvatar()
@@ -1009,10 +1009,10 @@ class User {
             WHERE user_id=".$this->user_id;
         $statement = $this->pdo_conn->query($sql);
         $this->avatar = array(
-            $result['sha1_sum'],
-            $result['filename'],
-            $result['width'],
-            $result['height']
+           "sha1_sum" => $result['sha1_sum'],
+           "filename" => $result['filename'],
+           "width" => $result['width'],
+           "height" => $result['height']
         );
     }
     
