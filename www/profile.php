@@ -98,6 +98,7 @@ if ($auth === true) {
                     );
                     $smarty->assign("avatar_width", $avatar['width']);
                     $smarty->assign("avatar_height", $avatar['height']);
+                    $smarty->assign("sha1_sum", $avatar['sha1_sum']);
                 }
                 
                 // Parse for HTML tags, encode

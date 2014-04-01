@@ -81,7 +81,7 @@
 		<tr>
         	<td>Picture</td>
         	<td>
-				{if isset($avatar)}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/n/{$avatar}" width="{$avatar_width}" height="{$avatar_height}" />{/if}
+				{if isset($avatar)}<a href="./imagemap.php?hash={$sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/n/{$avatar}" width="{$avatar_width}" height="{$avatar_height}" /></a>{/if}
 			</td>
 		</tr>
 		<tr>
