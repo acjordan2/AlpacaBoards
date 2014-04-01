@@ -203,13 +203,11 @@ class User {
                 if ($new_pass_auth == true) {
                     $this->setUserData($user_data);
                     // Generate session keys
-                    $session_key1 = hash(
-                        "sha256",
-                        $this->user_id.$this->username.mcrypt_create_iv(32, MCRYPT_DEV_URANDOM)
+                    $session_key1 = base64_encode(
+                        mcrypt_create_iv(48, MCRYPT_DEV_URANDOM)
                     );
-                    $session_key2 = hash(
-                        "sha256",
-                        $this->username.$this->user_id.mcrypt_create_iv(32, MCRYPT_DEV_URANDOM)
+                    $session_key2 = base64_encode(
+                        mcrypt_create_iv(48, MCRYPT_DEV_URANDOM)
                     );
                     // Set session cookies
                     setcookie(
