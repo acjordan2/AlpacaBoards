@@ -418,6 +418,8 @@ CREATE TABLE IF NOT EXISTS `SiteOptions` (
 
 CREATE TABLE IF NOT EXISTS `StaffPermissions` (
   `position_id` int(11) unsigned NOT NULL,
+  `title` VARCHAR( 32 ) NOT NULL,
+  `title_color` VARCHAR( 12 ) NOT NULL,
   `user_ban` int(11) NOT NULL,
   `user_edit` int(1) unsigned NOT NULL,
   `user_suspend` int(1) unsigned NOT NULL,
@@ -854,8 +856,8 @@ INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
 -- Dumping data for table `StaffPermissions`
 --
 
-INSERT INTO `StaffPermissions` (`position_id`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
-(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+INSERT INTO `StaffPermissions` (`position_id`, `title`, `title_color`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
+(1, "Adminstrator", "red", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

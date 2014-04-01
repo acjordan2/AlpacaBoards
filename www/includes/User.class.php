@@ -299,10 +299,6 @@ class User {
                 $sql = "SELECT * FROM StaffPermissions WHERE position_id = ".$this->level[0];
                 $statement = $this->pdo_conn->query($sql);
                 $this->permissions = $statement->fetch();
-                $sql2 = "SELECT StaffPositions.title FROM StaffPositions WHERE position_id=".$this->level[0];
-                $statement2 = $this->pdo_conn->query($sql2);
-                $results = $statement2->fetch();
-                $this->level[1] = $results[0];
         }
     }
     
@@ -748,7 +744,17 @@ class User {
     */
     public function getAccessTitle()
     {
-        return $this->level[1];
+        return $this->permissions['title'];
+    }
+
+    /**
+     * Get the color of the user's title
+     * 
+     * @return string Color of the title
+     */
+    public function getTitleColor()
+    {
+        return $this->permissions['title_color'];
     }
     
     /**

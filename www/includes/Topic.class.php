@@ -124,6 +124,14 @@ class Topic{
             $message_data[$i]['level'] = $message_data_array['level'];
             $message_data[$i]['deleted'] = $message_data_array['deleted'];
             
+            if ($message_data_array['level'] == 1) {
+                $sql = "SELECT StaffPermissions.title, StaffPermissions.title_color FROM StaffPermissions WHERE position_id = ".$message_data_array['level'];
+                $statement3 = $this->pdo_conn->query($sql);
+                $results = $statement3->fetch();
+                $message_data[$i]['title'] = $results['title'];
+                $message_data[$i]['title_color'] = $results['title_color'];
+            }
+
             if ($message_data_array['deleted'] == 1) {
                 $message_content = $GLOBALS['locale_messages']['message']['deleted'];
             } elseif ($message_data_array['deleted'] == 2) {
