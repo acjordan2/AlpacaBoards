@@ -1126,7 +1126,7 @@ class User {
         // Alpha numerica characters, underscores, dashes, and spaces
         // no special characters
         // Ensure the user has a valid invite code
-        if (!$this->checkInvite($request['invite_code']) && $inviteStatus == 1) {
+        if (!$this->checkInvite(@$request['invite_code']) && $inviteStatus == 1) {
             return -2;
         } else {
             if (!preg_match('/[^A-z0-9.\-_\ ]/', $request['username'])) {
