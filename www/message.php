@@ -97,7 +97,7 @@ if ($auth === true) {
                 $smarty->assign("token", $csrf->getToken());
                 $smarty->assign("message_deleted", $message->isDeleted());
                 $smarty->assign("m_avatar", $message->getAvatar());
-                
+
                 // Set template page
                 $display = "message.tpl";
                 $page_title = "Message Detail";

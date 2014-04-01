@@ -208,7 +208,6 @@ class MessageRevision Extends Message{
 	}
 	
 	protected function setMessageData($data){
-		
 		if($this->is_link){
 			$this->link_id = $data['link_id'];
 			$this->link_title = $data['link_title'];
@@ -218,16 +217,18 @@ class MessageRevision Extends Message{
 			$this->board_title = $data['board_title'];
 			$this->board_id = $data['board_id'];
 		}
+
 		
 		$this->user_id = $data['user_id'];
 		$this->revision_id = $data['revision_no'];
         $this->message_deleted = $data['deleted'];
         if ($data['deleted'] == 1){
+            $this->revision_id = 0;
             $this->message = $GLOBALS['locale_messages']['message']['deleted'];
         } elseif ($data['deleted'] == 2) {
+            $this->revision_id = 0;
             $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
         } else {
-          $this->revision_id = 0;
 		  $this->message = $data['message'];
         }
 		$this->posted = $data['posted'];
