@@ -238,9 +238,8 @@ class Topic{
             LEFT JOIN TopicHistory ON TopicHistory.topic_id = Messages.topic_id
             WHERE Messages.topic_id = ? AND Messages.message_id > TopicHistory.message_id
             AND TopicHistory.user_id = ?";
-        $statement = $this->pdo_conn->prepare($sql);
-
         while(is_null($message_data) && ($count < 20)) { 
+            $statement = $this->pdo_conn->prepare($sql);
             $statement->execute(array($this->topic_id, $this->user_id));
             if($statement->rowCount() > 0) {
                for($i=0; $message_data_array=$statement->fetch(); $i++){

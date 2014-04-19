@@ -8,6 +8,7 @@
     <link rel="icon" href="//static.endoftheinter.net/images/dealwithit.ico" type="image/x-icon" />
     <link rel="apple-touch-icon-precomposed" href="//static.endoftheinter.net/images/apple-touch-icon-ipad.png" />
     <link rel="stylesheet" type="text/css" href="./templates/default/css/nblue.css?19" />
+    <link rel="stylesheet" type="text/css" href="./templates/default/css/select2.css" />
     <script type="text/javascript" src="./templates/default/js/jquery.min.js" charset="utf-8"></script>
     <meta http-equiv="Content-Type" Content="text/html; charset=utf-8" />
 </head>

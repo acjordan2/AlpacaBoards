@@ -1,7 +1,7 @@
 {include file="header.tpl"}
 	<h1>Add teh link!</h1>
 	<br />
-	<form action="./addlink.php{if isset($link_edit)}?edit={$link_id}{/if}" method="POST">
+	<form action="./addlink.php{if isset($link_edit)}?edit={$link_id}{/if}" method="POST" id="add">
 		<input type="hidden" name="token" value="{$token}">
 		{if isset($error)}
 			<span style="color: #ff0000;">
@@ -24,15 +24,9 @@
 		{$i=1}
 		<table>
 			<tr>
-{foreach from=$categories key=header item=table}
-			<td>
-				<input type="checkbox" name="{$table.name}" value="1" />{$table.name}</td>
-		{if $i % 4 == 0}
-			</tr>
-			<tr>
-		{/if}
-{$i= $i + 1}
-{/foreach}
+                <td>
+                <input type='text' id="tags" name="tags" style="width: 500px;" />
+                </td>
 			</tr>
 		</table>
 		<br />
@@ -42,7 +36,7 @@
 		<textarea cols="100" rows="20" name="description" id="description">{if isset($description)}{$description}{/if}</textarea>
 		<br />
 		<br />
-		<input type="submit" name="addlink" value="Add Link">
+		<input type="submit" name="addlink" value="Add Link" id="save">
 	</form>
 </form>
 {include file="footer.tpl"}

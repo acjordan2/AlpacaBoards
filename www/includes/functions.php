@@ -71,3 +71,17 @@ function get_base_url($root_path)
     }
     return $urladdr;
 }
+
+function getCombinations($data)
+{
+    $combo = array();
+    sort($data);
+
+    for ($i = 0; $i<sizeof($data); $i++) {
+        for ($j = $i+1; $j<sizeof($data); $j++) {
+            $combo[] = array($data[$i], $data[$j]);
+        }
+    }
+
+    return $combo;
+}

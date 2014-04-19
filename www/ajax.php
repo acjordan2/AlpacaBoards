@@ -35,61 +35,76 @@ if ($auth == true) {
     $token = @$_POST['token'];
 
     // Spilt action; format is <sectom>_<action>
-    // ex link_vote for link voting. 
+    // ex link_vote for link voting.
     $action = explode("_", @$_REQUEST['action']);
     $section = @$action[0];
     $action = @$action[1];
 
     // Check for different sections
     switch($section){
-    case "link":
-        include "includes/Link.class.php";
-        $link_id = @$_POST['l'];
-        if (!is_numeric($link_id)) {
-            $output = "{\"error\": \"Invalid Link ID\"}";
-        } else {
-            $link = new Link($db, $authUser->getUserID(), $link_id);
-            
-            // Confirm provided link id is valid
-            if ($link->doesExist()) {
-                // Link actions
-                switch($action){
-                // Link voting
-                case "vote":
-                    if (is_numeric(@$_POST['v']) 
-                        && @$_POST['v'] >= 0 
-                        && @$_POST['v'] <= 10 
-                        && $link->getLinkUserID() !=$authUser->getUserID()
-                    ) {
-                        // Validate CSRF token
-                        if ($csrf->validateToken(@$_REQUEST['token'])) {
-                            $link->vote($_POST['v']);
-                            $output = $link->getVotes();
-                            $output['message'] = "Vote Added!";
-                        }            
-                    }
-
-                    break;
-                // Add links to favorites
-                case "fav":
-                    if ((@$_POST['f'] === "1" || @$_POST['f'] === "0") 
-                        && $csrf->validateToken(@$_REQUEST['token'])
-                    ) {
-                        if ($link->addToFavorites($_POST['f'])) {
-                            if ($_POST['f'] === "1") {
-                                $output['f'] = "Remove from Favorites";
-                                $output['message'] = "Added to favorites!";
-                            } elseif ($_POST['f'] === "0") {
-                                $output['f'] = "Add to Favorites";
-                                $output['message'] = "Removed from favorites!";
-                            }
-                        }
-                    }    
-                    break;
+        // Get link related actions
+        case "link":
+            include "includes/Link.class.php";
+            $link_id = @$_POST['l'];
+            if (!is_numeric($link_id)) {
+                $link = new Link($db);
+                switch($action) {
+                    case "tags":
+                        header('content-type: application/json; charset=utf-8');
+                        $output = array("tags" => $link->getTags(@$_GET['q']));
+                        print json_encode($output);
+                        die();
+                        break;
+                    case "checkParentTag":
+                        $tags = explode(",", $_POST['tags']);
+                        $output = $link->checkParentTag($tags);
+                        break;
+                    default:
+                        $output = "{\"error\": \"Invalid Link ID\"}";
                 }
+            } else {
+                $link = new Link($db, $authUser->getUserID(), $link_id);
+                
+                // Confirm provided link id is valid
+                if ($link->doesExist()) {
+                    // Link actions
+                    switch($action){
+                        // Link voting
+                        case "vote":
+                            if (is_numeric(@$_POST['v'])
+                                && @$_POST['v'] >= 0
+                                && @$_POST['v'] <= 10
+                                && $link->getLinkUserID() !=$authUser->getUserID()
+                            ) {
+                                // Validate CSRF token
+                                if ($csrf->validateToken(@$_REQUEST['token'])) {
+                                    $link->vote($_POST['v']);
+                                    $output = $link->getVotes();
+                                    $output['message'] = "Vote Added!";
+                                }
+                            }
+
+                            break;
+                        // Add links to favorites
+                        case "fav":
+                            if ((@$_POST['f'] === "1" || @$_POST['f'] === "0")
+                                && $csrf->validateToken(@$_REQUEST['token'])
+                            ) {
+                                if ($link->addToFavorites($_POST['f'])) {
+                                    if ($_POST['f'] === "1") {
+                                        $output['f'] = "Remove from Favorites";
+                                        $output['message'] = "Added to favorites!";
+                                    } elseif ($_POST['f'] === "0") {
+                                        $output['f'] = "Add to Favorites";
+                                        $output['message'] = "Removed from favorites!";
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+                break;
             }
-            break;
-        }
         case "topic":
             include "includes/Topic.class.php";
             include "includes/Parser.class.php";
@@ -121,4 +136,3 @@ if ($auth == true) {
 } else {
     include "404.php";
 }
-?>

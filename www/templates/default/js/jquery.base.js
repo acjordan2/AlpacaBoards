@@ -18,6 +18,10 @@ $(function() {
 		ajaxPost("#link_vote", "v");
 		ajaxPost("#link_fav", "f");
 
+    MultiAjaxAutoComplete('#tags', './ajax.php?action=link_tags');
+
+
+
 });
 
 $(window).keypress(function (a) {
@@ -104,4 +108,73 @@ function ajaxPost(aForm, submitName){
     		$("button", $(this).parents("form")).removeAttr("clicked");
     	$(this).attr("clicked", "true");
 	});
+}
+function MultiAjaxAutoComplete(element, url) {
+    $(element).select2({
+        placeholder: "Search for a tag",
+        minimumInputLength: 1,
+        multiple: true,
+        ajax: {
+            url: url,
+            dataType: 'json',
+            data: function(term, page) {
+                return {
+                    q: term,
+                    page_limit: 10,
+                };
+            },
+            results: function(data, page) {
+                return {
+                    results: data.tags
+                };
+            }
+        },
+        formatResult: formatResult,
+        formatSelection: formatSelection,
+        initSelection: function(element, callback) {
+            var data = [];
+            $(element.val().split(",")).each(function(i) {
+                var item = this.split(':');
+                data.push({
+                    id: item[0],
+                    title: item[1]
+                });
+            });
+            //$(element).val('');
+            callback(data);
+        }
+    });
+};
+
+function formatResult(tags) {
+    return '<div>' + tags.title + '</div>';
+};
+
+function formatSelection(data) {
+    checkParentTag(data.id);
+    return data.title;
+};
+
+function checkParentTag(data) {
+    var value = $('#tags').val();
+    if(value) { 
+        value += ","+data;
+    } else {
+        value = data;
+    }
+    $.ajax({
+        type: "POST",
+        url: "./ajax.php?action=link_checkParentTag",
+        data: "tags="+value,
+        success: function (response) {
+            if(response.length != 0) {
+                alert("Parent/Child Relationshiop Fail. Some of your tags are redundant");
+            }
+        },
+        dataType: "json"
+    });
+}
+
+function playSound( url ){   
+  document.getElementById("sound").innerHTML="<embed src='"+url+"' hidden=true autostart=true loop=false>";
 }

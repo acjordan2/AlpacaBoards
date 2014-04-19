@@ -110,10 +110,11 @@ class Link
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($this->link_id));
         if($statement->rowCount() == 1){
-            $sql2 = "SELECT LinkCategories.name FROM LinksCategorized 
-                        JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)  WHERE LinksCategorized.link_id = ?";
+            //$sql2 = "SELECT LinkCategories.name FROM LinksCategorized 
+            //            JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)  WHERE LinksCategorized.link_id = ?";
+            $sql2 = "SELECT TopicalTags.title FROM Tagged LEFT JOIN TopicalTags USING(tag_id) WHERE Tagged.data_id = :link_id";
             $statement2 = $this->pdo_conn->prepare($sql2);
-            $statement2->execute(array($this->link_id));
+            $statement2->execute(array("link_id" => $this->link_id));
             
             $sql3 = "SELECT DISTINCT(message_id) FROM LinkMessages WHERE LinkMessages.link_id = ?";
             $statement3 = $this->pdo_conn->prepare($sql3);
@@ -138,7 +139,7 @@ class Link
             $row['hits'] = $this->getHits();
             $row['categories'] = "";
             while($cats = $statement2->fetch()){
-                $row['categories'] .=  $cats['name'].", ";
+                $row['categories'] .=  $cats['title'].", ";
             }
             $row['categories'] = substr($row['categories'], 0, (strlen($row['categories'])-2));
             return $row;
@@ -281,30 +282,28 @@ class Link
     }
     
     public function addLink($request){
-        $allowed_categories = self::getCategories($this->pdo_conn);
-        if(is_null(@$request['lurl']))
-            $request['lurl'] = "";
-        $k = 0;
-        for($i=0; $i<sizeof($allowed_categories); $i++){
-            if(isset($request[$allowed_categories[$i][0]])){
-                if($request[$allowed_categories[$i][0]] == 1){
-                     $cats[$k] = $allowed_categories[$i][1];
-                     $k++;
-                     print($k);
-                }            
+        $tags = explode(",", $request['tags']);
+        if (!empty($tags)){
+            $tag_list = $this->validateTags($tags);
+            $tag_relationship = $this->checkParentTag($tag_list);
+            if(!empty($tag_relationship)){
+                return false;
+            } else {
+                $sql = "INSERT INTO Links (user_id, title, url, description, created)
+                        VALUES($this->user_id, ?, ?, ?, ".time().")";
+                $statement = $this->pdo_conn->prepare($sql);
+                $statement->execute(array($request['title'], $request['lurl'], $request['description']));
+                $this->link_id = $this->pdo_conn->lastInsertId();
+                $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type) VALUES
+                    (".$this->link_id.", :tag_id, 2)";
+                foreach ($tag_list as $tag) {
+                    print $sql_tags;
+                    $statement_tags = $this->pdo_conn->prepare($sql_tags);
+                    $statement_tags->execute(array("tag_id" => $tag));
+                }
+                return true;
             }
         }
-        $sql = "INSERT INTO Links (user_id, title, url, description, created)
-            VALUES($this->user_id, ?, ?, ?, ".time().")";
-        $statement = $this->pdo_conn->prepare($sql);
-        $statement->execute(array($request['title'], $request['lurl'], $request['description']));
-        $this->link_id = $this->pdo_conn->lastInsertId();
-        for($i=0; $i<sizeof($cats); $i++){
-            $sql2 = "INSERT INTO LinksCategorized (link_id, category_id)
-                        VALUES($this->link_id, ".$cats[$i].")";
-            $statement2 = $this->pdo_conn->query($sql2);
-        }
-        return true;
     }
     
     public function updateLink($request){
@@ -352,9 +351,10 @@ class Link
     }
 
     public function checkURLExist($link){
+        $sql_append = "";
         if(isset($this->link_id))
             $sql_append = "AND link_id != ?";
-        $sql = "SELECT Links.url FROM Links WHERE url=? $sql_appened";
+        $sql = "SELECT Links.url FROM Links WHERE url=? $sql_append";
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($link, $this->link_id));
         if($statement->rowCount() == 1)
@@ -453,5 +453,61 @@ class Link
     public function getPageCount(){
         return $this->page_count;
     }
+
+    public function getTags($q = null)
+    {
+        $sql = "SELECT tag_id as id, title, parent_id FROM TopicalTags where (type = 0 OR type = 2)";
+        if (!is_null($q)) {
+            $sql.= " AND title LIKE ?";
+            $q = "%".$q."%";
+            $statement = $this->pdo_conn->prepare($sql);
+            $statement->execute(array($q));
+        } else {
+            $statement = $this->pdo_conn->query($sql);
+        }
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function checkParentTag($tags)
+    {
+        $tag_array_tmp = $tags;
+        $parent_array = array();
+
+        $sql = "SELECT n.tag_id FROM TopicalTags as t
+            LEFT JOIN  TopicalTagParentRelationship as r 
+                ON t.tag_id=r.child_id
+            LEFT JOIN TopicalTags as n 
+                ON r.parent_id = n.tag_id
+            WHERE t.tag_id = :tag_id";
+
+        for ($i = 0; $i < count($tag_array_tmp); $i++) {
+            $statement = $this->pdo_conn->prepare($sql);
+            $statement->execute(array("tag_id" => $tag_array_tmp[$i]));
+            $tmp_results = $statement->fetchAll();
+            for ($j = 0; $j<count($tmp_results); $j++) {
+                $parent_id = $tmp_results[$j]['tag_id'];
+                $parent_array[] = $parent_id;
+                if (!in_array($parent_id, $tag_array_tmp)) {
+                    $tag_array_tmp[] = $parent_id;
+                }
+            }
+        }
+        return array_intersect($parent_array, $tags);
+    }
+
+    public function validateTags($tags)
+    {
+        $tag_list = array();
+        $sql = "SELECT tag_id FROM TopicalTags
+            WHERE tag_id = :tag_id AND (type = 2 OR type = 0)";
+        foreach ($tags as $tag) {
+            $statement = $this->pdo_conn->prepare($sql);
+            $statement->execute(array("tag_id" => $tag));
+            $results = $statement->fetchAll();
+            if(!empty($results)) {
+                $tag_list[] = $results[0]['tag_id'];
+            }
+        }
+        return $tag_list;
+    }
 }
-?>

@@ -86,6 +86,7 @@ if ($auth === true) {
                             header(
                                 "Location: ./linkme.php?l=".$link_edit->getLinkID()
                             );
+                            exit();
                         }
                     } else {
                         $error_msg = "There was a problem processing your request.
@@ -136,6 +137,7 @@ if ($auth === true) {
                 if ($csrf->validateToken($_POST['token'])) {
                     if ($links->addLink($_REQUEST)) {
                         header("Location: ./linkme.php?l=".$links->getLinkID());
+                        exit();
                     }
                 } else {
                     $error_msg = "There was a problem processing your request. 

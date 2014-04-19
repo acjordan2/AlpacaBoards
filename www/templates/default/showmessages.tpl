@@ -89,12 +89,21 @@
 	<br />
 	<br />
 	{include file="footer.tpl"}
-    <script>
-        //var analytics = document.getElementById('u0_4');
+    <script type="text/javascript" src="templates/default/js/jquery.playsound.js" charset="utf-8"></script>
+    <script type="text/javascript">
         (function poll(){
-            $.ajax({ url: "./ajax.php?action=topic_subscribe&topic_id={$topic_id}", success: function(data){
-                $("#u0_1").append(data);
-            }, dataType: "json", complete: poll, timeout: 6000000 });
+            $.ajax({ url: 
+                    "./ajax.php?action=topic_subscribe&topic_id={$topic_id}", 
+                    success: function(data){
+                        $("#u0_1").append(data);
+                        if(data.length != 0) {
+                            $.playSound("{$base_url}/templates/default/res/bip");
+                        }
+                    }, 
+                dataType: "json", 
+                complete: poll,
+                timeout: 6000000 
+            });
         })();
     </script>
 	<a id="qptoggle" href="#">

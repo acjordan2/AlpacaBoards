@@ -56,6 +56,7 @@ if ($auth === true) {
                     // annoying message from browsers
                     // when a POST request is submitted. 
                     header("Location: ./linkme.php?l=$link_id&v=".@$_POST['v']);
+                    exit();
                 }
             }
             if (is_numeric(@$_GET['v']) 
@@ -75,6 +76,7 @@ if ($auth === true) {
                     // annoying message from browsers
                     // when a POST request is submitted. 
                     header("Location: ./linkme.php?l=$link_id&f=".$_POST['f']);
+                    exit();
                 }        
             }
             if (@$_GET['f'] === "1" || @$_GET['f'] === "0") {
@@ -119,6 +121,7 @@ if ($auth === true) {
             "Location: ./linkme.php?l=".
             $links_data[mt_rand(0, sizeof($links_data)-1)][0]
         );
+        exit();
     } else {
         include "404.php";
     }
