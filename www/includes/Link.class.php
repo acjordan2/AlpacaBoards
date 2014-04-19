@@ -36,26 +36,35 @@ class Link
     private $page_count;
 
     /**
-    * @param PDO $db Database object
-    * @param int $aUserID User ID for the current logged in user
-    * @param int $aLinkID 
+     * Create a new link
+     * 
+     * @param db_connection Database connection object, passed by reference
+     * @param int $aUserID User ID for the current logged in user
+     * @param int $aLinkID 
+     *
+     * @return void
     */
     
-    function __construct (&$db, $aUserID=null, $aLinkID=null) {
+    public function __construct (&$db, $aUserID = null, $aLinkID = null)
+    {
         $this->pdo_conn = &$db;
-        if($aUserID != null){
+        if ($aUserID != null) {
             $this->user_id = $aUserID;
         }
-        if(!is_null($aLinkID))
+        if (!is_null($aLinkID)) {
             $this->link_id = $aLinkID;
+        }
     }
     
     /**
     * Get list of all added links
+    * 
     * @param int $orderby List sorting.
-    * @return array   
+    * 
+    * @return array List of added links
     */
-    public function getLinkList ($orderby=1) {
+    public function getLinkList ($orderby = 1)
+    {
         $order = "";
         $where = "";
         switch($orderby){
@@ -68,7 +77,7 @@ class Link
                 $order="created DESC";
                 break;
             // Get links added within the last 7 days.
-            // Sort by rank.  
+            // Sort by rank.
             case 3:
                 $order="rank DESC, rating DESC";
                 $where="WHERE Links.created > '".(time()-(60*60*24*7))."'";
@@ -102,20 +111,46 @@ class Link
         return $link_data;
     }
     
-    public function getLink(){
-        global $allowed_tags;
-        $sql = "SELECT Users.username, Links.user_id, Links.title, Links.url, Links.description, Links.created,
-        COUNT(LinkVotes.vote) AS NumberOfVotes, SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) AS rating  
-        FROM Links LEFT JOIN LinkVotes using(link_id) LEFT JOIN Users ON Links.user_id=Users.user_id WHERE link_id = ?";
+    /**
+     * Get link data
+     *
+     * @return  array Link data
+     */
+
+    public function getLink()
+    {
+        // Get link data
+        $sql = "SELECT 
+                Users.username, 
+                Links.user_id,
+                Links.title,
+                Links.url,
+                Links.description,
+                Links.created,
+                COUNT(LinkVotes.vote) AS NumberOfVotes, 
+                SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, 
+                SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) AS rating 
+            FROM Links 
+            LEFT JOIN LinkVotes using(link_id)
+            LEFT JOIN Users ON Links.user_id=Users.user_id 
+            WHERE link_id = :link_id";
+
         $statement = $this->pdo_conn->prepare($sql);
-        $statement->execute(array($this->link_id));
-        if($statement->rowCount() == 1){
-            //$sql2 = "SELECT LinkCategories.name FROM LinksCategorized 
-            //            JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)  WHERE LinksCategorized.link_id = ?";
-            $sql2 = "SELECT TopicalTags.title FROM Tagged LEFT JOIN TopicalTags USING(tag_id) WHERE Tagged.data_id = :link_id";
+        $statement->execute(array("link_id" => $this->link_id));
+
+        if ($statement->rowCount() == 1) {
+            //$sql2 = "SELECT LinkCategories.name FROM LinksCategorized
+            //JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)
+            //WHERE LinksCategorized.link_id = ?";
+            
+            // Get link tags
+            $sql2 = "SELECT TopicalTags.title FROM Tagged 
+                LEFT JOIN TopicalTags USING(tag_id) 
+                WHERE Tagged.data_id = :link_id";
             $statement2 = $this->pdo_conn->prepare($sql2);
             $statement2->execute(array("link_id" => $this->link_id));
             
+            // Get link message count for calculating pages
             $sql3 = "SELECT DISTINCT(message_id) FROM LinkMessages WHERE LinkMessages.link_id = ?";
             $statement3 = $this->pdo_conn->prepare($sql3);
             $message_count = $statement3->rowCount();
@@ -124,6 +159,7 @@ class Link
                 $this->page_count += 1;
             }
 
+            // Parse link markup
             $parser = new Parser($this->pdo_conn);
             
             $this->updateHistory();
@@ -138,55 +174,81 @@ class Link
             $row['link_id'] = $this->link_id;
             $row['hits'] = $this->getHits();
             $row['categories'] = "";
-            while($cats = $statement2->fetch()){
+
+            // Dispaly Categories (replaced by tags)
+            while ($cats = $statement2->fetch()) {
                 $row['categories'] .=  $cats['title'].", ";
             }
             $row['categories'] = substr($row['categories'], 0, (strlen($row['categories'])-2));
             return $row;
+        } else {
+            // Link does not exist
+            return false;
         }
-        else
-            return FALSE;
     }
     
-    private function updateHistory(){
-        if(!is_null($this->user_id)){
-        $sql = "INSERT INTO LinkHistory (link_id, user_id, date)
-                        VALUES (?, $this->user_id, ".time().")
-                        ON DUPLICATE KEY UPDATE date=".time();
-        $statement = $this->pdo_conn->prepare($sql);
-        $statement->execute(array($this->link_id));
-        return TRUE;
-        }else
-            return FALSE;
+    /**
+     * Update viewing history for the link. Used for keeping an accurate
+     * hit counter as well as last viewed comment
+     *
+     * @return boolean True if history was successfully updated
+     */
+
+    private function updateHistory()
+    {
+        if (!is_null($this->user_id)) {
+            $sql = "INSERT INTO LinkHistory (link_id, user_id, date)
+                VALUES (:link_id, $this->user_id, ".time().") ON DUPLICATE KEY UPDATE date=".time();
+            $statement = $this->pdo_conn->prepare($sql);
+            $statement->execute(array("link_id" => $this->link_id));
+            return true;
+        } else {
+            return false;
+        }
     }
     
-    public function getMessages($page=1){
-        global $allowed_tags;
+    /**
+     * Get link message
+     * @param  integer $page Page number, each page has 50 messages
+     * @return array         Message data
+     */
+    public function getMessages($page = 1)
+    {
+        // Set the page offset
         $offset = 50*($page-1);
-        $statement = $this->pdo_conn->prepare("SELECT LinkMessages.message_id, 
-                                                    MAX(LinkMessages.revision_no) as revision_no,
-                                                    LinkMessages.user_id,
-                                                    Users.username,
-                                                    LinkMessages.message,
-                                                    MIN(LinkMessages.posted) as posted
-                                                FROM LinkMessages
-                                                LEFT JOIN Users
-                                                    USING(user_id)
-                                                WHERE
-                                                    LinkMessages.link_id = ?
-                                                GROUP BY LinkMessages.message_id DESC 
-                                                ORDER BY posted ASC LIMIT 50 OFFSET ?");
-        $statement->execute(array($this->link_id, $offset));
+
+        // Get the next set of messages in increments of 50
+        $sql = "SELECT LinkMessages.message_id, 
+                MAX(LinkMessages.revision_no) as revision_no,
+                LinkMessages.user_id, 
+                Users.username,
+                LinkMessages.message,
+                MIN(LinkMessages.posted) as posted
+                FROM LinkMessages
+                LEFT JOIN Users
+                    USING(user_id)
+                WHERE
+                    LinkMessages.link_id = :link_id
+                GROUP BY LinkMessages.message_id DESC 
+                ORDER BY posted ASC LIMIT 50 OFFSET ?";
+        $statement = $this->pdo_conn->prepare($sql);
+        $statement->execute(array("link_id" => $this->link_id, $offset));
         $statement->setFetchMode(PDO::FETCH_ASSOC);
-        $getMessageCount = $this->pdo_conn->prepare("SELECT DISTINCT(message_id) FROM LinkMessages WHERE LinkMessages.link_id = ?;");
-        $getMessageCount->execute(array($this->link_id));
+
+        // Get the link message count
+        $sql_getMessageCount = "SELECT DISTINCT(message_id) FROM LinkMessages WHERE LinkMessages.link_id = :link_id";
+        $getMessageCount = $this->pdo_conn->prepare($sql_getMessageCount);
+        $getMessageCount->execute(array("link_id" => $this->link_id));
         $topic_count = $getMessageCount->rowCount();
         $this->page_count = intval($topic_count/50);
-        if($topic_count % 50 != 0)
+        if ($topic_count % 50 != 0) {
             $this->page_count += 1;
+        }
         $message_data = array();
+
+        // Parse link data for links
         $parser = new Parser($this->pdo_conn);
-        for($i=0; $message_data_array=$statement->fetch(); $i++){
+        for ($i=0; $message_data_array=$statement->fetch(); $i++) {
             $tmp_user = new User($this->pdo_conn, $message_data_array['user_id']);
             $message_data[$i]['message_id'] = $message_data_array['message_id'];
             $message_data[$i]['user_id'] = $message_data_array['user_id'];
@@ -201,7 +263,8 @@ class Link
         return $message_data;
     }
     
-    private function getHits(){
+    private function getHits()
+    {
         $sql = "SELECT COUNT(LinkHistory.link_id) as count FROM LinkHistory
                     WHERE LinkHistory.link_id = ?";
         $statement = $this->pdo_conn->prepare($sql);
