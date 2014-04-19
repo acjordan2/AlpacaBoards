@@ -297,7 +297,6 @@ class Link
                 $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type) VALUES
                     (".$this->link_id.", :tag_id, 2)";
                 foreach ($tag_list as $tag) {
-                    print $sql_tags;
                     $statement_tags = $this->pdo_conn->prepare($sql_tags);
                     $statement_tags->execute(array("tag_id" => $tag));
                 }
@@ -316,7 +315,6 @@ class Link
                 if($request[$allowed_categories[$i][0]] == 1){
                      $cats[$k] = $allowed_categories[$i][1];
                      $k++;
-                     print($k);
                 }            
             }
         }
