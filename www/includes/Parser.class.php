@@ -99,7 +99,6 @@ class Parser
                 // Ignore CDATA fields. Not necessary
                 // since all invalid tags will be
                 // entity encoded
-                die($node->nodeValue);
                 if ($node->nodeName != "#cdata-section") {
                     $text = "<".$node->nodeName;
                     if ($node->hasAttributes()) {
