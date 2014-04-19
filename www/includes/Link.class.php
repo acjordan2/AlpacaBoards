@@ -230,9 +230,9 @@ class Link
                 WHERE
                     LinkMessages.link_id = :link_id
                 GROUP BY LinkMessages.message_id DESC 
-                ORDER BY posted ASC LIMIT 50 OFFSET ?";
+                ORDER BY posted ASC LIMIT 50 OFFSET :offset";
         $statement = $this->pdo_conn->prepare($sql);
-        $statement->execute(array("link_id" => $this->link_id, $offset));
+        $statement->execute(array("link_id" => $this->link_id, "offset" => $offset));
         $statement->setFetchMode(PDO::FETCH_ASSOC);
 
         // Get the link message count
