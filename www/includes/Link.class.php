@@ -456,7 +456,7 @@ class Link
 
     public function getTags($q = null)
     {
-        $sql = "SELECT tag_id as id, title, parent_id FROM TopicalTags where (type = 0 OR type = 2)";
+        $sql = "SELECT tag_id as id, title FROM TopicalTags where (type = 0 OR type = 2)";
         if (!is_null($q)) {
             $sql.= " AND title LIKE ?";
             $q = "%".$q."%";
