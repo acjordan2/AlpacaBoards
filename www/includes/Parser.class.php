@@ -64,7 +64,7 @@ class Parser
 
     /**
     * Parse an HTML snippet and remove non-white listed tags.
-    * Turn custom markup tags (ie <quote>. <spoiler) into 
+    * Turn custom markup tags (ie <quote>. <spoiler>) into 
     * valid HTML for the browser
     * 
     * @param string  $html             HTML code to be parsed

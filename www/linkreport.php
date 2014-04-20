@@ -51,6 +51,7 @@ if ($auth == true) {
                         $link->reportLink($_POST['reason']);
                         // Redirect to a success message
                         header("Location: ./linkreport.php?m=1");
+                        exit();
                     }
                 }
             }
@@ -71,4 +72,3 @@ if ($auth == true) {
 } else {
     include "404.php";
 }
-?>
