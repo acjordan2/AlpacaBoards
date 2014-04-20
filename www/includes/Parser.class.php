@@ -412,9 +412,17 @@ class Parser
                 $statement_imageMap = $this->pdo_conn->prepare($sql_imageMap);
                 $statement_imageMap->execute(array($topic_id));
             }
-        }        
+        }
     }
 
+    /**
+     * Recursively check if any parent node of an element matches
+     * 
+     * @param  DOMElement $node   Child node
+     * @param  string $parentName Name of the paerent node to match
+     * 
+     * @return boolean            True if there is a match of any parent node
+     */
     private function _recursiveCheckParent($node, $parentName)
     {
         $pnode = $node;

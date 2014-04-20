@@ -209,7 +209,9 @@ class Link
     
     /**
      * Get link message
+     * 
      * @param  integer $page Page number, each page has 50 messages
+     * 
      * @return array         Message data
      */
     public function getMessages($page = 1)
@@ -263,6 +265,11 @@ class Link
         return $message_data;
     }
     
+    /**
+     * Get unique page hits for link
+     * 
+     * @return int Number of page hits
+     */
     private function getHits()
     {
         $sql = "SELECT COUNT(LinkHistory.link_id) as count FROM LinkHistory
@@ -273,77 +280,104 @@ class Link
         return $row['count'];
     }
     
-    public function postMessage($aMessage, $aMessage_id=null){
-        
-        if(is_null($aMessage_id)){
-            $statement = $this->pdo_conn->prepare("INSERT INTO LinkMessages ( user_id,
-                                                              link_id, 
-                                                              message, 
-                                                              posted)
-                                        VALUES (:user_id,
-                                                :link_id,
-                                                :message,
-                                                ".time().")");
-            $data = array("user_id" =>  $this->user_id,
-                          "link_id" => $this->link_id,
-                          "message"  => $aMessage);
-            if($statement->execute($data))
-                return TRUE;
-            else
-                return FALSE;
-        }else{
-            $statement = $this->pdo_conn->prepare("SELECT MAX(revision_no) as revision_no FROM 
-                                                        LinkMessages
-                                                    WHERE
-                                                        LinkMessages.message_id = ?
-                                                    AND
-                                                        LinkMessages.user_id = ?");
-            $statement->execute(array($aMessage_id, $this->user_id));
+    /**
+     * Add message to link
+     * 
+     * @param  string $aMessage    Message to be posted
+     * @param  int $aMessage_id    Message ID of exising message, null if message is new
+     * 
+     * @return boolean             True if message was successfully posted
+     */
+    public function postMessage($aMessage, $aMessage_id = null)
+    {
+        if (is_null($aMessage_id)) {
+            // Message is new
+            $sql = "INSERT INTO LinkMessages (user_id,link_id, message, posted)
+                VALUES (:user_id, :link_id, :message, ".time().")";
+            $statement = $this->pdo_conn->prepare($sql);
+            $data = array(
+                "user_id" =>  $this->user_id,
+                "link_id" => $this->link_id,
+                "message"  => $aMessage
+            );
+            if ($statement->execute($data)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            // Message exists and needs to be edited
+            $sql = "SELECT MAX(revision_no) as revision_no FROM 
+                LinkMessages WHERE LinkMessages.message_id = :message_id AND LinkMessages.user_id = :user_id";
+            $statement = $this->pdo_conn->prepare($sql);
+            $data = array(
+                "message_id" => $aMessage_id,
+                "user_id" => $this->user_id
+            );
+            $statement->execute($data);
             $row = $statement->fetch();
-            //print_r($row);
-            if($statement->rowCount() == 1){
+            if ($statement->rowCount() == 1) {
                 $revision_no = $row[0] + 1;
-                $statement2 = $this->pdo_conn->prepare("INSERT INTO LinkMessages ( message_id,
-                                                                        user_id,
-                                                                        link_id,
-                                                                        message,
-                                                                        revision_no,
-                                                                        posted)
-                                                        VALUES( :message_id,
-                                                                :user_id,
-                                                               :link_id,
-                                                               :message,
-                                                               $revision_no,
-                                                               ".time().")");
-                $data = array( "message_id" => $aMessage_id,
-                            "user_id" =>  $this->user_id,
-                          "link_id" => $this->link_id,
-                          "message"  => $aMessage);
-                if($statement2->execute($data))
-                    return TRUE;
-                else
-                    return FALSE;
-            }else
-                return FALSE;
-        }                            
+                $sql2 = "INSERT INTO LinkMessages (message_id, user_id, link_id, message, revision_no, posted)
+                    VALUES( :message_id, :user_id, :link_id, :message, $revision_no, ".time().")";
+                $statement2 = $this->pdo_conn->prepare($sql2);
+                $data2 = array(
+                    "message_id" => $aMessage_id,
+                    "user_id" =>  $this->user_id,
+                    "link_id" => $this->link_id,
+                    "message"  => $aMessage
+                );
+                return $statement2->execute($data2);
+            } else {
+                return false;
+            }
+        }
     }
     
-    public function vote($vote){
-        $statement = $this->pdo_conn->prepare("INSERT INTO LinkVotes (link_id, vote, user_id, created)
-                            VALUES(?, ?, $this->user_id, ".time().")
-                            ON DUPLICATE KEY UPDATE vote=?");
-        $statement->execute(array($this->link_id, $vote, $vote));
-        if($statement->rowCount() == 1)
-            return TRUE;
+    /**
+     * Vote on a link using a scale of 1 to 10
+     * 
+     * @param  int $vote Vote value number 1-10
+     * 
+     * @return boolean   True if vote was added
+     */
+    public function vote($vote)
+    {
+        $sql = "INSERT INTO LinkVotes (link_id, vote, user_id, created)
+            VALUES(:link_id, :vote, $this->user_id, ".time().") ON DUPLICATE KEY UPDATE vote=:vote2";
+        $statement = $this->pdo_conn->prepare();
+        $data = array(
+            "link_id" => $this->link_id,
+            "vote" => $vote,
+            "vote2" => $vote
+        );
+        return $statement->execute($data);
     }
     
-    public static function getCategories(&$db){
+    /**
+     * @deprecated Get link catetories; replaced by tags
+     * 
+     * @param  db_connection $db Database connection
+     * 
+     * @return array             Array of link categories
+     */
+    public static function getCategories(&$db)
+    {
         $sql = "SELECT LinkCategories.name, LinkCategories.category_id FROM LinkCategories";
         $statement = $db->prepare($sql);
         $statement->execute();
         return $statement->fetchAll();
     }
     
+    /**
+     * Add a link
+     * 
+     * @param array $request Full request of POST params
+     *
+     * @todo Provide individual parameters for each varible. 
+     *
+     * @return boolean True if link was succesfuly added. 
+     */
     public function addLink($request){
         $tags = explode(",", $request['tags']);
         if (!empty($tags)){
