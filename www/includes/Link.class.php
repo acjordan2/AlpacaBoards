@@ -614,6 +614,8 @@ class Link
                 $link_data[$i]['rank'] = $link_data_array['rank'];
                 $link_data[$i]['rating'] = $link_data_array['rating'];
                 $link_data[$i]['username'] = $link_data_array['username'];
+                $tags = $this->getLinkTags($link_data_array['link_id']);
+                $link_data[$i]['tags'] = $tags;
             }
         }
         return $link_data;
