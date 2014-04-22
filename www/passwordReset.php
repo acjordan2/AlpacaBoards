@@ -75,7 +75,7 @@ if ($auth === false) {
                 you provided a valid email ;)";
     } elseif (isset($_GET['token'])) {
         // If token is provided, validate
-        // token and reset password. 
+        // token and reset password.
         $reset_token = $_GET['token'];
         // Tokens expire after 3 days of being generated
         $sql3 = "SELECT user_id FROM PasswordResetRequests 
@@ -102,8 +102,9 @@ if ($auth === false) {
                         $statement4 = $db->prepare($sql4);
                         $statement4->execute(array($reset_token));
                         header("Location: index.php?m=2");
+                        exit();
                     }
-                } else { 
+                } else {
                     $message = "Passwords do not match";
                 }
             }
@@ -116,5 +117,5 @@ if ($auth === false) {
     include "includes/deinit.php";
 } else {
     header("Location: ./main.php");
+    exit();
 }
-?>

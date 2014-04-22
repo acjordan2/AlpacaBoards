@@ -41,7 +41,10 @@
 {foreach from=$links key=header item=table}
 			<tr class="r0">
 				<td>
-					<a href="./linkme.php?l={$table.link_id}">{$table.title}</a>
+					<div class="fl"><a href="./linkme.php?l={$table.link_id}">{$table.title}</a></div>
+                    <div class="fr">
+                        {foreach from=$table.tags item=tags}<a href="./links.php?tags={$tags.title|replace:' ':'_'}">{$tags.title}</a> {/foreach}
+                    </div>
 				</td>	
 				<td>
 					<a href="./profile.php?user={$table.user_id}">{$table.username}</a>

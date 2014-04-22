@@ -28,4 +28,4 @@ require "includes/init.php";
 // Destroy user session
 $authUser->logout();
 header("Location: ./index.php");
-?>
+exit();

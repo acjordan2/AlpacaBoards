@@ -689,3 +689,11 @@ button {
      font-size: 9pt;
      color:#000;
 }
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}

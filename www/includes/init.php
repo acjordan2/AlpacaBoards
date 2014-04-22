@@ -139,8 +139,8 @@ try {
         }
     }
 } catch(PDOException $e) {
-    if (defined(DEBUG)){
-        if (DEBUG == true){
+    if (defined(DEBUG)) {
+        if (DEBUG == true) {
             print $e->getMessage();
         }
     } else {

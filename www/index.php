@@ -39,7 +39,7 @@ if ($auth === false) {
         $message = $GLOBALS['locale_messages']['account']['created'];
     }
 
-    // If an incorrect username or password was 
+    // If an incorrect username or password was
     // provided, show error message
     if (isset($_POST['username']) || isset($_POST['password'])) {
         $message = $GLOBALS['locale_messages']['login']['error'].
@@ -57,19 +57,24 @@ if ($auth === false) {
     session_name("r");
     session_start();
     if (isset($_SESSION['redirect'])) {
-            $r = $_SESSION['redirect'];
-            if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
-    }
-    session_destroy();
-    header("Location: ".$r);
+        $r = $_SESSION['redirect'];
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+        session_destroy();
+        header("Location: ".$r);
+        exit();
     } else {
         header("Location: ./main.php");
+        exit();
     }
 }
-?>
-

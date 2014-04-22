@@ -39,30 +39,30 @@ if ($auth == true) {
     // on get parameter
     if (isset($_GET['error'])) {
         switch (@$_GET['error']) {
-        case 1:
-            $message[] = $error_msg[1];
-            break;
-        case 2:
-            $message[] = $error_msg[2];
-            break;
-        case 3:
-            $message[] = $error_msg[1];
-            $message[] = $error_msg[2];
-            break;
-        case 4:
-            $message[] = $error_msg[4];
-            break;
-        case 0:
-            $message[] = $error_msg[0];
-            break;
+            case 1:
+                $message[] = $error_msg[1];
+                break;
+            case 2:
+                $message[] = $error_msg[2];
+                break;
+            case 3:
+                $message[] = $error_msg[1];
+                $message[] = $error_msg[2];
+                break;
+            case 4:
+                $message[] = $error_msg[4];
+                break;
+            case 0:
+                $message[] = $error_msg[0];
+                break;
         }
     }
 
     $smarty->assign("message", $message);
 
     // Validate new and old password
-    if (isset($_POST['old']) 
-        && isset($_POST['new']) 
+    if (isset($_POST['old'])
+        && isset($_POST['new'])
         && isset($_POST['new2'])
     ) {
         $old = $_POST['old'];
@@ -83,8 +83,9 @@ if ($auth == true) {
             }
         }
         // Redirect after form submission to prevent
-        // re-POSTing of password            
+        // re-POSTing of password
         header("Location: ./editpass.php?error=$error");
+        exit();
     }
 
     // Set template page
@@ -95,5 +96,3 @@ if ($auth == true) {
 } else {
     include "404.php";
 }
-?>
-

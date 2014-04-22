@@ -40,7 +40,7 @@ if ($auth === true) {
             // Assign template variables
             $smarty->assign("title", htmlentities($link_edit_data['title']));
             $smarty->assign(
-                "description", 
+                "description",
                 htmlentities($link_edit_data['raw_description'])
             );
             $smarty->assign("lurl", htmlentities($link_edit_data['url2']));
@@ -53,7 +53,7 @@ if ($auth === true) {
                     if (!validateURL($_POST['lurl'])) {
                         // Make sure URL is valid
                         $error_msg = "Please enter a valid URL<br />";
-                    } elseif ($link_edit->checkURLExist($_POST['lurl'])) { 
+                    } elseif ($link_edit->checkURLExist($_POST['lurl'])) {
                         // Prevent duplicate links
                         $error_msg = "A link with that URL already exists";
                     }
@@ -61,9 +61,9 @@ if ($auth === true) {
                 }
                 if (isset($_POST['title'])) {
                     // Check title lenght and remove blank
-                    // characters from the end. 
+                    // characters from the end.
                     $smarty->assign("title", htmlentities($_POST['title']));
-                    if (strlen($_POST['title']) < 5 
+                    if (strlen($_POST['title']) < 5
                         || strlen($_POST['title'] > 80)
                     ) {
                         $error_msg .= "The title must be between 5 and 80<br />";
@@ -71,11 +71,11 @@ if ($auth === true) {
                 }
                 if (isset($_POST['description'])) {
                     $smarty->assign(
-                        "description", 
+                        "description",
                         htmlentities($_POST['description'])
                     );
                     if (strlen($_POST['description']) < 5) {
-                        $error_msg .= 
+                        $error_msg .=
                             "Description must be long than 5 characters<br />";
                     }
                 }
@@ -93,7 +93,7 @@ if ($auth === true) {
                             Please try again";
                     }
                 }
-                $smarty->assign("error", $error_msg);    
+                $smarty->assign("error", $error_msg);
             }
         } else {
             include "404.php";
@@ -102,8 +102,8 @@ if ($auth === true) {
     } else {
         // Add new link
         $links = new Link($db, $authUser->getUserID());
-        if (isset($_POST['title']) 
-            && isset($_POST['description']) 
+        if (isset($_POST['title'])
+            && isset($_POST['description'])
             && isset($_POST['token'])
         ) {
             $error_msg = "";
@@ -125,7 +125,7 @@ if ($auth === true) {
             }
             if (isset($_POST['description'])) {
                 $smarty->assign(
-                    "description", 
+                    "description",
                     htmlentities($_POST['description'])
                 );
                 if (strlen($_POST['description']) < 5) {
@@ -144,10 +144,10 @@ if ($auth === true) {
                         Please try again";
                 }
             }
-            $smarty->assign("error", $error_msg);        
+            $smarty->assign("error", $error_msg);
         }
     }
-    // Assign template variables 
+    // Assign template variables
     $smarty->assign("categories", Link::getCategories($db));
     $smarty->assign("token", $csrf->getToken());
 
@@ -158,4 +158,3 @@ if ($auth === true) {
 } else {
     include "404.php";
 }
-?>

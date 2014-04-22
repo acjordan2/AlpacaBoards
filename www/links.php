@@ -35,17 +35,17 @@ if ($auth === true) {
     $links = new Link($db, $authUser->getUserID());
     // Get sort order
     switch (@$_GET['mode']) {
-    case "topvoted":
-        $order=1;
-        break;
-    case "new":
-        $order=2;
-        break;
-    case "topvotedweek":
-        $order=3;
-        break;
-    default:
-        $order=4;
+        case "topvoted":
+            $order=1;
+            break;
+        case "new":
+            $order=2;
+            break;
+        case "topvotedweek":
+            $order=3;
+            break;
+        default:
+            $order=4;
     }
     if (@$_GET['mode']=="fav") {
         $link_list = $links->getFavorites();
@@ -76,18 +76,18 @@ if ($auth === true) {
                 $results['matches'] = $statement->fetchAll();
             }
 
-            $link_data = Array();
+            $link_data = array();
             // Get link data based on search results
             for ($i=0; $i<sizeof($results['matches']); $i++) {
-                $link_data_array 
+                $link_data_array
                     = $links->getLinkListByID($results['matches'][$i]['id']);
                 if ($link_data_array['link_id'] != null) {
                     $link_data[$i]['link_id'] = $link_data_array['link_id'];
                     $link_data[$i]['user_id'] = $link_data_array['user_id'];
-                    $link_data[$i]['title'] 
+                    $link_data[$i]['title']
                         = htmlentities($link_data_array['title']);
                     $link_data[$i]['created'] = $link_data_array['created'];
-                    $link_data[$i]['NumberOfVotes'] 
+                    $link_data[$i]['NumberOfVotes']
                         = $link_data_array['NumberOfVotes'];
                     $link_data[$i]['rank'] = $link_data_array['rank'];
                     $link_data[$i]['rating'] = $link_data_array['rating'];
@@ -107,4 +107,3 @@ if ($auth === true) {
 } else {
     include "404.php";
 }
-?>

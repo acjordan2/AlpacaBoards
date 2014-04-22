@@ -41,46 +41,46 @@ if ($auth === true) {
             } else {
                 $current_page = intval($_GET['page']);
             }
-            // Submit link vote between 
+            // Submit link vote between
             // 0 and 10
-            if (is_numeric(@$_POST['v']) 
-                && @$_POST['v'] >= 0 
-                && @$_POST['v'] <= 10 
+            if (is_numeric(@$_POST['v'])
+                && @$_POST['v'] >= 0
+                && @$_POST['v'] <= 10
                 && $link_data['user_id']!=$authUser->getUserID()
             ) {
                 // Validate anti-CSRF token
                 if ($csrf->validateToken(@$_REQUEST['token'])) {
                     $link->vote($_POST['v']);
                     // Redirect to link page with
-                    // success message to avoid the 
+                    // success message to avoid the
                     // annoying message from browsers
-                    // when a POST request is submitted. 
+                    // when a POST request is submitted.
                     header("Location: ./linkme.php?l=$link_id&v=".@$_POST['v']);
                     exit();
                 }
             }
-            if (is_numeric(@$_GET['v']) 
-                && (@$_GET['v'] >= 0  
+            if (is_numeric(@$_GET['v'])
+                && (@$_GET['v'] >= 0
                 && @$_GET['v'] <= 10)
             ) {
                     $smarty->assign("message", "Vote Added!");
             }
             // Add link to favorites
-            if ((@$_POST['f'] === "1" 
-                || @$_POST['f'] === "0") 
-                && $csrf->validateToken(@$_REQUEST['token']) 
+            if ((@$_POST['f'] === "1"
+                || @$_POST['f'] === "0")
+                && $csrf->validateToken(@$_REQUEST['token'])
             ) {
                 if ($link->addToFavorites($_POST['f'])) {
                     // Redirect to link page with
-                    // success message to avoid the 
+                    // success message to avoid the
                     // annoying message from browsers
-                    // when a POST request is submitted. 
+                    // when a POST request is submitted.
                     header("Location: ./linkme.php?l=$link_id&f=".$_POST['f']);
                     exit();
-                }        
+                }
             }
             if (@$_GET['f'] === "1" || @$_GET['f'] === "0") {
-                $status_message = ($_GET['f'] === "1") ? 
+                $status_message = ($_GET['f'] === "1") ?
                         "Added to favorites!" : "Removed from favorites";
                 $smarty->assign("message", $status_message);
             }
@@ -91,9 +91,10 @@ if ($auth === true) {
             $smarty->assign("link_id", $link_id);
             $smarty->assign("messages", $messages);
             $smarty->assign(
-                "signature", 
+                "signature",
                 str_replace(
-                    "\r\n", "\\n", 
+                    "\r\n",
+                    "\\n",
                     addslashes(
                         str_replace("+", " ", ($authUser->getSignature()))
                     )
@@ -115,7 +116,7 @@ if ($auth === true) {
     } elseif ($link_id == "random") {
         // Select random link
         $sql = "SELECT Links.link_id FROM Links WHERE Links.active=0";
-        $links = $db->query($sql);        
+        $links = $db->query($sql);
         $links_data = $links->fetchAll();
         header(
             "Location: ./linkme.php?l=".
@@ -129,5 +130,3 @@ if ($auth === true) {
 } else {
     include "404.php";
 }
-?>
-

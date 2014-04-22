@@ -106,6 +106,8 @@ class Link
                 $link_data[$i]['rank'] = $link_data_array['rank'];
                 $link_data[$i]['rating'] = $link_data_array['rating'];
                 $link_data[$i]['username'] = $link_data_array['username'];
+                $tags = $this->getLinkTags($link_data_array['link_id']);
+                $link_data[$i]['tags'] = $tags;
             }
         }
         return $link_data;
@@ -702,10 +704,19 @@ class Link
             $statement = $this->pdo_conn->prepare($sql);
             $statement->execute(array("tag_id" => $tag));
             $results = $statement->fetchAll();
-            if(!empty($results)) {
+            if (!empty($results)) {
                 $tag_list[] = $results[0]['tag_id'];
             }
         }
         return $tag_list;
+    }
+
+    public function getLinkTags($link_id)
+    {
+        $sql = "SELECT TopicalTags.title FROM Tagged
+            LEFT JOIN TopicalTags USING(tag_id) WHERE data_id = :link_id AND (Tagged.type = 0 OR Tagged.type = 2)";
+        $statement = $this->pdo_conn->prepare($sql);
+        $statement->execute(array("link_id" => $link_id));
+        return $statement->fetchAll();
     }
 }

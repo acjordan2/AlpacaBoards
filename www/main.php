@@ -36,4 +36,3 @@ if ($auth == true) {
 } else {
     header("Location: ./?r=main.php");
 }
-?>
