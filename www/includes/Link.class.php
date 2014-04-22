@@ -498,13 +498,12 @@ class Link
         $sql_append = "";
         if (isset($this->link_id)) {
             $sql_append = "AND link_id != :link_id";
+            $data["link_id"] = $this->link_id;
+
         }
         $sql = "SELECT Links.url FROM Links WHERE url=:url $sql_append";
         $statement = $this->pdo_conn->prepare($sql);
-        $data = array(
-            "url" => $link,
-            "link_id" => $this->link_id
-        );
+        $data["url"] = $link;
         $statement->execute($data);
         if ($statement->rowCount() == 1) {
             return true;
