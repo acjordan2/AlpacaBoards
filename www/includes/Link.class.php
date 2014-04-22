@@ -457,31 +457,35 @@ class Link
         $tags_remove = array_diff($current_tags, $new_tags);
         $tags_add = array_diff($new_tags, $current_tags);
 
-        // Remove old tags from link
-        $remove_flag = 0;
-        $sql_removeTags = "DELETE FROM Tagged WHERE data_id = :link_id AND (";
-        $tags_remove_data = array();
-        $tags_remove_data['link_id'] = $this->link_id;
-        $i = 0;
-        foreach ($tags_remove as $tag) {
-            if ($remove_flag == 1) {
-                $sql_removeTags .= " OR ";
+        if(count($tags_remove) > 0) {
+            // Remove old tags from link
+            $remove_flag = 0;
+            $sql_removeTags = "DELETE FROM Tagged WHERE data_id = :link_id AND (";
+            $tags_remove_data = array();
+            $tags_remove_data['link_id'] = $this->link_id;
+            $i = 0;
+            foreach ($tags_remove as $tag) {
+                if ($remove_flag == 1) {
+                    $sql_removeTags .= " OR ";
+                }
+                $sql_removeTags .= "tag_id = :tag_id".$i;
+                $tags_remove_data["tag_id".$i] = $tag;
+                $i++;
             }
-            $sql_removeTags .= "tag_id = :tag_id".$i;
-            $tags_remove_data["tag_id".$i] = $tag;
-            $i++;
+            $sql_removeTags .= ")";
+            $statement_removeTags = $this->pdo_conn->prepare($sql_removeTags);
+            $statement_removeTags->execute($tags_remove_data);
         }
-        $sql_removeTags .= ")";
-        $statement_removeTags = $this->pdo_conn->prepare($sql_removeTags);
-        $statement_removeTags->execute($tags_remove_data);
 
-        // Add new tags
-        $sql_addTags = "INSERT into Tagged (data_id, tag_id, type)
-            VALUES (:link_id, :tag_id, 2)";
+        if (count($tags_add) > 0) {
+            // Add new tags
+            $sql_addTags = "INSERT into Tagged (data_id, tag_id, type)
+                VALUES (:link_id, :tag_id, 2)";
 
-        foreach ($tags_add as $tag) {
-            $statement_addTags = $this->pdo_conn->prepare($sql_addTags);
-            $statement_addTags->execute(array("link_id" => $this->link_id, "tag_id" => $tag));
+            foreach ($tags_add as $tag) {
+                $statement_addTags = $this->pdo_conn->prepare($sql_addTags);
+                $statement_addTags->execute(array("link_id" => $this->link_id, "tag_id" => $tag));
+            }
         }
         return true;
     }
