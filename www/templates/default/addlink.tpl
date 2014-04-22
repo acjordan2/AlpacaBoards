@@ -25,7 +25,7 @@
 		<table>
 			<tr>
                 <td>
-                <input type='text' id="tags" name="tags" style="width: 500px;" value="{$tags}"/>
+                <input type='text' id="tags" name="tags" style="width: 500px;" value="{if isset($tags)}{$tags}{/if}"/>
                 </td>
 			</tr>
 		</table>
@@ -36,7 +36,7 @@
 		<textarea cols="100" rows="20" name="description" id="description">{if isset($description)}{$description}{/if}</textarea>
 		<br />
 		<br />
-		<input type="submit" name="addlink" value="Add Link" id="save">
+		<input type="submit" name="addlink" value="{if isset($link_edit)}Save{else}Add Link{/if}" id="save">
 	</form>
 </form>
 {include file="footer.tpl"}
