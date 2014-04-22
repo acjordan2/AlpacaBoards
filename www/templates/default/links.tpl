@@ -43,7 +43,7 @@
 				<td>
 					<div class="fl"><a href="./linkme.php?l={$table.link_id}">{$table.title}</a></div>
                     <div class="fr">
-                        {foreach from=$table.tags item=tags}<a href="./links.php?tags={$tags.title|replace:' ':'_'}">{$tags.title}</a> {/foreach}
+                        {foreach from=$table.tags item=tags}<a href="./links.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
                     </div>
 				</td>	
 				<td>

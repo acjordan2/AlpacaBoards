@@ -33,6 +33,7 @@ if ($auth === true) {
     $page_title = "Links";
     $display = "links.tpl";
     $links = new Link($db, $authUser->getUserID());
+
     // Get sort order
     switch (@$_GET['mode']) {
         case "topvoted":
@@ -100,7 +101,11 @@ if ($auth === true) {
             $page_title = "Links";
         }
     } else {
-        $link_list = $links->getLinkList($order);
+        if (isset($_GET['tags'])) {
+            $link_list = $links->getLinkListByTag($_GET['tags']);
+        } else {
+            $link_list = $links->getLinkList($order);
+        }
     }
     $smarty->assign("links", $link_list);
     include "includes/deinit.php";

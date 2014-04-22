@@ -754,4 +754,104 @@ class Link
         $statement->execute(array("link_id" => $link_id));
         return $statement->fetchAll();
     }
+
+    public function getLinkListByTag($tag_filter)
+    {
+        preg_match_all("/\[.*?\]/", $tag_filter, $matches);
+
+        if (count($matches[0]) != 0) {
+            $sql_getTagID = "SELECT TopicalTags.tag_id FROM TopicalTags WHERE (";
+
+            $i = 0;
+            $tag_id_data = array();
+            $tag_id_flag = 0;
+            foreach ($matches[0] as $tag) {
+                if ($tag_id_flag == 1) {
+                    $sql_getTagID .= " OR ";
+                }
+                $title = str_replace(array("[", "]"), "", $tag);
+                $tag_id_data['title'.$i] = str_replace("_", " ", $title);
+                $sql_getTagID .= " title = :title".$i;
+                $i++;
+                $tag_id_flag = 1;
+            }
+            $sql_getTagID .= ")";
+
+            $statement_getTagID = $this->pdo_conn->prepare($sql_getTagID);
+            $statement_getTagID->execute($tag_id_data);
+            $tag_ids = $statement_getTagID->fetchAll();
+
+            $sql_getNodes = "SELECT n.tag_id FROM TopicalTags as t
+                LEFT JOIN  TopicalTagParentRelationship as r 
+                    ON t.tag_id=r.parent_id
+                LEFT JOIN TopicalTags as n 
+                    ON r.child_id = n.tag_id
+                WHERE t.tag_id = :tag_id";
+
+
+            $tag_array_tmp = array();
+            foreach($tag_ids[0] as $tag) {
+                $tag_array_tmp[] = $tag;
+            }
+
+            for ($i = 0; $i < count($tag_array_tmp); $i++) {
+                $statement = $this->pdo_conn->prepare($sql_getNodes);
+                $statement->execute(array("tag_id" => $tag_array_tmp[$i]));
+                $tmp_results = $statement->fetchAll();
+                for ($j = 0; $j<count($tmp_results); $j++) {
+                    $parent_id = $tmp_results[$j]['tag_id'];
+                    $parent_array[] = $parent_id;
+                    if (!in_array($parent_id, $tag_array_tmp) && $parent_id != "") {
+                        $tag_array_tmp[] = $parent_id;
+                    }
+                }
+            }
+            $sql_getLinks = "SELECT Users.username, Links.link_id, Links.user_id, 
+                Links.title, Links.url, COUNT(LinkVotes.vote) AS NumberOfVotes, 
+                SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, 
+                SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) AS rating, 
+                Links.created 
+                FROM Users LEFT JOIN
+                Links USING(user_id) 
+                LEFT JOIN LinkVotes USING(link_id) 
+                LEFT JOIN Tagged ON Tagged.data_id = Links.link_id
+                WHERE (";
+
+            $link_flag = 0;
+            $i = 0;
+            $date_getLinks = array();
+            foreach ($tag_array_tmp as $tag) {
+                if ($link_flag == 1) {
+                    $sql_getLinks .= " OR ";
+                }
+                $sql_getLinks .= " Tagged.tag_id = :tag_id".$i;
+                $data_getLinks["tag_id".$i] = $tag;
+                $i++;
+                $link_flag = 1;
+            }
+            $sql_getLinks .= ") GROUP BY link_id";
+
+            $statement_getLinks = $this->pdo_conn->prepare($sql_getLinks);
+            $statement_getLinks->execute($data_getLinks);
+            
+            $link_data = array();
+            for ($i=0; $link_data_array=$statement_getLinks->fetch(); $i++) {
+                if ($link_data_array['link_id'] != null) {
+                    $link_data[$i]['link_id'] = $link_data_array['link_id'];
+                    $link_data[$i]['user_id'] = $link_data_array['user_id'];
+                    $link_data[$i]['title'] = htmlentities($link_data_array['title']);
+                    $link_data[$i]['created'] = $link_data_array['created'];
+                    $link_data[$i]['NumberOfVotes'] = $link_data_array['NumberOfVotes'];
+                    $link_data[$i]['rank'] = $link_data_array['rank'];
+                    $link_data[$i]['rating'] = $link_data_array['rating'];
+                    $link_data[$i]['username'] = $link_data_array['username'];
+                    $tags = $this->getLinkTags($link_data_array['link_id']);
+                    $link_data[$i]['tags'] = $tags;
+                }
+            }
+            return $link_data;
+        } else {
+            return false;
+        }
+    }
 }
