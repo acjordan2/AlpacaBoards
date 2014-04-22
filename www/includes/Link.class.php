@@ -347,7 +347,7 @@ class Link
     {
         $sql = "INSERT INTO LinkVotes (link_id, vote, user_id, created)
             VALUES(:link_id, :vote, $this->user_id, ".time().") ON DUPLICATE KEY UPDATE vote=:vote2";
-        $statement = $this->pdo_conn->prepare();
+        $statement = $this->pdo_conn->prepare($sql);
         $data = array(
             "link_id" => $this->link_id,
             "vote" => $vote,
