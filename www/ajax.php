@@ -56,7 +56,13 @@ if ($auth == true) {
                         die();
                         break;
                     case "checkParentTag":
-                        $tags = explode(",", $_POST['tags']);
+                        $tags_tmp = explode(":", $_POST['tags']);
+                        if (count($tags_tmp) > 1) {
+                            $i = 1;
+                        } else {
+                            $i = 2;
+                        }
+                        $tags = explode(",", $tags_tmp[1]);
                         $output = $link->checkParentTag($tags);
                         break;
                     default:

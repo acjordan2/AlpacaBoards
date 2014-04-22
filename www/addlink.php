@@ -46,6 +46,13 @@ if ($auth === true) {
             $smarty->assign("lurl", htmlentities($link_edit_data['url2']));
             $smarty->assign("link_edit", true);
             $smarty->assign("link_id", $link_edit_data['link_id']);
+            $tags = $link_edit->getLinkTags($link_edit_data['link_id']);
+
+            $tag_list = array();
+            foreach ($tags as $tag) {
+                $tag_list[] = $tag['tag_id'].":".$tag['title'];
+            }
+            $smarty->assign("tags", implode(",", $tag_list));
             if (isset($_POST['token'])) {
                 // Validate provided data
                 $error_msg = "";

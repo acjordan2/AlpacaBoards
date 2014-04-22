@@ -427,15 +427,7 @@ class Link
         if (is_null(@$request['lurl'])) {
             $request['lurl'] = "";
         }
-        $k = 0;
-        for ($i=0; $i<sizeof($allowed_categories); $i++) {
-            if (isset($request[$allowed_categories[$i][0]])) {
-                if ($request[$allowed_categories[$i][0]] == 1) {
-                     $cats[$k] = $allowed_categories[$i][1];
-                     $k++;
-                }
-            }
-        }
+
         $sql = "UPDATE Links SET Links.title=:title, Links.url=:url, Links.description=:description
              WHERE Links.user_id=".$this->user_id." AND Links.link_id=:link_id";
         $statement = $this->pdo_conn->prepare($sql);
@@ -445,16 +437,53 @@ class Link
             "description" => $request['description'],
             "link_id" => $this->link_id
         );
-        return $statement->execute($data);
-        /*
-        $this->link_id = $this->pdo_conn->lastInsertId();
-        for($i=0; $i<sizeof($cats); $i++){
-            $sql2 = "INSERT INTO LinksCategorized (link_id, category_id)
-                        VALUES($this->link_id, ".$cats[$i].")";
-            $statement2 = $this->pdo_conn->query($sql2);
+        //$statement->execute($data);
+        $current_tags_tmp = $this->getLinkTags($this->link_id);
+        $current_tags = array();
+        foreach ($current_tags_tmp as $c_tags) {
+            $current_tags[] = $c_tags['tag_id'];
         }
-        **/
+        $new_tags_r = $request['tags'];
+        $new_tags_t = explode(":", $new_tags_r);
+        if (count($new_tags_t) > 1) {
+            $i = 1;
+        } else {
+            $i = 0;
+        }
+        $new_tags = explode(",", $new_tags_t[$i]);
+        if ($i == 1) {
+            array_shift($new_tags);
+        }
+        $tags_remove = array_diff($current_tags, $new_tags);
+        $tags_add = array_diff($new_tags, $current_tags);
 
+        // Remove old tags from link
+        $remove_flag = 0;
+        $sql_removeTags = "DELETE FROM Tagged WHERE data_id = :link_id AND (";
+        $tags_remove_data = array();
+        $tags_remove_data['link_id'] = $this->link_id;
+        $i = 0;
+        foreach ($tags_remove as $tag) {
+            if ($remove_flag == 1) {
+                $sql_removeTags .= " OR ";
+            }
+            $sql_removeTags .= "tag_id = :tag_id".$i;
+            $tags_remove_data["tag_id".$i] = $tag;
+            $i++;
+        }
+        $sql_removeTags .= ")";
+        $statement_removeTags = $this->pdo_conn->prepare($sql_removeTags);
+        $statement_removeTags->execute($tags_remove_data);
+
+        // Add new tags
+        $sql_addTags = "INSERT into Tagged (data_id, tag_id, type)
+            VALUES (:link_id, :tag_id, 2)";
+
+        foreach ($tags_add as $tag) {
+            $statement_addTags = $this->pdo_conn->prepare($sql_addTags);
+            $statement_addTags->execute(array("link_id" => $this->link_id, "tag_id" => $tag));
+        }
+        return true;
     }
     
     /**
@@ -713,7 +742,7 @@ class Link
 
     public function getLinkTags($link_id)
     {
-        $sql = "SELECT TopicalTags.title FROM Tagged
+        $sql = "SELECT TopicalTags.title, TopicalTags.tag_id FROM Tagged
             LEFT JOIN TopicalTags USING(tag_id) WHERE data_id = :link_id AND (Tagged.type = 0 OR Tagged.type = 2)";
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array("link_id" => $link_id));

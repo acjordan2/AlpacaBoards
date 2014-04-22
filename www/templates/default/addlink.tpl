@@ -25,7 +25,7 @@
 		<table>
 			<tr>
                 <td>
-                <input type='text' id="tags" name="tags" style="width: 500px;" />
+                <input type='text' id="tags" name="tags" style="width: 500px;" value="{$tags}"/>
                 </td>
 			</tr>
 		</table>
