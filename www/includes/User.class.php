@@ -70,15 +70,14 @@ class User {
     /**
      * Create a new user
      * 
-     * @param db_connection Database connection object, passed by reference
      * @param int $aUserID  Create a user by specifiying a user ID
      * 
      * @return void
     */
-    public function __construct(&$db_connection, $aUserID = null)
+    public function __construct($aUserID = null)
     {
         // Pass DB connection by reference
-        $this->pdo_conn = &$db_connection;
+        $this->pdo_conn = ConnectionFactory::getInstance()->getConnection();
         if (!is_null($aUserID)) {
             $this->user_id=$aUserID;
             $this->getUserByID();

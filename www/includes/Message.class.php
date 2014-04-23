@@ -237,7 +237,7 @@ class MessageRevision Extends Message{
 								   "width" => $data['thumb_width'],
 								   "avatar" => $data['sha1_sum']."/".urlencode(substr($data['filename']);
 		*/
-		$tmp_user = new User($this->pdo_conn, $this->user_id);
+		$tmp_user = new User($this->user_id);
 		$this->user_avatar = $tmp_user->getAvatar();
 	}
 

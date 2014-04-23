@@ -253,7 +253,7 @@ class Link
         // Parse link data for links
         $parser = new Parser($this->pdo_conn);
         for ($i=0; $message_data_array=$statement->fetch(); $i++) {
-            $tmp_user = new User($this->pdo_conn, $message_data_array['user_id']);
+            $tmp_user = new User($message_data_array['user_id']);
             $message_data[$i]['message_id'] = $message_data_array['message_id'];
             $message_data[$i]['user_id'] = $message_data_array['user_id'];
             $message_data[$i]['username'] = $message_data_array['username'];

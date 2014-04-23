@@ -33,6 +33,7 @@ $root_path = get_root_path();
 $base_url = get_base_url($root_path);
 
 require_once("Config.ini.php");
+require_once("ConnectionFactory.class.php");
 require_once("User.class.php");
 require_once("smarty/Smarty.class.php");
 require_once("Override.inc.php");
@@ -65,85 +66,58 @@ if (verify_domain($_SERVER['HTTP_HOST'])) {
     define("DOMAIN", "");
 }
 
-//Initiate database connection
-try {
-    // Database Setup
-    $db = new PDO(
-        DATABASE_TYPE.":host=".DATABASE_HOST.";dbname=".DATABASE_NAME,
-        DATABASE_USER,
-        DATABASE_PASS
-    );
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-    
-    $site = new Site($db);
-    $sitekey = base64_decode($site->getSiteKey());
-    $sitename = htmlentities($site->getSiteName());
-    
-    define("SITE_KEY", $sitekey);
-    define("SITENAME", $sitename);
-    define("BASEURL", $base_url);
-    define("ROOTPATH", $root_path);
+$db = ConnectionFactory::getInstance()->getConnection();
 
-    // Templating System Setup
-    $smarty = new Smarty();
-    $smarty->template_dir = TEMPLATE_DIR."/default";
-    $smarty->compile_dir = TEMPLATE_COMPILE;
-    $smarty->cache_dir = TEMPLATE_CACHE;
-    $smarty->config_dir = TEMPLATE_CONFIG;
-    $smarty->assign("sitename", SITENAME);
-    $smarty->assign("domain", DOMAIN);
-    $smarty->assign("dateformat", DATE_FORMAT_SMARTY);
-    $smarty->assign("board_id", 42);
-    $smarty->assign("base_url", $base_url);
-    $smarty->assign("base_image_url", BASE_IMAGE_URL);
-    $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
+$site = new Site();
+$sitekey = base64_decode($site->getSiteKey());
+$sitename = htmlentities($site->getSiteName());
 
-    if (defined('DEBUG')) {
-        if (DEBUG == true){
-            $smarty->assign("debug", true);
+define("SITE_KEY", $sitekey);
+define("SITENAME", $sitename);
+define("BASEURL", $base_url);
+define("ROOTPATH", $root_path);
+
+// Templating System Setup
+$smarty = new Smarty();
+$smarty->template_dir = TEMPLATE_DIR."/default";
+$smarty->compile_dir = TEMPLATE_COMPILE;
+$smarty->cache_dir = TEMPLATE_CACHE;
+$smarty->config_dir = TEMPLATE_CONFIG;
+$smarty->assign("sitename", SITENAME);
+$smarty->assign("domain", DOMAIN);
+$smarty->assign("dateformat", DATE_FORMAT_SMARTY);
+$smarty->assign("board_id", 42);
+$smarty->assign("base_url", $base_url);
+$smarty->assign("base_image_url", BASE_IMAGE_URL);
+$smarty->assign("sm_labels", $GLOBAL['locale_labels']);
+
+$csrf = new CSRFGuard();
+
+$authUser = new User();
+
+if (isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])) {
+    if ($csrf->validateToken($_POST['token'])) {
+        $auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
+        if ($auth == true) {
+            $csrf->resetToken();
         }
     } else {
-        $smarty->assign("debug", false);
+        $auth = false;
     }
-    
-    $csrf = new CSRFGuard();
-
-    $authUser = new User($db);
-
-    if (isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])) {
-        if ($csrf->validateToken($_POST['token'])) {
-            $auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
-            if ($auth == true) {
-                $csrf->resetToken();
-            }
-        } else {
-            $auth = false;
-        }
-    } else {
-        $auth = $authUser->checkAuthentication();
-    }
-    if ($auth == true) {
-        $smarty->assign("username", $authUser->getUsername());
-        $smarty->assign("user_id", $authUser->getUserID());
-        $authUser->awardKarma();
-        $smarty->assign("karma", $authUser->getKarma());
-        if ($authUser->getStatus() == -1) {
-            $message = "You have been banned";
-            $display = "no_access.tpl";
-            $page_title = "You have been banned";
-            $smarty->assign("message", $message);
-            $smarty->assign("reason", htmlentities($authUser->getDisciplineReason()));
-            include "deinit.php";
-        }
-    }
-} catch(PDOException $e) {
-    if (defined(DEBUG)) {
-        if (DEBUG == true) {
-            print $e->getMessage();
-        }
-    } else {
-        print "Error :(";
+} else {
+    $auth = $authUser->checkAuthentication();
+}
+if ($auth == true) {
+    $smarty->assign("username", $authUser->getUsername());
+    $smarty->assign("user_id", $authUser->getUserID());
+    $authUser->awardKarma();
+    $smarty->assign("karma", $authUser->getKarma());
+    if ($authUser->getStatus() == -1) {
+        $message = "You have been banned";
+        $display = "no_access.tpl";
+        $page_title = "You have been banned";
+        $smarty->assign("message", $message);
+        $smarty->assign("reason", htmlentities($authUser->getDisciplineReason()));
+        include "deinit.php";
     }
 }

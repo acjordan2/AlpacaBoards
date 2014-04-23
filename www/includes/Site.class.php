@@ -37,9 +37,9 @@ class Site {
     private $_invites;
 
 
-    public function __construct(&$db)
+    public function __construct()
     {
-        $this->_pdoconn = $db;
+        $this->_pdoconn = ConnectionFactory::getInstance()->getConnection();
         $sql = "SELECT sitename, sitekey, registration, invites FROM SiteOptions";
         $statement = $this->_pdoconn->prepare($sql);
         $statement->execute();

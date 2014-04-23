@@ -40,7 +40,7 @@ if ($auth == true) {
         
     if (is_numeric($user_id)) {
         // Get user stats
-        $stat_user = new User($db, $user_id);
+        $stat_user = new User($user_id);
         if ($stat_user->doesExist()) {
             // Assign template variables 
             $smarty->assign("p_username", $stat_user->getUsername());

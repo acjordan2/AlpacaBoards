@@ -39,7 +39,7 @@ if ($auth === true) {
         $user_id=$_GET['user'];
     }
     if (is_numeric($user_id)) {
-        $profile_user = new User($db, $user_id);
+        $profile_user = new User($user_id);
         // Verify the provided user ID is valid
         if ($profile_user->doesExist()) {
             

@@ -93,7 +93,7 @@ if ($auth === false) {
                     $message = "Password must be at least 8 characters";
                 } elseif (strcmp($new, $new2) === 0) {
                     $results2 = $statement3->fetch();
-                    $user = new User($db, $results2['user_id']);
+                    $user = new User($results2['user_id']);
                     // Invalidate token after being used to
                     // prevent replay attacks
                     if ($user->changePassword(null, $new, true)) {
@@ -109,7 +109,7 @@ if ($auth === false) {
                 }
             }
             $results2 = $statement3->fetch();
-            $user = new User($db, $results2['user_id']);
+            $user = new User($results2['user_id']);
         }
     }
     $smarty->assign("username", htmlentities(@$_POST['username']));
