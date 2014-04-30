@@ -56,6 +56,7 @@ class Topic
         $statement->execute($data);
         if ($statement->rowCount() == 1) {
             $results = $statement->fetch();
+            $statement->closeCursor();
             $this->_topic_id = $results['topic_id'];
             $this->_topic_title = $results['title'];
         } else {
@@ -154,6 +155,7 @@ class Topic
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
         $results = $statement->fetch();
+        $statement->closeCursor();
         $page_count = intval($results['count']/$this->_messages_per_page);
         if ($page_count % $this->_messages_per_page != 0) {
             $page_count++;
@@ -192,6 +194,7 @@ class Topic
             $statement = $this->_pdo_conn->prepare($sql);
             if ($statement->execute($data)) {
                 $this->_parser->map($message, $this->_user_id, $this->_topic_id);
+                $statement->closeCursor();
                 return true;
             } else {
                 return false;
@@ -207,7 +210,7 @@ class Topic
             $statement = $this->_pdo_conn->prepare($sql);
             $statement->execute($data);
             $row = $statement->fetch();
-
+            $statement->closeCursor();
             if ($statement->rowCount() == 1) {
                 // Provided message ID exists
                 $revision_number = $row[0] + 1;
@@ -249,6 +252,7 @@ class Topic
         );
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
+        $statement->closeCursor();
     }
 
     public function getReaders()
@@ -261,6 +265,7 @@ class Topic
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
         $row = $statement->fetch();
+        $statement->closeCursor();
         return $row[0];
     }
 
