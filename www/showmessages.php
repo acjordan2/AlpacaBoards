@@ -30,9 +30,9 @@ require "includes/Parser.class.php";
 if ($auth == true) {
     if (is_numeric($_GET['topic'])) {
         $topic_id = $_GET['topic'];
-        $topic = new Topic($db, $topic_id, $authUser->getUserID());
         // Verify topic
-        if ($topic->doesExist()) {
+        try {
+            $topic = new Topic($topic_id, $authUser->getUserID());
             if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
                 $current_page = 1;
             } else {
@@ -102,8 +102,8 @@ if ($auth == true) {
                 "topic_title", 
                 htmlentities($topic->getTopicTitle())
             );
-            $smarty->assign("board_title", $topic->getBoardTitle());
-            $smarty->assign("board_id", $topic->getBoardID());
+            $smarty->assign("board_title", "Life, the Universe, and Everything");
+            $smarty->assign("board_id", "42");
             $smarty->assign("page_count", $topic->getPageCount());
             $smarty->assign("current_page", $current_page);
             $smarty->assign("num_readers",     $topic->getReaders());
@@ -112,7 +112,7 @@ if ($auth == true) {
             $display = "showmessages.tpl";
             $page_title = $topic->getTopicTitle();
             include "includes/deinit.php";
-        } else {
+        } catch (Exception $e) {
             include "404.php";
         }
     } else {

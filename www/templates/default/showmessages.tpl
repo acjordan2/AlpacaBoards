@@ -61,7 +61,7 @@
     			</td>
     			<td class="userpic">
     				<div class="userpic-holder">
-    					{if $table.avatar != NULL}<a href="./imagemap.php?hash={$table.sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.avatar}" width="{$table.avatar_width}" height="{$table.avatar_height}" /></a>{/if}
+    					{if $table.avatar != NULL}<a href="./imagemap.php?hash={$table.sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}" width="{$table.thumb_width}" height="{$table.thumb_height}" /></a>{/if}
                         {if $table.level == 1}<center style="padding: 4px 2px;"><b style="color:{$table.title_color}">{$table.title}</b></center>{/if}
     				</div>
     			</td>

@@ -36,6 +36,8 @@ class Parser
 
     private $_newline;
 
+    private $pdo_conn;
+
     private static $element_count;
 
     /**
@@ -43,7 +45,7 @@ class Parser
     *
     * @param PDO $db Database connection object
     */
-    public function __construct($db)
+    public function __construct()
     {
         libxml_use_internal_errors(true);
         // White list of allowed tags => attributes
@@ -59,7 +61,7 @@ class Parser
                                     "quote" => "msgid",
                                     "spoiler" => "caption");
         $this->doc = new DomDocument();
-        $this->pdo_conn = $db;
+        $this->pdo_conn = ConnectionFactory::getInstance()->getConnection();
     }
 
     /**

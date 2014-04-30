@@ -35,13 +35,11 @@ if($auth == TRUE){
     $smarty->assign("token", $csrf->getToken());
     if(is_numeric(@$_REQUEST['topic'])){
         $topic_id = intval($_REQUEST['topic']);
-        $topic = new Topic($db, $topic_id, $authUser->getUserID());
-        if(!$topic->doesExist())
-            require("404.php");
+        $topic = new Topic($topic_id, $authUser->getUserID());
         $smarty->assign("topic_id", $topic_id);
         $smarty->assign("topic_title", htmlentities($topic->getTopicTitle()));
         $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
-        $smarty->assign("board_id", $topic->getBoardID());
+        $smarty->assign("board_id", "42");
         if(is_numeric(@$_GET['quote'])){
             $message = new Message($db, intval($_GET['quote']));
             if($message->doesExist()){
@@ -79,7 +77,7 @@ if($auth == TRUE){
                     $message_id = intval(@$_REQUEST['id']);
                 if($topic->postMessage($_POST['message'], $message_id)){
                     $topic->getMessages();
-                    header("Location: ./showmessages.php?board=".$board_id."&topic=".$topic_id."&page=".$topic->getPageCount());
+                    header("Location: ./showmessages.php?board=".$board_id."&topic=".$topic_id."&page=1");
                 }
             }
         }
