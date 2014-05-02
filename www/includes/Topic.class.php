@@ -235,9 +235,12 @@ class Topic
 
     public function pollMessage()
     {
-        $message = false;
-        for ($i=0; $i < !$message && $i < 60; $i++) {
+        $message = null;
+        for ($i=0; count($message) == 0 && $i < 60; $i++) {
             $message = $this->getMessages(1, "newMessages:".$this->_user_id);
+            if (count($message) == 0) {
+                sleep(1);
+            }
         }
         return $message;
     }
@@ -267,6 +270,11 @@ class Topic
         $row = $statement->fetch();
         $statement->closeCursor();
         return $row[0];
+    }
+
+    public function getTopicID()
+    {
+        return $this->_topic_id;
     }
 
     public function getTopicTitle()

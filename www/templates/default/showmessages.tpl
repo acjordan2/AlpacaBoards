@@ -61,7 +61,7 @@
     			</td>
     			<td class="userpic">
     				<div class="userpic-holder">
-    					{if $table.avatar != NULL}<a href="./imagemap.php?hash={$table.sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}" width="{$table.thumb_width}" height="{$table.thumb_height}" /></a>{/if}
+    					{if $table.sha1_sum != NULL}<a href="./imagemap.php?hash={$table.sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}" width="{$table.thumb_width}" height="{$table.thumb_height}" /></a>{/if}
                         {if $table.level == 1}<center style="padding: 4px 2px;"><b style="color:{$table.title_color}">{$table.title}</b></center>{/if}
     				</div>
     			</td>
@@ -98,6 +98,7 @@
                         $("#u0_1").append(data);
                         if(data.length != 0) {
                             $.playSound("{$base_url}/templates/default/res/bip");
+                            $("img").lazyload();
                         }
                     }, 
                 dataType: "json", 
