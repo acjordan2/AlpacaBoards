@@ -232,7 +232,7 @@ class Parser
                 // Check if the quote is from a link or a topic
                 if ($msgid_array[0] == "t") { // Topic
                     $sql_quote = "SELECT Users.username, Users.user_id, 
-                        Messages.posted FROM Messages LEFT JOIN 
+                        Messages.posted, Messages.deleted FROM Messages LEFT JOIN 
                         Users Using(user_id) WHERE Messages.topic_id=? 
                         AND Messages.message_id=? AND Messages.revision_no = 0";
                 } else { // Link
@@ -282,9 +282,16 @@ class Parser
         // Transfer child nodes from original parent
         // to the new parent
 
-        // Works, but leaves the the <quote> tags
-        // Not sure why I can't enumerate the children
-        $quote_body->appendChild($node->cloneNode(true));
+        if ($results['deleted'] == 2) {
+            // If original message was deleted by a moderator
+            // don't show quote
+            $textNode = $this->doc->createTextNode($GLOBALS['locale_messages']['message']['deleted_moderator']);
+            $quote_body->appendChild($textNode);
+        } else {
+            // Works, but leaves the the <quote> tags
+            // Not sure why I can't enumerate the children
+            $quote_body->appendChild($node->cloneNode(true));
+        }
         return $quote_body;
     }
 
