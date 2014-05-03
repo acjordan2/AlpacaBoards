@@ -423,7 +423,6 @@ class Link
      */
     public function updateLink($request)
     {
-        $allowed_categories = self::getCategories($this->pdo_conn);
         if (is_null(@$request['lurl'])) {
             $request['lurl'] = "";
         }
@@ -437,7 +436,7 @@ class Link
             "description" => $request['description'],
             "link_id" => $this->link_id
         );
-        //$statement->execute($data);
+        print $statement->execute($data);
         $current_tags_tmp = $this->getLinkTags($this->link_id);
         $current_tags = array();
         foreach ($current_tags_tmp as $c_tags) {
