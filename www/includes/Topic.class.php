@@ -203,7 +203,7 @@ class Topic
         $results = $statement->fetch();
         $statement->closeCursor();
         $page_count = intval($results['count']/$this->_messages_per_page);
-        if ($page_count % $this->_messages_per_page != 0) {
+        if ($results['count'] % $this->_messages_per_page != 0) {
             $page_count++;
         }
         return $page_count;
