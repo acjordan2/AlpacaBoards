@@ -3,9 +3,11 @@
     <h2>
         <div>
             {foreach from=$link_data.tags key=header item=tag}
-            <a href="./links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a> 
+            <a href="./links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a>
+            {$p_count = $tag.parents|@count}
+            {$i = 0}
             <span style="font-size:12px;">
-                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title}]">{$parent.Title}</a>{/foreach})
+                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title}]">{$parent.Title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
             </span>
             {/foreach}
         </div>
