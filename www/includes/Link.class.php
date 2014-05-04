@@ -145,13 +145,6 @@ class Link
             //JOIN LinkCategories ON (LinksCategorized.category_id = LinkCategories.category_id)
             //WHERE LinksCategorized.link_id = ?";
             
-            // Get link tags
-            $sql2 = "SELECT TopicalTags.title FROM Tagged 
-                LEFT JOIN TopicalTags USING(tag_id) 
-                WHERE Tagged.data_id = :link_id";
-            $statement2 = $this->pdo_conn->prepare($sql2);
-            $statement2->execute(array("link_id" => $this->link_id));
-            
             // Get link message count for calculating pages
             $sql3 = "SELECT DISTINCT(message_id) FROM LinkMessages WHERE LinkMessages.link_id = ?";
             $statement3 = $this->pdo_conn->prepare($sql3);
@@ -175,13 +168,15 @@ class Link
             $row['code'] = dechex($this->link_id);
             $row['link_id'] = $this->link_id;
             $row['hits'] = $this->getHits();
-            $row['categories'] = "";
+            $row['tags'] = $this->getLinkTags($this->link_id);
 
             // Dispaly Categories (replaced by tags)
+             /*
             while ($cats = $statement2->fetch()) {
                 $row['categories'] .=  $cats['title'].", ";
             }
             $row['categories'] = substr($row['categories'], 0, (strlen($row['categories'])-2));
+            */
             return $row;
         } else {
             // Link does not exist
@@ -751,7 +746,11 @@ class Link
             LEFT JOIN TopicalTags USING(tag_id) WHERE data_id = :link_id AND (Tagged.type = 0 OR Tagged.type = 2)";
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array("link_id" => $link_id));
-        return $statement->fetchAll();
+        $results = $statement->fetchAll();
+        foreach ($results as &$key) {
+            $key['parents'] = $this->getParentTags($key['tag_id']);
+        }
+        return $results;
     }
 
     public function getLinkListByTag($tag_filter)
@@ -856,5 +855,14 @@ class Link
         } else {
             return false;
         }
+    }
+
+    public function getParentTags($tag_id){
+        $sql = "SELECT Title from TopicalTags
+            LEFT JOIN TopicalTagParentRelationship ON TopicalTags.tag_id = TopicalTagParentRelationship.parent_id
+            WHERE TopicalTagParentRelationship.child_id = :tag_id";
+        $statement = $this->pdo_conn->prepare($sql);
+        $statement->execute(array('tag_id' => $tag_id));
+        return $statement->fetchAll();
     }
 }

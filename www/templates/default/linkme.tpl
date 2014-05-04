@@ -1,5 +1,15 @@
 {include file="header.tpl"}
-	<h1>{$link_data.title}</h1><br />
+	<h1>{$link_data.title}</h1>
+    <h2>
+        <div>
+            {foreach from=$link_data.tags key=header item=tag}
+            <a href="./links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a> 
+            <span style="font-size:12px;">
+                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title}]">{$parent.Title}</a>{/foreach})
+            </span>
+            {/foreach}
+        </div>
+    </h2>
 	<br />
 	{$link_data.url}
 	<br />
@@ -11,7 +21,7 @@
 	<b>Rating:</b> <span id="rating">{$link_data.rating|string_format:"%.2f"}</span>/10 (based on <span id="NumberOfVotes">{$link_data.NumberOfVotes}</span> votes)<br />
 	<b>Rank:</b> <span id="rank">{$link_data.rank|string_format:"%.0f"}</span><br />
 	<b>Share:</b> <a href="./ss.php?l={$link_data.code}">{$domain}/ss.php?l=SS{$link_data.code}</a><br /><br />
-	<b>Categories:</b> {$link_data.categories}
+	<b>Categories:</b> {foreach from=$link_data.tags key=header item=tag}{$tag.title}{/foreach}
 	<form action="./linkme.php?l={$link_data.link_id}" method="POST" id="link_fav">
 		<b>Options:</b>
 		{if isset($link_favorite)}<button name="f" id="f" value="0">Remove from Favorites</button>
