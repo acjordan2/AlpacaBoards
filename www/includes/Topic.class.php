@@ -26,18 +26,48 @@
 
 class Topic
 {
+    /**
+     * Database connection object
+     * @var db_connection
+     */
     private $_pdo_conn;
 
+    /**
+     * Topic ID
+     * @var integer
+     */
     private $_topic_id;
 
+    /**
+     * Number of pages for provided topic
+     * @var integer
+     */
     private $_page_count;
 
+    /**
+     * Current user ID
+     * @var integer
+     */
     private $_user_id;
 
+    /**
+     * Amount of messages to show on each topic page,
+     * default is 50
+     * @var integer
+     */
     private $_messages_per_page = 50;
 
+    /**
+     * Parser for formating messages
+     * @var parser
+     */
     private $_parser;
 
+    /**
+     * Create a new Topic object
+     * @param integer $topic_id Topic ID
+     * @param integer $user_id  User ID of the current user
+     */
     public function __construct($topic_id, $user_id)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
@@ -46,6 +76,12 @@ class Topic
         $this->_user_id = $user_id;
     }
 
+    /**
+     * Check that the provided topic ID exists
+     * @param  integer   $topic_id Topic ID
+     * @throws exception If the provided topic ID does not exist
+     * @return void
+     */
     private function _loadTopic($topic_id)
     {
         $sql = "SELECT topic_id, title FROM Topics WHERE topic_id = :topic_id";
@@ -64,6 +100,12 @@ class Topic
         }
     }
 
+    /**
+     * Get topic messages
+     * @param  integer $page   Page number of topic
+     * @param  string  $filter Filter for returned messages (eg user:1 will return messages from user with ID 1)
+     * @return array           Messages
+     */
     public function getMessages($page = 1, $filter = null)
     {
         $offset = $this->_messages_per_page * ($page - 1);
@@ -145,6 +187,10 @@ class Topic
         return $results;
     }
 
+    /**
+     * Get total number of pages for the topic
+     * @return integer Page count
+     */
     public function getPageCount()
     {
         $data = array(
@@ -163,6 +209,12 @@ class Topic
         return $page_count;
     }
 
+    /**
+     * Update viewing history of topic to keep track of the last message read by the user
+     * @param  integer $message_id Last read message ID
+     * @param  integer $page       Last page the user was on
+     * @return void
+     */
     public function updateHistory($message_id, $page)
     {
         $sql = "INSERT INTO TopicHistory (topic_id, user_id, message_id, date, page)
@@ -177,9 +229,15 @@ class Topic
             "page3" => $page
         );
         $statement = $this->_pdo_conn->prepare($sql);
-        return $statement->execute($data);
+        $statement->execute($data);
     }
 
+    /**
+     * Edit or post a new message in a topic
+     * @param  string  $message     Message to be posted
+     * @param  integer $message_id  Message ID of message to be edited, null if its a new message
+     * @return boolean              False if message to be edited does not exist
+     */
     public function postMessage($message, $message_id = null)
     {
         // Message ID was not provided, post a new message
@@ -233,18 +291,28 @@ class Topic
         }
     }
 
+    /**
+     * Poll database for new message, keep connection open for 60 seconds
+     * or until a new message is posted, which ever comes first
+     * @return array Message
+     */
     public function pollMessage()
     {
         $message = null;
         for ($i=0; count($message) == 0 && $i < 60; $i++) {
             $message = $this->getMessages(1, "newMessages:".$this->_user_id);
             if (count($message) == 0) {
+                // No new messages found, sleep for 1 second and check again
                 sleep(1);
             }
         }
         return $message;
     }
 
+    /**
+     * Pin topic on the main board for 24 hours
+     * @return void
+     */
     public function pinTopic()
     {
         $sql = "INSERT INTO StickiedTopics (topic_id, user_id, created)
@@ -258,10 +326,15 @@ class Topic
         $statement->closeCursor();
     }
 
+    /**
+     * Get number of readers in the last 5 minutes
+     * for the current topic
+     * @return integer Number of readers
+     */
     public function getReaders()
     {
         $sql = "SELECT COUNT(topic_id) FROM TopicHistory
-                    WHERE topic_id = :topic_id AND date >= ".(time() - 60*15);
+            WHERE topic_id = :topic_id AND date >= ".(time() - 60*5);
         $data = array(
             "topic_id" => $this->_topic_id
         );
@@ -272,11 +345,19 @@ class Topic
         return $row[0];
     }
 
+    /**
+     * Get topic ID
+     * @return integer Current topic ID
+     */
     public function getTopicID()
     {
         return $this->_topic_id;
     }
 
+    /**
+     * Get the title of the current topic
+     * @return string Title of topic
+     */
     public function getTopicTitle()
     {
         return $this->_topic_title;
