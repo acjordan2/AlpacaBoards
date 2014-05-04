@@ -431,7 +431,7 @@ class Link
             "description" => $request['description'],
             "link_id" => $this->link_id
         );
-        print $statement->execute($data);
+        $statement->execute($data);
         $current_tags_tmp = $this->getLinkTags($this->link_id);
         $current_tags = array();
         foreach ($current_tags_tmp as $c_tags) {
@@ -747,10 +747,14 @@ class Link
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array("link_id" => $link_id));
         $results = $statement->fetchAll();
-        foreach ($results as &$key) {
-            $key['parents'] = $this->getParentTags($key['tag_id']);
+        if (isset($results[0][0]) && is_null($results[0][0])) {
+            return array();
+        } else {
+            foreach ($results as &$key) {
+                $key['parents'] = $this->getParentTags($key['tag_id']);
+            }
+            return $results;
         }
-        return $results;
     }
 
     public function getLinkListByTag($tag_filter)

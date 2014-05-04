@@ -1,17 +1,18 @@
 {include file="header.tpl"}
 	<h1>{$link_data.title}</h1>
+    {if $link_data.tags|@count > 0}
     <h2>
         <div>
             {foreach from=$link_data.tags key=header item=tag}
             <a href="./links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a>
             {$p_count = $tag.parents|@count}
             {$i = 0}
+            {if $p_count > 0}
             <span style="font-size:12px;">
                 ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title}]">{$parent.Title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
-            </span>
-            {/foreach}
+            </span>{/if}{/foreach}
         </div>
-    </h2>
+    </h2>{/if}
 	<br />
 	{$link_data.url}
 	<br />
