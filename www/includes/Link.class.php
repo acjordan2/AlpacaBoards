@@ -787,10 +787,9 @@ class Link
                     ON r.child_id = n.tag_id
                 WHERE t.tag_id = :tag_id";
 
-
             $tag_array_tmp = array();
-            foreach($tag_ids[0] as $tag) {
-                $tag_array_tmp[] = $tag;
+            foreach($tag_ids as $tag) {
+                $tag_array_tmp[] = $tag['tag_id'];
             }
 
             for ($i = 0; $i < count($tag_array_tmp); $i++) {
@@ -818,15 +817,18 @@ class Link
 
             $link_flag = 0;
             $i = 0;
-            $date_getLinks = array();
+            $data_getLinks = array();
             foreach ($tag_array_tmp as $tag) {
-                if ($link_flag == 1) {
-                    $sql_getLinks .= " OR ";
+                
+                if (!in_array($tag, $data_getLinks)) {
+                    if ($link_flag == 1) {
+                        $sql_getLinks .= " OR ";
+                    }
+                    $sql_getLinks .= " Tagged.tag_id = :tag_id".$i;
+                    $data_getLinks["tag_id".$i] = $tag;
+                    $i++;
+                    $link_flag = 1;
                 }
-                $sql_getLinks .= " Tagged.tag_id = :tag_id".$i;
-                $data_getLinks["tag_id".$i] = $tag;
-                $i++;
-                $link_flag = 1;
             }
             $sql_getLinks .= ") GROUP BY link_id";
 
