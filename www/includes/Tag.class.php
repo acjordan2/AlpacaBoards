@@ -26,15 +26,44 @@
  
 class Tag
 {
+    /**
+     * Database connection object
+     * @var db_connection
+     */
     private $_pdo_conn;
 
+    /**
+     * ID of the tag
+     * @var integer
+     */
     private $_tag_id;
 
-    public function __construct()
+    /**
+     * Number of results to show on each page
+     * @var integer
+     */
+    private $_results_per_page = 50;
+
+    /**
+     * Current user ID
+     * @var integer
+     */
+    private $_user_id;
+
+    /**
+     * Create a new Tag object
+     */
+    public function __construct($user_id)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
+        $this->_user_id = $user_id;
     }
 
+    /**
+     * Get list of tags
+     * @param  string $filter Search Critera 
+     * @return array          Array of tag titles and tag IDs
+     */
     public function getTags($filter = null)
     {
         $sql = "SELECT tag_id as id, title FROM TopicalTags";
@@ -102,6 +131,12 @@ class Tag
         return $results;
     }
 
+    /**
+     * Get content by tag
+     * @param  string  $filter Tag filters in the format [tag1][tag2]
+     * @param  integer $type   1 for topics, 2 for links
+     * @return array           Content that meats the tagging filters
+     */
     public function getContent($filter, $type)
     {
         preg_match_all("/\[.*?\]/", $filter, $matches);
@@ -154,7 +189,63 @@ class Tag
                 $data_getContent = array();
                 if ($type == 1) {
                     // topics
+                    $sql_getContent = "SELECT Topics.title, Topics.topic_id, Topics.user_id, 
+                        Users.username, MAX(Messages.posted) AS posted 
+                        FROM Topics 
+                        LEFT JOIN Users 
+                            USING(user_id) 
+                        LEFT JOIN Messages 
+                            USING(topic_id)
+                        LEFT JOIN Tagged on Tagged.data_id = Topics.topic_id
+                        WHERE (";
+                    $data_getContent = array();
+                    for ($i=0; $i < count($tag_array_tmp); $i++) {
+                        if (!in_array($tag_array_tmp[$i], $data_getContent)) {
+                            if ($i > 0) {
+                                $sql_getContent .= " OR ";
+                            }
+                            $sql_getContent .= " Tagged.tag_id = :tag_id".$i;
+                            $data_getContent["tag_id".$i] = $tag_array_tmp[$i];
+                        }
+                    }
+                    $sql_getContent .= ") AND Tagged.type = 1 AND Messages.revision_no = 0 GROUP BY topic_id 
+                        DESC LIMIT 50 OFFSET 0";
+
+                    $statement_getContent = $this->_pdo_conn->prepare($sql_getContent);
+                    $statement_getContent->execute($data_getContent);
+                    $topic_data = $statement_getContent->fetchAll();
+                    $statement_getContent->closeCursor();
+
+                    for ($i=0; $i < count($topic_data); $i++) {
+                        $topic_data[$i]['title'] = htmlentities($topic_data[$i]['title']);
+
+                        // Get total message count
+                        $sql_getMsgCount = "SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
+                            WHERE topic_id = ".$topic_data[$i]['topic_id'];
+                        $statement_getMsgCount = $this->_pdo_conn->query($sql_getMsgCount);
+                        $msg_count = $statement_getMsgCount->fetchAll();
+                        $statement_getMsgCount->closeCursor();
+                        $topic_data[$i]['number_of_posts'] = $msg_count[0][0];
+
+                        // Get new messages since last read
+                        $sql_history = "SELECT COUNT(Messages.message_id) as count, 
+                            TopicHistory.message_id as last_message, 
+                            TopicHistory.page as page FROM Messages 
+                            LEFT JOIN TopicHistory Using(topic_id)
+                            WHERE Messages.topic_id=".$topic_data[$i]['topic_id']." AND 
+                            Messages.message_id > TopicHistory.message_id AND 
+                            TopicHistory.user_id = 1";
+                        $statement_history = $this->_pdo_conn->query($sql_history);
+                        $history_count = $statement_history->fetchAll();
+                        $statement_history->closeCursor();
+
+                        $topic_data[$i]['history'] = $history_count[0]['count'];
+                        $topic_data[$i]['page'] = $history_count[0]['page'];
+                        $topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+                    }
+                    return $topic_data;
                 } elseif ($type == 2) {
+                    // links
                     $sql_getContent = "SELECT Users.username, Links.link_id, Links.user_id, 
                         Links.title, Links.url, COUNT(LinkVotes.vote) AS NumberOfVotes, 
                         SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank, 
@@ -168,7 +259,7 @@ class Tag
                     for ($i=0; $i < count($tag_array_tmp); $i++) {
                         if (!in_array($tag_array_tmp[$i], $data_getContent)) {
                             if ($i > 0) {
-                                $sql_getLinks .= " OR ";
+                                $sql_getContent .= " OR ";
                             }
                             $sql_getContent .= " Tagged.tag_id = :tag_id".$i;
                             $data_getContent["tag_id".$i] = $tag_array_tmp[$i];
@@ -196,6 +287,11 @@ class Tag
 
     }
 
+    /**
+     * Get parent tags of a provided tag ID
+     * @param  integer $tag_id ID of tag
+     * @return array           Array of parent tag names and IDs
+     */
     public function getParents($tag_id)
     {
         $sql = "SELECT title, tag_id from TopicalTags
@@ -206,6 +302,12 @@ class Tag
         return $statement->fetchAll();
     }
 
+    /**
+     * Get tagging conflicts to avoid redundent tags (IE topics being tagged with both
+     * the parent and child tag)
+     * @param  array $tags  Array of tag IDs to check
+     * @return array        Array of conflicting tag IDs 
+     */
     public function getConflicts($tags)
     {
         $tag_array_tmp = $tags;
@@ -233,6 +335,12 @@ class Tag
         return array_intersect($parent_array, $tags);
     }
 
+    /**
+     * Get tags for a given object
+     * @param  integer $object_id   Object ID
+     * @param  integer $object_type 1 for topic, 2 for link
+     * @return array                Array of tag titles and IDs
+     */
     public function getObjectTags($object_id, $object_type)
     {
         $data = array(
