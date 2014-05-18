@@ -113,6 +113,9 @@
 	</a>
 	<div id="pageexpander" style="height:280px;display:none;"></div>
 	<div id="quickpost" style="display:none;">
+    <table>
+        <tr>
+            <td>
 	   <form method="POST" action="./postmsg.php" name="quickposts" id="quickposts">
 		<input type="hidden" name="topic" value="{$topic_id}" />
 		<input type="hidden" name="token" value="{$token}" />
@@ -124,7 +127,12 @@
 		</textarea>
 		<br />
 		<input type="submit" value="Post Message" name="submit"/>
+        <input type="button" id="btn_upload" value="Upload Image" />
 	   </form>
+        </td>
+        <td>
+            <div id="uploadFrame" style="display:none;"><iframe id="upload" src= "" width="700" height="200px" frameBorder="0"></iframe></div>
+        </td>
     </div>
 </div>
 </body>
