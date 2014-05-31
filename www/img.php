@@ -28,22 +28,22 @@ require "includes/init.php";
 require "includes/ImageMap.class.php";
 require "includes/Topic.class.php";
 
-if ($auth == true) {
-    $im = new ImageMap($db);
-    if (isset($_GET['hash'])) {
-        $images = $im->getImageMapByHash($_GET['hash']);
-        $filename = htmlentities(@array_shift($im->getFileNameFromHash($_GET['hash'])));
-        $sha1_sum = urlencode($_GET['hash']);
-        $smarty->assign("sha1_sum", $sha1_sum);
+if ($auth === true) {
+    $sha1_sum = $_GET['hash'];
+    $sql = "SELECT UploadLog.filename FROM UploadedImages
+        LEFT JOIN UploadLog using(image_id) WHERE sha1_sum = :sha1_sum";
+    $statement = $db->prepare($sql);
+    $statement->execute(array("sha1_sum" => $sha1_sum));
+    if ($statement->rowCount() > 0) {
+        $results = $statement->fetchAll();
+        $smarty->assign("sha1_sum", urlencode($sha1_sum));
+        $smarty->assign("filename", urlencode($results[0]['filename']));
+        $page_title = htmlentities($results[0]['filename']);
+        $display = "img.tpl";
+        include "includes/deinit.php";
     } else {
-        $filename = "User ".$authUser->getUsername();
-        $images = $im->getImageMapForUser($authUser->getUserID());
+        include "404.php";
     }
-    $page_title = "Image Map";
-    $display = "imagemap.tpl";
-    $smarty->assign("images", $images);
-    $smarty->assign("filename", $filename);
-    include "includes/deinit.php";
 } else {
-    include "includes/404.php";
+    include "403.php";
 }
