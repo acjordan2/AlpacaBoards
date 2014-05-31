@@ -32,7 +32,9 @@ if ($auth == true) {
         $topic_id = $_GET['topic'];
         // Verify topic
         try {
-            $topic = new Topic($topic_id, $authUser->getUserID());
+            $parser = new Parser();
+            $topic = new Topic($authUser, $parser);
+            $topic->loadTopic($topic_id);
             if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
                 $current_page = 1;
             } else {
@@ -88,9 +90,10 @@ if ($auth == true) {
             // Set template variables
             $smarty->assign("messages", $messages);
             $smarty->assign(
-                "signature", 
+                "signature",
                 str_replace(
-                    "\r\n", "\\n", 
+                    "\r\n",
+                    "\\n",
                     addslashes(
                         str_replace("+", " ", $authUser->getSignature())
                     )
@@ -99,14 +102,14 @@ if ($auth == true) {
             $smarty->assign("p_signature", htmlentities($authUser->getSignature()));
             $smarty->assign("topic_id", intval($topic_id));
             $smarty->assign(
-                "topic_title", 
+                "topic_title",
                 htmlentities($topic->getTopicTitle())
             );
             $smarty->assign("board_title", "Life, the Universe, and Everything");
             $smarty->assign("board_id", "42");
             $smarty->assign("page_count", $topic->getPageCount());
             $smarty->assign("current_page", $current_page);
-            $smarty->assign("num_readers",     $topic->getReaders());
+            $smarty->assign("num_readers", $topic->getReaders());
             $smarty->assign("token", $csrf->getToken());
             $smarty->assign("action", $authUser->checkInventory(1));
             $display = "showmessages.tpl";

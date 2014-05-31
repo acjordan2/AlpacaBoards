@@ -49,7 +49,12 @@
 {foreach from=$topicList key=header item=table}
 		<tr>
 			<td>
+            <div class="fl">
 				<a href="./showmessages.php?board={$board_id}&amp;topic={$table.topic_id}">{$table.title}</a>
+            </div>
+            <div class="fr">
+                        {foreach from=$table.tags item=tags}<a href="./showtopics.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
+                    </div>
 			</td>
         		<td>
 				<a href="./profile.php?user={$table.user_id}">{$table.username}</a>

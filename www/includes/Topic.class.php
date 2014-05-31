@@ -68,12 +68,11 @@ class Topic
      * @param integer $topic_id Topic ID
      * @param integer $user_id  User ID of the current user
      */
-    public function __construct($topic_id, $user_id)
+    public function __construct(User $user, Parser $parser)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
-        $this->_loadTopic($topic_id);
-        $this->_parser = new Parser();
-        $this->_user_id = $user_id;
+        $this->_parser = $parser;
+        $this->_user_id = $user->getUserID();
     }
 
     /**
@@ -82,7 +81,7 @@ class Topic
      * @throws exception If the provided topic ID does not exist
      * @return void
      */
-    private function _loadTopic($topic_id)
+    public function loadTopic($topic_id)
     {
         $sql = "SELECT topic_id, title FROM Topics WHERE topic_id = :topic_id";
         $data = array(
@@ -99,6 +98,109 @@ class Topic
             throw new Exception('Topic does not exist');
         }
     }
+
+    /**
+     * Create a new topic
+     * @param  string $title   Title of the topic
+     * @param  array  $tags    Array of topical tag IDs
+     * @param  string $message Opening message of the topic
+     * @return integer         New topic ID
+     */
+    public function createTopic($title, $tags, $message)
+    {
+        $time = time();
+        // New Topic
+        $sql_topic = "INSERT INTO Topics (user_id, title, board_id, created)
+            VALUES(:user_id, :title, 42, $time)";
+
+        $statement_topic = $this->_pdo_conn->prepare($sql_topic);
+        $data_topic = array("user_id" => $this->_user_id,
+                      "title" => $title);
+        $statement_topic->execute($data_topic);
+        $topic_id = $this->_pdo_conn->lastInsertId();
+
+        // First message of new topic
+        $sql_message = "INSERT INTO Messages (user_id, topic_id, message, posted)
+            VALUES(:user_id, :topic_id, :message, $time)";
+        $statement_message = $this->_pdo_conn->prepare($sql_message);
+        $data_message = array("user_id" => $this->_user_id,
+                        "topic_id" => $topic_id,
+                        "message" => $message);
+        $statement_message->execute($data_message);
+        $this->_parser->map($message, $this->_user_id, $topic_id);
+
+        //Topical Tags
+        $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type)
+            VALUES ($topic_id, :tag_id, 1)";
+        $statement_tags = $this->_pdo_conn->prepare($sql_tags);
+        foreach ($tags as $tag) {
+            $data_tags = array("tag_id" => $tag);
+            $statement_tags->execute($data_tags);
+        }
+        
+        return $topic_id;
+    }
+
+    /**
+     * Get topic list
+     * @param  integer $page   Page number of topic list
+     * @param  string  $filter Filter for topic lists
+     * @return array           Array of topic list data
+     */
+    public function getTopics($page = 1, $filter = null)
+    {
+        $offset = 50*($page-1);
+
+        $data = array(
+            'offset' => $offset
+        );
+
+        $sql = "SELECT Topics.title, 
+            Topics.topic_id, 
+            Topics.user_id, 
+            Users.username, 
+            MAX(Messages.posted) AS posted 
+            FROM Topics LEFT JOIN Users USING(user_id) 
+            LEFT JOIN Messages USING(topic_id)
+            WHERE Messages.revision_no = 0
+            GROUP BY topic_id ORDER BY posted DESC LIMIT 50 OFFSET :offset";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->execute($data);
+        $topic_data = $statement->fetchAll();
+        $statement->closeCursor();
+
+        for ($i=0; $i < count($topic_data); $i++) {
+            $topic_data[$i]['title'] = htmlentities($topic_data[$i]['title']);
+
+            // Get total message count
+            $sql_getMsgCount = "SELECT COUNT(DISTINCT topic_id, message_id) FROM Messages
+                WHERE topic_id = ".$topic_data[$i]['topic_id'];
+            $statement_getMsgCount = $this->_pdo_conn->query($sql_getMsgCount);
+            $msg_count = $statement_getMsgCount->fetchAll();
+            $statement_getMsgCount->closeCursor();
+            $topic_data[$i]['number_of_posts'] = $msg_count[0][0];
+
+            // Get new messages since last read
+            $sql_history = "SELECT COUNT(Messages.message_id) as count, 
+                TopicHistory.message_id as last_message, 
+                TopicHistory.page as page FROM Messages 
+                LEFT JOIN TopicHistory Using(topic_id)
+                WHERE Messages.topic_id=".$topic_data[$i]['topic_id']." AND 
+                Messages.message_id > TopicHistory.message_id AND 
+                TopicHistory.user_id = 1";
+            $statement_history = $this->_pdo_conn->query($sql_history);
+            $history_count = $statement_history->fetchAll();
+            $statement_history->closeCursor();
+
+            $topic_data[$i]['history'] = $history_count[0]['count'];
+            $topic_data[$i]['page'] = $history_count[0]['page'];
+            $topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+            $tag = new Tag($this->_user_id);
+            $topic_data[$i]['tags'] = $tag->getObjectTags($topic_data[$i]['topic_id'], 1);
+        }
+        return $topic_data;
+    }
+
 
     /**
      * Get topic messages
@@ -156,7 +258,7 @@ class Topic
             }
         }
         $sql .= " GROUP BY Messages.message_id DESC
-            ORDER BY posted ASC LIMIT 50 OFFSET :offset";
+            ORDER BY posted ASC LIMIT ".$this->_messages_per_page." OFFSET :offset";
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
         $results = $statement->fetchAll();

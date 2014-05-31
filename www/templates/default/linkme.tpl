@@ -9,7 +9,7 @@
             {$i = 0}
             {if $p_count > 0}
             <span style="font-size:12px;">
-                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title}]">{$parent.Title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
+                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title|replace:' ':'_'}]">{$parent.Title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
             </span>{/if}{/foreach}
         </div>
     </h2>{/if}

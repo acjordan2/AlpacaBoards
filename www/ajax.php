@@ -60,9 +60,10 @@ if ($auth == true) {
                         if (count($tags_tmp) > 1) {
                             $i = 1;
                         } else {
-                            $i = 2;
+                            $i = 0;
                         }
-                        $tags = explode(",", $tags_tmp[1]);
+
+                        $tags = explode(",", $tags_tmp[$i]);
                         $output = $link->checkParentTag($tags);
                         break;
                     default:
@@ -117,7 +118,9 @@ if ($auth == true) {
             switch($action){
                 case "subscribe":
                     //$json = json_decode(file_get_contents("php://input"), true);
-                    $topic = new Topic($_GET['topic_id'], $authUser->getUserID());
+                    $parser = new Parser();
+                    $topic = new Topic($authUser, $parser);
+                    $topic->loadTopic($_GET['topic_id']);
                     $message_data = $topic->pollMessage();
                     if (count($message_data) > 0) {
                         $smarty->assign("message_data", $message_data);

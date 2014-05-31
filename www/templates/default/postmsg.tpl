@@ -24,6 +24,13 @@
 			To create a new topic, enter a title for the topic below and create the first message.<br />
 			<input type="text" name="title" value="" maxlength="80" size="60" /><br />
 			(Between 5 and 80 characters in length)<br /><br />
+            <table>
+                <tr>
+                    <td>
+                    <input type='text' id="tags" name="tags" style="width: 500px;" value="{if isset($tags)}{$tags}{/if}"/>
+                    </td>
+                </tr>
+            </table>
       		{elseif isset($is_link)}
 			<b>Current Link:</b> 
 			<a href="linkme.php?l={$link_id}" target="_blank">{$link_title}</a><br />
@@ -50,7 +57,7 @@
       <div>
         <input type="hidden" name="token" value="{$token}" /> 
         <input type="submit" name="preview" value="Preview Message" /> 
-        <input type="submit" name="submit" value="Post Message" /> 
+        <input type="submit" name="submit" id="save" value="Post Message" /> 
         <input type="button" id="btn_upload" value="Upload Image" />
      </div>
     </form>

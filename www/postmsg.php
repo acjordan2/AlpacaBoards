@@ -24,18 +24,21 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require("includes/init.php");
-require("includes/Board.class.php");
-require("includes/Topic.class.php");
-require("includes/Message.class.php");
-require("includes/Link.class.php");
-require("includes/Parser.class.php");
+require "includes/init.php" ;
+require "includes/Board.class.php";
+require "includes/Topic.class.php";
+require "includes/Message.class.php";
+require "includes/Link.class.php";
+require "includes/Parser.class.php";
+require "includes/Tag.class.php";
 
-if($auth == TRUE){
+if ($auth === true) {
     $smarty->assign("token", $csrf->getToken());
-    if(is_numeric(@$_REQUEST['topic'])){
+    if (is_numeric(@$_REQUEST['topic'])) {
         $topic_id = intval($_REQUEST['topic']);
-        $topic = new Topic($topic_id, $authUser->getUserID());
+        $parser = new Parser();
+        $topic = new Topic($authUser, $parser);
+        $topic->loadTopic($topic_id);
         $smarty->assign("topic_id", $topic_id);
         $smarty->assign("topic_title", htmlentities($topic->getTopicTitle()));
         $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
@@ -43,7 +46,7 @@ if($auth == TRUE){
         if(is_numeric(@$_GET['quote'])){
             $message = new Message($db, intval($_GET['quote']));
             if($message->doesExist()){
-                $smarty->assign("quote", TRUE);
+                $smarty->assign("quote", true);
                 $smarty->assign("quote_id", htmlentities($_GET['quote']));
                 $smarty->assign("quote_topic", $message->getTopicID());
                 $message_body = explode("\n---", $message->getMessage());
@@ -135,10 +138,10 @@ if($auth == TRUE){
         if(!is_null(@$_POST['message']))
             $smarty->assign("e_message", htmlentities(@$_POST['message']));
     }
-    elseif(is_numeric(@$_REQUEST['board'])){
+    else {
        $smarty->assign("preview_message", FALSE);
        $smarty->assign("new_topic", TRUE);
-       $smarty->assign("board_id", intval($_REQUEST['board']));
+       $smarty->assign("board_id", 42);
        $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
        $smarty->assign("e_message", htmlentities(@$_POST['message']));
        $display = "postmsg.tpl";
@@ -152,15 +155,23 @@ if($auth == TRUE){
            if(strlen(trim($_POST['title'])) < 5 || strlen(trim($_POST['title'])) > 80)
                 $smarty->assign("error_message", "Title must be between 5 and 80 characters");
            else{
-               $board = new Board($db, intval($_REQUEST['board']), $authUser->getUserID());
-               $newTopic = $board->createTopic(trim($_POST['title']), @$_POST['message']);
+               //$board = new Board($db, intval($_REQUEST['board']), $authUser->getUserID());
+               //$newTopic = $board->createTopic(trim($_POST['title']), @$_POST['message']);
+               $topic_title = (trim($_POST['title']));
+               $message = $_POST['message'];
+               $tags = explode(",", $_POST['tags']);
+
+               $parser = new Parser();
+               $tagEngine = new Tag($authUser->getUserID());
+               $topic = new Topic($authUser, $parser);
+
+               $newTopic = $topic->createTopic($topic_title, $tags, $message);
                if($newTopic)
-                    header("Location: ./showmessages.php?board=".intval($_REQUEST['board_id'])."&topic=".$newTopic);
+                    header("Location: ./showmessages.php?topic=".$newTopic);
+                exit();
            }
        }
    }
-   else
-        require("404.php");
 }
 else
     require("404.php");

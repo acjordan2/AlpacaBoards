@@ -242,6 +242,7 @@ class Tag
                         $topic_data[$i]['history'] = $history_count[0]['count'];
                         $topic_data[$i]['page'] = $history_count[0]['page'];
                         $topic_data[$i]['last_message'] = $history_count[0]['last_message'];
+                        $topic_data[$i]['tags'] = $this->getObjectTags($topic_data[$i]['topic_id'], 1);
                     }
                     return $topic_data;
                 } elseif ($type == 2) {

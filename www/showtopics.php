@@ -26,6 +26,9 @@
 
 require "includes/init.php";
 require "includes/Board.class.php";
+require "includes/Tag.class.php";
+require "includes/Parser.class.php";
+require "includes/Topic.class.php";
 
 // Check authentication
 if ($auth === true) {
@@ -34,7 +37,7 @@ if ($auth === true) {
     } else {
         $board_id = $_GET['board'];
     }
-    if (!is_numeric(@$_GET['page']) 
+    if (!is_numeric(@$_GET['page'])
         || @$_GET['page'] == null
     ) {
         $current_page = 1;
@@ -43,23 +46,38 @@ if ($auth === true) {
     }
     // Default board 42
     $board = new Board($db, 42, $authUser->getUserID());
+    $tags = new Tag($authUser->getUserID());
     $topic_list = $board->getTopics($current_page);
+    if (isset($_GET['tags'])) {
+        $topic_list = $tags->getContent($_GET['tags'], 1);
+        $title = $_GET['tags'];
+    } else {
+        $title = "Everything";
+        $parser = new Parser();
+        $topic = new Topic($authUser, $parser);
+        $topic_list = $topic->getTopics();
+    }
     if ($current_page == 1) {
         $sticky_list = $board->getStickiedTopics();
     }
     $display = "showtopics.tpl";
     $page_title = $board->getTitle();
-    $smarty->assign("topicList", $topic_list);
-    if (isset($sticky_list)) {
-        $smarty->assign("stickyList", $sticky_list);
+    if (count($topic_list) == 0) {
+        include "404.php";
+    } else {
+        $smarty->assign("topicList", $topic_list);
+        if (isset($sticky_list)) {
+            $smarty->assign("stickyList", $sticky_list);
+        }
+        $search = array('[', ']', "_");
+        // Set template variables
+        $smarty->assign("username", $authUser->getUsername());
+        $smarty->assign("board_id", $board_id);
+        $smarty->assign("board_title", htmlentities(str_replace($search, " ", $title)));
+        $smarty->assign("page_count", $board->getPageCount());
+        $smarty->assign("current_page", $current_page);
+        $smarty->assign("num_readers", $board->getReaders());
     }
-    // Set template variables
-    $smarty->assign("username", $authUser->getUsername());
-    $smarty->assign("board_id", $board_id);
-    $smarty->assign("board_title", htmlentities($board->getTitle()));
-    $smarty->assign("page_count", $board->getPageCount());
-    $smarty->assign("current_page", $current_page);
-    $smarty->assign("num_readers", $board->getReaders());
 } else {
     include "404.php";
 }
