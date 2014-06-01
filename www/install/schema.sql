@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 22, 2014 at 02:19 PM
--- Server version: 5.5.35-0ubuntu0.13.10.2
--- PHP Version: 5.5.3-1ubuntu2.2
+-- Generation Time: Jun 01, 2014 at 12:27 AM
+-- Server version: 5.5.37-0ubuntu0.13.10.1
+-- PHP Version: 5.5.3-1ubuntu2.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -102,6 +102,20 @@ CREATE TABLE IF NOT EXISTS `DisciplineHistory` (
   KEY `mod_id` (`mod_id`),
   KEY `plea_topic` (`plea_topic`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ImageMap`
+--
+
+CREATE TABLE IF NOT EXISTS `ImageMap` (
+  `map_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `image_id` int(11) NOT NULL,
+  `topic_id` int(11) NOT NULL,
+  PRIMARY KEY (`map_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -222,7 +236,7 @@ CREATE TABLE IF NOT EXISTS `LinkHistory` (
   PRIMARY KEY (`link_history_id`),
   UNIQUE KEY `link_id` (`link_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -252,7 +266,7 @@ CREATE TABLE IF NOT EXISTS `Links` (
   `link_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL,
   `title` varchar(80) NOT NULL,
-  `url` varchar(512) NOT NULL,
+  `url` varchar(512) DEFAULT NULL,
   `description` text NOT NULL,
   `created` int(11) unsigned NOT NULL,
   `active` tinyint(1) NOT NULL,
@@ -362,7 +376,7 @@ CREATE TABLE IF NOT EXISTS `Sessions` (
   `useragent` varchar(256) NOT NULL,
   PRIMARY KEY (`session_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -418,8 +432,8 @@ CREATE TABLE IF NOT EXISTS `SiteOptions` (
 
 CREATE TABLE IF NOT EXISTS `StaffPermissions` (
   `position_id` int(11) unsigned NOT NULL,
-  `title` VARCHAR( 32 ) NOT NULL,
-  `title_color` VARCHAR( 12 ) NOT NULL,
+  `title` varchar(32) NOT NULL,
+  `title_color` varchar(12) NOT NULL,
   `user_ban` int(11) NOT NULL,
   `user_edit` int(1) unsigned NOT NULL,
   `user_suspend` int(1) unsigned NOT NULL,
@@ -434,6 +448,8 @@ CREATE TABLE IF NOT EXISTS `StaffPermissions` (
   `topic_message_history` int(1) unsigned NOT NULL,
   `topic_pin` int(1) unsigned NOT NULL,
   `site_options` int(1) NOT NULL,
+  `tag_create` int(1) unsigned NOT NULL,
+  `tag_edit` int(1) unsigned NOT NULL,
   PRIMARY KEY (`position_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -465,6 +481,49 @@ CREATE TABLE IF NOT EXISTS `StickiedTopics` (
   KEY `topic_id` (`topic_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Tagged`
+--
+
+CREATE TABLE IF NOT EXISTS `Tagged` (
+  `tagged_id` int(11) NOT NULL AUTO_INCREMENT,
+  `data_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  `type` int(1) NOT NULL,
+  PRIMARY KEY (`tagged_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `TopicalTagParentRelationship`
+--
+
+CREATE TABLE IF NOT EXISTS `TopicalTagParentRelationship` (
+  `relation_id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) NOT NULL,
+  `child_id` int(11) NOT NULL,
+  PRIMARY KEY (`relation_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `TopicalTags`
+--
+
+CREATE TABLE IF NOT EXISTS `TopicalTags` (
+  `tag_id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(128) NOT NULL,
+  `description` varchar(256) NOT NULL,
+  `type` int(1) NOT NULL,
+  `user_id` int(11) unsigned NOT NULL,
+  `created` int(11) NOT NULL,
+  PRIMARY KEY (`tag_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -535,7 +594,7 @@ CREATE TABLE IF NOT EXISTS `UploadLog` (
   PRIMARY KEY (`uploadlog_id`),
   KEY `image_id` (`image_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -566,67 +625,6 @@ CREATE TABLE IF NOT EXISTS `Users` (
   KEY `avatar_id` (`avatar_id`),
   KEY `avatar` (`avatar`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `ImageMap`
---
-
-DROP TABLE IF EXISTS `ImageMap`;
-CREATE TABLE IF NOT EXISTS `ImageMap` (
-  `map_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `image_id` int(11) NOT NULL,
-  `topic_id` int(11) NOT NULL,
-  PRIMARY KEY (`map_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `Tagged`
---
-
-CREATE TABLE IF NOT EXISTS `Tagged` (
-  `tagged_id` int(11) NOT NULL AUTO_INCREMENT,
-  `data_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  `type` int(1) NOT NULL,
-  PRIMARY KEY (`tagged_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `TopicalTagParentRelationship`
---
-
-CREATE TABLE IF NOT EXISTS `TopicalTagParentRelationship` (
-  `relation_id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL,
-  `child_id` int(11) NOT NULL,
-  PRIMARY KEY (`relation_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `TopicalTags`
---
-
-CREATE TABLE IF NOT EXISTS `TopicalTags` (
-  `tag_id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(128) NOT NULL,
-  `description` varchar(256) NOT NULL,
-  `type` int(1) NOT NULL,
-  PRIMARY KEY (`tag_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-
 
 --
 -- Constraints for dumped tables
@@ -811,31 +809,6 @@ ALTER TABLE `Users`
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
--- phpMyAdmin SQL Dump
--- version 4.0.6deb1
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Generation Time: Mar 22, 2014 at 02:21 PM
--- Server version: 5.5.35-0ubuntu0.13.10.2
--- PHP Version: 5.5.3-1ubuntu2.2
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
---
--- Database: `spergs`
---
-
---
--- Dumping data for table `BoardCategories`
---
 
 INSERT INTO `BoardCategories` (`category_id`, `title`) VALUES
 (1, 'Social Boards'),
@@ -904,8 +877,11 @@ INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
 -- Dumping data for table `StaffPermissions`
 --
 
-INSERT INTO `StaffPermissions` (`position_id`, `title`, `title_color`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`) VALUES
-(1, "Adminstrator", "red", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+INSERT INTO `StaffPermissions` (`position_id`, `title`, `title_color`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`, `tag_edit`, `tag_create`) VALUES
+(1, "Adminstrator", "red", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+
+INSERT INTO `TopicalTags` (`tag_id`, `title`, `description`, `type`, `user_id`, `created`)
+VALUES (1, 'LUE', 'Main Social Board', 1, 1, UNIX_TIMESTAMP(NOW()));
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
