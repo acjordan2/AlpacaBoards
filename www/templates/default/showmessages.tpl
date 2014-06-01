@@ -109,8 +109,8 @@
                     success: function(data){
                         $("#u0_1").append(data);
                         if(data.length != 0) {
-                            $.playSound("{$base_url}/templates/default/res/bip");
                             $("img").lazyload();
+                             $.playSound("{$base_url}/templates/default/res/bip");
                         }
                     }, 
                 dataType: "json", 
