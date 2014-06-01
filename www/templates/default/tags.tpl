@@ -30,7 +30,7 @@
     <tr>
         <th>Tag Name</th>
         <th>Parents</th>
-        <th>Number of Objects</th>
+        <th>Number of Topics</th>
         <th>Last Post</th>
     </tr>
 {foreach from=$taglist key=header item=table}

@@ -40,7 +40,7 @@ if ($auth === true) {
     for ($i=0; $i<count($taglist); $i++) {
         $taglist[$i]['parents'] = $tag->getParents($taglist[$i]['id']);
         $sql_objectCount = "SELECT COUNT(tag_id) as count FROM Tagged 
-            WHERE tag_id = ".$taglist[$i]['id'];
+            WHERE Tagged.type = 1 AND tag_id = ".$taglist[$i]['id'];
         $statement = $db->query($sql_objectCount);
         $count = $statement->fetch();
         $taglist[$i]["count"] = $count[0];
@@ -48,7 +48,7 @@ if ($auth === true) {
 
         $sql_lastPost = "SELECT MAX(Messages.posted) as posted FROM Messages 
             LEFT JOIN Tagged ON Tagged.data_id = Messages.topic_id
-            WHERE Messages.revision_no = 0 AND Tagged.tag_id = ".$taglist[$i]['id'];
+            WHERE Messages.revision_no = 0 AND Tagged.type = 1 AND Tagged.tag_id = ".$taglist[$i]['id'];
         $statement_lastPost = $db->query($sql_lastPost);
         $posted = $statement_lastPost->fetch();
         $taglist[$i]['posted'] = $posted[0];
