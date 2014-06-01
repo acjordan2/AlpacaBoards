@@ -29,37 +29,62 @@ require "includes/Tag.class.php";
 
 if ($auth === true) {
     $tag = new Tag($authUser->getUserID());
+    $smarty->assign("token", $csrf->getToken());
+    if (isset($_GET['tag']) && !is_null($_GET['tag'])) {
+        // See info for specific tag
+        $search = array("[", "]", "_");
+        $replace = array("", "", " ");
 
-    $q = null;
-    $filter = null;
-    if (isset($_GET['q'])) {
-        $q = $_GET['q'];
-        $filter = "[title:$q]";
-    }
-    $taglist = $tag->getTags($filter);
-    for ($i=0; $i<count($taglist); $i++) {
-        $taglist[$i]['parents'] = $tag->getParents($taglist[$i]['id']);
-        $sql_objectCount = "SELECT COUNT(tag_id) as count FROM Tagged 
-            WHERE Tagged.type = 1 AND tag_id = ".$taglist[$i]['id'];
-        $statement = $db->query($sql_objectCount);
-        $count = $statement->fetch();
-        $taglist[$i]["count"] = $count[0];
-        $statement->closeCursor();
+        $title = str_replace($search, $replace, $_GET['tag']);
+        $taginfo = $tag->getTagInfoByTitle($title);
+        $taginfo['parents'] = $tag->getParents($taginfo['tag_id']);
+        $taginfo['children'] = $tag->getChildren($taginfo['tag_id']);
+        $smarty->assign("taginfo", $taginfo);
 
-        $sql_lastPost = "SELECT MAX(Messages.posted) as posted FROM Messages 
-            LEFT JOIN Tagged ON Tagged.data_id = Messages.topic_id
-            WHERE Messages.revision_no = 0 AND Tagged.type = 1 AND Tagged.tag_id = ".$taglist[$i]['id'];
-        $statement_lastPost = $db->query($sql_lastPost);
-        $posted = $statement_lastPost->fetch();
-        $taglist[$i]['posted'] = $posted[0];
-        $statement_lastPost->closeCursor();
+        $mod_tag_edit = $authUser->checkPermissions("tag_edit");
+        $smarty->assign("mod_tag_edit", $mod_tag_edit);
+
+        if ($mod_tag_edit && isset($_GET['edit'])) {
+            $page_title = "Edit Tag: ".$taginfo['title'];
+            $display = "edittag.tpl";
+        } else {
+            $page_title = "Tag Info: ".$taginfo['title'];
+            $display = "taginfo.tpl";
+        }
+
+    } else {
+        // View tag list
+        $q = null;
+        $filter = null;
+        if (isset($_GET['q'])) {
+            $q = $_GET['q'];
+            $filter = "[title:$q]";
+        }
+        $taglist = $tag->getTags($filter);
+        for ($i=0; $i<count($taglist); $i++) {
+            $taglist[$i]['parents'] = $tag->getParents($taglist[$i]['id']);
+            $sql_objectCount = "SELECT COUNT(tag_id) as count FROM Tagged 
+                WHERE Tagged.type = 1 AND tag_id = ".$taglist[$i]['id'];
+            $statement = $db->query($sql_objectCount);
+            $count = $statement->fetch();
+            $taglist[$i]["count"] = $count[0];
+            $statement->closeCursor();
+
+            $sql_lastPost = "SELECT MAX(Messages.posted) as posted FROM Messages 
+                LEFT JOIN Tagged ON Tagged.data_id = Messages.topic_id
+                WHERE Messages.revision_no = 0 AND Tagged.type = 1 AND Tagged.tag_id = ".$taglist[$i]['id'];
+            $statement_lastPost = $db->query($sql_lastPost);
+            $posted = $statement_lastPost->fetch();
+            $taglist[$i]['posted'] = $posted[0];
+            $statement_lastPost->closeCursor();
+        }
+        $smarty->assign("tag_search", htmlentities($q));
+        $smarty->assign("taglist", $taglist);
+        $smarty->assign("page_count", 1);
+        $smarty->assign("current_page", 1);
+        $display = "tags.tpl";
+        $page_title = "Tags";
     }
-    $smarty->assign("tag_search", htmlentities($q));
-    $smarty->assign("taglist", $taglist);
-    $smarty->assign("page_count", 1);
-    $smarty->assign("current_page", 1);
-    $display = "tags.tpl";
-    $page_title = "Tags";
     include "includes/deinit.php";
 } else {
     include "403.php"; // User not logged in

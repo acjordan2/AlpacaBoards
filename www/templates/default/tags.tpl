@@ -35,7 +35,7 @@
     </tr>
 {foreach from=$taglist key=header item=table}
     <tr>
-        <td><a id="{$table.title}">{$table.title}</a></td>
+        <td><a href="./tags.php?tag=[{$table.title|replace:" ":"_"}]" id="{$table.title}">{$table.title}</a></td>
         <td>
             <div>
                 {foreach from=$table.parents key=header item=tag}

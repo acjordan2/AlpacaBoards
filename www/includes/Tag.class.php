@@ -132,6 +132,19 @@ class Tag
         return $results;
     }
 
+    public function getTagInfoByTitle($tag_title)
+    {
+        $data_getTagInfo = array("title" => $tag_title);
+        $sql_getTagInfo = "SELECT TopicalTags.tag_id, TopicalTags.title, 
+            TopicalTags.description, TopicalTags.user_id, TopicalTags.created, Users.username
+            FROM TopicalTags LEFT JOIN Users using(User_id) WHERE title = :title";
+        $statement = $this->_pdo_conn->prepare($sql_getTagInfo);
+        $statement->execute($data_getTagInfo);
+        $results = $statement->fetch();
+        $statement->closeCursor();
+        return $results;
+    }
+
     /**
      * Get content by tag
      * @param  string  $filter Tag filters in the format [tag1][tag2]
