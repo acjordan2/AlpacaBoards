@@ -66,9 +66,9 @@ class Tag
      */
     public function getTags($filter = null)
     {
+        $data = array();
         $sql = "SELECT tag_id as id, title FROM TopicalTags";
         if (!is_null($filter)) {
-            $data = array();
             $filter_sql = "";
             $type_flag = 0;
             $filter_flag = 0;
@@ -119,10 +119,11 @@ class Tag
                         break;
                 }
             }
+            if ($filter_flag == 1) {
+                $sql .= " WHERE".$filter_sql;
+            }
         }
-        if ($filter_flag == 1) {
-            $sql .= " WHERE".$filter_sql;
-        }
+        $sql .= " ORDER BY title ASC";
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);

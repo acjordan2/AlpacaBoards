@@ -162,6 +162,12 @@
 				<a href="./siteoptions.php">Site Options</a>
 			</d>
 		</tr>
+        <tr>
+        <td colspan="2">
+            <a href="./managetags.php">
+                Manage Tags
+            </a>
+        </td>
 		{/if}
 
 {/if}

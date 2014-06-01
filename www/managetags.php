@@ -1,6 +1,6 @@
 <?php
 /*
- * img.php
+ * tags.php
  * 
  * Copyright (c) 2014 Andrew Jordan
  * 
@@ -25,25 +25,35 @@
  */
 
 require "includes/init.php";
-require "includes/ImageMap.class.php";
-require "includes/Topic.class.php";
+require "includes/Tag.class.php";
 
 if ($auth === true) {
-    $sha1_sum = $_GET['hash'];
-    $sql = "SELECT UploadLog.filename FROM UploadedImages
-        LEFT JOIN UploadLog using(image_id) WHERE sha1_sum = :sha1_sum";
-    $statement = $db->prepare($sql);
-    $statement->execute(array("sha1_sum" => $sha1_sum));
-    if ($statement->rowCount() > 0) {
-        $results = $statement->fetchAll();
-        $smarty->assign("sha1_sum", urlencode($sha1_sum));
-        $smarty->assign("filename", urlencode($results[0]['filename']));
-        $page_title = htmlentities($results[0]['filename']);
-        $display = "img.tpl";
+    if ($authUser->checkPermissions("site_options")) {
+        if (isset($_POST['token'])) {
+            if ($csrf->validateToken($_POST['token'])) {
+                $site->updateSiteOptions(
+                    $_POST['sitename'],
+                    (int)$_POST['registration'],
+                    (int)$_POST['invites']
+                );
+                header("location: ./siteoptions.php?m=1");
+                exit();
+            }
+        }
+        if (@$_GET['m'] == 1) {
+            $message = "Site Options Updated!";
+            $smarty->assign("message", $message);
+        }
+        $smarty->assign("token", $csrf->getToken());
+        $smarty->assign("registration_status", $site->getRegistrationStatus());
+        $smarty->assign("invite_status", $site->getInviteStatus());
+
+        $page_title = "Manage Tags";
+        $display = "siteoptions.tpl";
         include "includes/deinit.php";
     } else {
-        include "404.php";
+        include "403.php"; // User does not have access to this page
     }
 } else {
-    include "403.php";
+    include "403.php"; // User not logged in
 }
