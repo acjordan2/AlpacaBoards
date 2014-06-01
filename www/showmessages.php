@@ -26,6 +26,7 @@
 require "includes/init.php";
 require "includes/Topic.class.php";
 require "includes/Parser.class.php";
+require "includes/Tag.class.php";
 
 if ($auth == true) {
     if (is_numeric($_GET['topic'])) {
@@ -99,6 +100,9 @@ if ($auth == true) {
                     )
                 )
             );
+
+            $tag = new Tag($authUser->getUserID());
+
             $smarty->assign("p_signature", htmlentities($authUser->getSignature()));
             $smarty->assign("topic_id", intval($topic_id));
             $smarty->assign(
@@ -112,6 +116,7 @@ if ($auth == true) {
             $smarty->assign("num_readers", $topic->getReaders());
             $smarty->assign("token", $csrf->getToken());
             $smarty->assign("action", $authUser->checkInventory(1));
+            $smarty->assign("topic_tags", $tag->getObjectTags($_GET['topic'], 1));
             $display = "showmessages.tpl";
             $page_title = $topic->getTopicTitle();
             include "includes/deinit.php";
@@ -122,7 +127,5 @@ if ($auth == true) {
         include "404.php";
     }
 } else {
-    include "404.php";
+    include "403.php";
 }
-
-?>
