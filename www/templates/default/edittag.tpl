@@ -1,6 +1,8 @@
 {include file="header.tpl"}
-<h1>Edit Tag</h1>
+<h1>{$page_title}</h1>
 <h2>{$taginfo.title}</h2>
+{if isset($message)}<h2><em>{$message}</em></h2>{/if}
+{if !isset($create_tag)}
 <script type="text/javascript">
   function disable() {
     var limit = document.forms[0].elements.length;
@@ -8,8 +10,13 @@
       document.forms[0].elements[i].disabled = true;
     }
   }
-</script>
-<form action="tags.php" method="post" enctype="multipart/form-data">
+</script>{/if}
+<form action="tags.php" method="post" enctype="multipart/form-data">{if isset($create_tag)}
+    <input type="hidden" name="create" value="1" />
+    <fieldset>
+       <legend>Name</legend>
+       <input type="text" name="title" />
+    </fieldset>{else}
     <fieldset>
         <legend>Description</legend>
         <textarea style="width:100%">{$taginfo.description}</textarea>
@@ -68,7 +75,7 @@
     <fieldset>
         <legend>Administrators</legend>
         <input type="text" name="administrators" style="width:100%" /><br />
-    </fieldset>
+    </fieldset>{/if}
     <input type="hidden" name="token" value="{$token}" />
     <input type="submit" name="save" value="save" />
 </form>

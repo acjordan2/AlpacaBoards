@@ -59,6 +59,29 @@ class Tag
         $this->_user_id = $user_id;
     }
 
+    public function createTag($tag_name)
+    {
+        if (!preg_match('/[^a-z\-0-9\ ]/i', $tag_name)) {
+            $data = array(
+                "title" => $tag_name
+            );
+            $sql_checkTag = "SELECT title FROM TopicalTags
+                WHERE title = :title";
+            $statement_checkTag = $this->_pdo_conn->prepare($sql_checkTag);
+            $statement_checkTag->execute($data);
+            $row = $statement_checkTag->rowCount();
+            $statement_checkTag->closeCursor();
+            if ($row > 0) {
+                return -1;
+            } else {
+                $sql_insertTag = "INSERT INTO TopicalTags (title, type, user_id, created)
+                    VALUES (:title, 0, ".$this->_user_id.", ".time().")";
+                $statement_insertTag = $this->_pdo_conn->prepare($sql_insertTag);
+                return $statement_insertTag->execute($data);
+            }
+        }
+    }
+
     /**
      * Get list of tags
      * @param  string $filter Search Critera 

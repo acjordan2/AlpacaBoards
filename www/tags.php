@@ -29,6 +29,10 @@ require "includes/Tag.class.php";
 
 if ($auth === true) {
     $tag = new Tag($authUser->getUserID());
+    $mod_tag_edit = $authUser->checkPermissions("tag_edit");
+    $mod_tag_create = $authUser->checkPermissions("tag_create");
+
+    $smarty->assign("mod_tag_create", $mod_tag_create);
     $smarty->assign("token", $csrf->getToken());
     if (isset($_GET['tag']) && !is_null($_GET['tag'])) {
         // See info for specific tag
@@ -37,19 +41,54 @@ if ($auth === true) {
 
         $title = str_replace($search, $replace, $_GET['tag']);
         $taginfo = $tag->getTagInfoByTitle($title);
-        $taginfo['parents'] = $tag->getParents($taginfo['tag_id']);
-        $taginfo['children'] = $tag->getChildren($taginfo['tag_id']);
-        $smarty->assign("taginfo", $taginfo);
+        if (count($taginfo) > 1) {
+            $taginfo['parents'] = $tag->getParents($taginfo['tag_id']);
+            $taginfo['children'] = $tag->getChildren($taginfo['tag_id']);
+            $smarty->assign("taginfo", $taginfo);
 
-        $mod_tag_edit = $authUser->checkPermissions("tag_edit");
-        $smarty->assign("mod_tag_edit", $mod_tag_edit);
+           
+            $smarty->assign("mod_tag_edit", $mod_tag_edit);
 
-        if ($mod_tag_edit && isset($_GET['edit'])) {
-            $page_title = "Edit Tag: ".$taginfo['title'];
-            $display = "edittag.tpl";
+            if ($mod_tag_edit && isset($_GET['edit'])) {
+                $page_title = "Edit Tag: ".$taginfo['title'];
+                $display = "edittag.tpl";
+            } else {
+                $page_title = "Tag Info: ".$taginfo['title'];
+                $display = "taginfo.tpl";
+            }
         } else {
-            $page_title = "Tag Info: ".$taginfo['title'];
-            $display = "taginfo.tpl";
+            include "404.php";
+        }
+
+    } elseif (isset($_REQUEST['create'])) {
+
+        $message = "";
+        if (isset($_GET['status'])) {
+            if ($_GET['status'] == 1) {
+                $message = "Tag created";
+            } else {
+                $message = "Tag already exists";
+            }
+        }
+
+        // Does the user have permission to create tags
+
+        if ($mod_tag_create == true) {
+            if (isset($_POST['create'])) {
+                if ($csrf->validateToken($_POST['token'])) {
+                    $status = $tag->createTag($_POST['title']);
+                    header("Location: ./tags.php?create&status=".$status);
+                }
+            }
+            $taginfo = array("title" => "");
+            $smarty->assign("message", $message);
+            $smarty->assign("taginfo", $taginfo);
+            $smarty->assign("create_tag", true);
+            $smarty->assign("token", $csrf->getToken());
+            $display = "edittag.tpl";
+            $page_title = "Create Topical Tag";
+        } else {
+            include "403.php";
         }
 
     } else {

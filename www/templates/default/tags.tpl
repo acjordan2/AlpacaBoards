@@ -10,6 +10,7 @@
         <span id="userbar_pms" style="display:none">
             <a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
         </span>
+        {if ($mod_tag_create)}<a href="./tags.php?create">Create Tag</a> |{/if}
         <a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
     </div>
 {literal}
