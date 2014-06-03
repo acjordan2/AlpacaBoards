@@ -320,9 +320,19 @@ class Tag
         }
     }
 
-    public function getChildren()
+    /**
+     * Get child tags of a provided tag ID
+     * @param  integer $tag_id ID of tag
+     * @return array           Array of child tag names and IDs
+     */
+    public function getChildren($tag_id)
     {
-
+        $sql = "SELECT title, tag_id from TopicalTags
+            LEFT JOIN TopicalTagParentRelationship ON TopicalTags.tag_id = TopicalTagParentRelationship.child_id
+            WHERE TopicalTagParentRelationship.parent_id = :tag_id";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->execute(array('tag_id' => $tag_id));
+        return $statement->fetchAll();
     }
 
     /**
