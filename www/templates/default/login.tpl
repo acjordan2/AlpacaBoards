@@ -20,7 +20,7 @@
             </form>
         </div>
         <div class="options">
-             <a href="./register.php">{$sm_labels.sign_up}</a> | <a href="./passwordReset.php">{$sm_labels.forgot_password}?</a>
+             <a href="./register.php">{$sm_labels.sign_up}</a> | <a href="./passwordReset.php">{$sm_labels.forgot_password}</a>
         </div>
     </body>
 </html>
