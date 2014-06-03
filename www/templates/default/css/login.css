@@ -1,0 +1,61 @@
+html, body {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+body {
+  background: #2d2d2d url('../images/ende.png') no-repeat center;
+}
+body, a {
+  color: #fff;
+  font-family: "Helvetica";
+  font-size: 14px;
+}
+.login {
+  width: 250px;
+  position: absolute;
+  overflow: hidden;
+  line-height: 2em;
+  padding: 5px;
+  bottom: 0px;
+  right: 0px; 
+}
+
+.options {
+  width: 250px;
+  position: absolute;
+  overflow: hidden;
+  line-height: 2em;
+  padding: 5px;
+  bottom: 0px;
+  left: 0px; 
+}
+label {
+  clear: both;
+  float: left;
+}
+span {
+  float: left;
+  padding-right: 5px;
+  text-align: right;
+  width: 8em;
+}
+input.text {
+  border: 1px solid #111;
+  padding: 2px;
+  width: 10em;
+  float: right;
+}
+input[type="submit"] {
+  clear: both;
+  float: right;
+}
+h2 {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0px;
+  text-align: right;
+}
+p {
+  display: none;
+}
