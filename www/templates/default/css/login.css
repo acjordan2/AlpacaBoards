@@ -4,7 +4,7 @@ html, body {
   padding: 0px;
 }
 body {
-  background: #2d2d2d url('../images/ende.png') no-repeat center;
+  background: #222222 url('../images/logo.jpg') no-repeat center;
 }
 body, a {
   color: #fff;
@@ -12,17 +12,14 @@ body, a {
   font-size: 14px;
 }
 .login {
-  width: 250px;
   position: absolute;
   overflow: hidden;
-  line-height: 2em;
+  line-height: 1.8em;
   padding: 5px;
   bottom: 0px;
   right: 0px; 
 }
-
 .options {
-  width: 250px;
   position: absolute;
   overflow: hidden;
   line-height: 2em;
@@ -30,15 +27,18 @@ body, a {
   bottom: 0px;
   left: 0px; 
 }
+.message {
+  text-align: right;
+}
 label {
   clear: both;
-  float: left;
+  float: right;
 }
 span {
   float: left;
   padding-right: 5px;
   text-align: right;
-  width: 8em;
+  width: 10em;
 }
 input.text {
   border: 1px solid #111;
