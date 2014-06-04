@@ -101,7 +101,7 @@
 	<br />
 	<br />
 	{include file="footer.tpl"}
-    <script type="text/javascript" src="templates/default/js/jquery.playsound.js" charset="utf-8"></script>
+    <script type="text/javascript" src="templates/default/js/jquery.playSound.js" charset="utf-8"></script>
     <script type="text/javascript">
         (function poll(){
             $.ajax({ url: 
