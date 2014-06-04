@@ -77,6 +77,7 @@ class Parser
     public function parse($html, $convert_newlines = true)
     {
         $this->_newline = $convert_newlines;
+        $p_count = 0;
 
         // Initizlize Variables
         $allowed_attributes = "";
@@ -141,7 +142,7 @@ class Parser
                 // instead of parsed. Adding the <p> tag to allowed tags
                 // and remove margins to prevent line breaks fixes the problem.
                 if ($node->nodeName == "p") {
-                    $node->setAttribute("style", "margin-bottom:0px;margin-top:0px");
+                    //$node->setAttribute("style", "margin-bottom:0px;margin-top:0px");
                 }
                 // Processing for special tags
                 // quote, spoiler, img
@@ -382,12 +383,18 @@ class Parser
         if ($this->_newline) {
             $html = str_replace("\n", "<br />", $html);
         }
-        $html = str_replace("&lt;p&gt;", "", $html);
-        $html = str_replace("&lt;/p&gt;", "", $html);
+
         $html = str_replace("<html>", "", $html);
         $html = str_replace("</html>", "", $html);
         $html = str_replace("<body>", "", $html);
         $html = str_replace("</body>", "", $html);
+        
+        // Remove enclosing <p> put there by DomDocument
+        // Fix for spoiler not hiding images when there
+        // body starts with a text node
+        if (substr($html, 0, 3) == "<p>") {
+            $html = substr($html, 3, strlen($html) - 13);
+        }
 
         return $html;
     }
