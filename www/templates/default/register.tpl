@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<title>{$sitename} - Register</title>
+		<link rel="stylesheet" type="text/css" href="./templates/default/css/login.css" />
 		<script type="text/javascript">
 			function checkField(){
 				
@@ -9,32 +10,41 @@
 		</script>
 	</head>
 	<body>
-		<h1>Register</h1>
-		{if isset($message)}<br />{$message}<br />{/if}
-		<br />
-		<form action="register.php" method="POST" autocomplete="OFF">
-		  <fieldset style="width:250px;">
-			<legend><small>Enter your details:</small></legend>
-			<br />
-			<input type="hidden" name="token" value="{$token}" />
-			Desired Username:<br />
-			<input type="text" name="username" style="width:100%;" value="{if isset($username)}{$username}{/if}"/>
-			<br /><br />
-			Email:<br />
-			<input type="text" name="email" style="width:100%;" value="{if isset($email)}{$email}{/if}" />
-			<br /><br />
-			Password:<br />
-			<input type="password" name="password" id="password" style="width:100%;" />
-			<br /><br />
-			Password (Again):<br />
-			<input type="password" name="password2" id="password2" style="width:100%;" />
-			<br /><br />
-			{if $registration_status == 1}{if isset($invite)}<input type="hidden" name="invite_code" value="{$invite_code}" />{else}Invite Code:<br />
-			<input type="text" name="invite_code" style="width:100%;" value="" />
-			<br /><br />{/if}{/if}
-			<input type="submit" value="Register">
-		  </fieldset>
-		</form>
-		<br />
+		<div class="login">
+			<div class="message">{if isset($message)}<br />{$message}{/if}</div>
+			<form action="register.php" method="POST" autocomplete="OFF">
+				<input type="hidden" name="token" value="{$token}" />
+				<label>
+					<span>Username: </span> 
+					<input class="text" type="text" name="username" value="{if isset($username)}{$username}{/if}"/>
+				</label>
+				<label>	
+					<span>Email: </span>
+					<input class="text" type="text" name="email" value="{if isset($email)}{$email}{/if}" />
+				</label>	
+				<label>
+					<span>Password: </span>
+					<input class="text" type="password" name="password" id="password"/>
+				</label>
+				<label>				
+					<span>Password (Again): </span> 
+					<input class="text" type="password" name="password2" id="password2"/>
+				</label>
+				{if $registration_status == 1}
+					{if isset($invite)}
+						<input type="hidden" name="invite_code" value="{$invite_code}" />
+					{else}
+						<label>
+							<span>Invite Code: </span> 
+							<input type="text" name="invite_code" value="" />
+						</label>
+					{/if}
+				{/if}
+				<input type="submit" value="Register">
+			</form>
+		</div>
+        <div class="options">
+             <a href="./index.php">{$sm_labels.login}</a> | <a href="./register.php">{$sm_labels.sign_up}</a> 
+        </div>		
 	</body>
 </html>

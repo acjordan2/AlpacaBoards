@@ -6,15 +6,17 @@
         <link rel="stylesheet" type="text/css" href="./templates/default/css/login.css" />
     </head>
     <body onload="document.getElementsByTagName('input')[0].focus();">
-        {if $message != NULL}{$message}{/if}<br />
         <div class="login">
+            <div class="message">{if $message != NULL}{$message}{/if}</div>
             <form action="" method="POST" autocomplete="off">          
-                {$sm_labels.username}:
-                <input class="text" type="text" name="username" value="{$username}">
-                <br />
-                {$sm_labels.password}:
-                <input class="text" type="password" name="password">
-                <br />
+                <label>
+                    <span>{$sm_labels.username}: </span>
+                    <input class="text" type="text" name="username" value="{$username}">
+                </label>
+                 <label>
+                    <span>{$sm_labels.password}: </span>
+                    <input class="text" type="password" name="password">
+                 </label>
                 <input type="submit" value="Login">
               <input type="hidden" name="token" value="{$token}" />
             </form>
