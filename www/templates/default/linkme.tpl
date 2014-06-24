@@ -40,7 +40,7 @@
 		<b>Vote:</b>{for $i=0; $i<=10; $i++}<button id="v" name="v" value="{$i}">{$i}</button>{/for}
 		<input type="hidden" name="action" value="link_vote" />
 		<input type="hidden" name="l" value="{$link_data.link_id}" />
-		<input type="hidden" name="token" value={$token} /><br />
+		<input type="hidden" name="token" value="{$token}" /><br />
 	</form>
    	<br /><span id="message"><b>{if isset($message)}{$message}{/if}</b></span><br />
 {/if}
