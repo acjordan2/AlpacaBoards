@@ -91,7 +91,7 @@ $smarty->assign("base_url", $base_url);
 $smarty->assign("base_image_url", BASE_IMAGE_URL);
 $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
-$csrf = new CSRFGuard();
+$csrf = new CSRFGuard($site->getSiteKey(), USE_SSL);
 
 $authUser = new User();
 

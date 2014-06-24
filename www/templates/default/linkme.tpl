@@ -31,7 +31,7 @@
 		{else}<button name="f" id="f" value="1">Add to Favorites</button>{/if}
 		<input type="hidden" name="action" value="link_fav" />
 		<input type="hidden" name="l" value="{$link_data.link_id}" />
-		<input type="hidden" name="token" value={$token} /> | 
+		<input type="hidden" name="token" value="{$token}" /> | 
 		<a href="./linkreport.php?l={$link_data.link_id}">Report Link</a>
         {if $user_id == $link_data.user_id}| <a href="./addlink.php?edit={$link_data.link_id}">Edit link</a>{/if}
 	</form>

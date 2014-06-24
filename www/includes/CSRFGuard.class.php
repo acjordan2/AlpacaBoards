@@ -2,7 +2,7 @@
 /*
  * CSRFGuard.class.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2014 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -24,65 +24,184 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-class CSRFGuard{
-	
-	private $pdo_conn;
+class CSRFGuard
+{
+    
+    /**
+    * CSRF Token Value 
+    * @var string
+    */
+    private $_csrf_token;
 
-    private $csrf_token;
-	
-	function __construct(){
-		if (!isset($_COOKIE['csrf'])) {
-            $this->resetToken();
-        } else {
-            $this->csrf_token = $_COOKIE['csrf'];
+    /**
+    * Site key used for HMAC to geneterate the CSRF string
+    * @var string
+    */
+    private $_site_key;
+
+    /**
+    * Name of the CSRF cookie
+    * @var string
+    */
+    private $_cookie_name;
+
+    /**
+    * Flag to set the 'Secure' cookie option
+    * @var boolean
+    */
+    private $_cookie_secure;
+
+    /**
+    * Domain scope to set the cookie
+    * @var string
+    */
+    private $_cookie_domain;
+
+    /**
+    * Amount of time before the CSRF cookie is valid for
+    * @var integer
+    */
+    private $_cookie_expires = 86400; // 24 hours
+
+    /**
+     * Create a new CSRF token
+     * @param string  site_key            The secret key used to generate token
+     * @param boolean $cookie_secure_flag Set CSRF cookie with the 'Secure' flag (set to true if your site uses SSL)
+     * @param string  $cookie_name        Name of the CSRF cookie
+     * @param string  $domain             Domain to scope the cookie to
+     * @return void
+     */
+    public function __construct($site_key = null, $cookie_secure_flag = false, $cookie_name = 'csrf', $domain = null)
+    {
+        $this->_site_key = $site_key;
+        $this->_cookie_name = $cookie_name;
+        $this->_cookie_secure = $cookie_secure_flag;
+
+        // If domain is not set use value from HTTP_HOST
+        if ($domain == null) {
+            $domain = $_SERVER['HTTP_HOST'];
         }
-	}
-	
-	public static function websafeEncode($text){
-		$search = array("+", "/", "=");
-		$replace = array("-", "_", ".");
-		$string = base64_encode($text);
-		return str_replace($search, $replace, $string);
-	}
-	
-	public static function websafeDecode($text){
-		$search = array("-", "_", ".");
-		$replace = array("+", "/", "=");
-		$string = str_replace($search, $replace, $text); 
-		return base64_decode($string);
-	}
-	
-	public function getToken(){
+
+        // Ensure provided domain is valid
+        if ($this->_verify_domain($domain)) {
+            $this->_cookie_domain = $domain;
+        } else {
+            $this->_cookie_domain = null;
+        }
+
+        // Get CSRF token from cookie, if it does not exist
+        // create a new token
+        if (isset($_COOKIE[$this->_cookie_name])) {
+            $this->csrf_token = $_COOKIE[$this->_cookie_name];
+        } else {
+            $this->resetToken();
+        }
+    }
+    
+    /**
+     * Get CSRF token
+     * @param  string $salt Salt value for the token, allows for per page tokens
+     * (Should be the same salt used in validateToken())
+     * @return string       The value of the CSRF token
+     */
+    public function getToken($salt = null)
+    {
         $raw = $this->websafeDecode($this->csrf_token);
         $token = explode("|", $raw);
-        $hmac_cookie = hash_hmac("sha1", $token[0], SITE_KEY, true);
-        if ($hmac_cookie == $token[1]) { 
-            $hash = hash_hmac("sha256", $raw, SITE_KEY, true);
-            return $this->websafeEncode($hash);
+
+        // Calculate and verify HMAC of cookie data to ensure cookie
+        // has not been modified
+        $hmac_cookie = hash_hmac("sha1", $token[0], $this->_site_key, true);
+        if ($hmac_cookie == $token[1]) {
+            // Generate CSRF token based on random data in cookie and the salt
+            // and HMAC'd with the sites private key
+            $hash = hash_hmac("sha256", $raw.$salt, $this->_site_key, true);
+            $encoded_hash = $this->websafeEncode($hash);
         } else {
             $this->resetToken();
-            return $this->getToken();
+            $encoded_hash = $this->getToken();
         }
-	}
-
-    public function resetToken(){
-        $r = mcrypt_create_iv(26, MCRYPT_DEV_URANDOM);
-        $hmac = hash_hmac("sha1", $r, SITE_KEY, true);
-        $this->csrf_token = $this->websafeEncode($r."|".$hmac);
-        setcookie($name="csrf", $value=$this->csrf_token, $expire=-1, $path="/", 
-            $path=DOMAIN, $secure=USE_SSL, $httponly=TRUE);
+        return $encoded_hash;
     }
-	
-	public function validateToken($request){
-        $raw_request = $this->websafeDecode($request);
-        $raw_cookie = $this->websafeDecode($_COOKIE['csrf']);
 
-        $hmac_cookie = hash_hmac("sha256", $raw_cookie, SITE_KEY, true);
-		if($hmac_cookie == $raw_request) 
-			return TRUE;
-		else 
-			return FALSE;
-	}
-	
+    /**
+     * Generate a new CSRF token, if one currently exists, it will be regenerated
+     * @return void
+     */
+    public function resetToken()
+    {
+        // Generate random data for CSRF token
+        $r = mcrypt_create_iv(26, MCRYPT_DEV_URANDOM);
+        // HMAC data to ensure integrity
+        $hmac = hash_hmac("sha1", $r, $this->_site_key, true);
+        // Append HMAC to random data, encode in websafe base64
+        // and store in a cookie
+        $this->csrf_token = $this->websafeEncode($r."|".$hmac);
+        setcookie(
+            $name = $this->_cookie_name,
+            $value = $this->csrf_token,
+            $expire = $this->_cookie_expires + time(),
+            $path = "/",
+            $path = $this->_cookie_domain,
+            $secure = $this->_cookie_secure,
+            $httponly = true
+        );
+    }
+    
+    /**
+     * Verify the token provided in the request is valid
+     * @param string $request The CSRF token from the request
+     * @param string $salt    Salt used to create a per page CSRF token (Should be the same salt used in getToken())
+     * @return boolean        True if the token is valid
+     */
+    public function validateToken($request, $salt = null)
+    {
+        $raw_request = $this->websafeDecode($request);
+        $raw_cookie = $this->websafeDecode($_COOKIE[$this->_cookie_name]);
+
+        $hmac_cookie = hash_hmac("sha256", $raw_cookie.$salt, $this->_site_key, true);
+        if ($hmac_cookie == $raw_request) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Verify provided domain name is in the correct format
+     * @param  string $domain_name Domain to validate
+     * @return boolean             True if domain is valid
+     */
+    private function _verify_domain($domain_name)
+    {
+        return (preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $domain_name) //valid chars check
+            && preg_match("/^.{1,253}$/", $domain_name) //overall length check
+            && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name)   ); //length of each label
+    }
+
+    /**
+     * Encode data using websafe base64
+     * @param  string $text Text to encode
+     * @return string       Encoded text
+     */
+    public static function websafeEncode($text)
+    {
+        $search = array("+", "/", "=");
+        $replace = array("-", "_", ".");
+        $string = base64_encode($text);
+        return str_replace($search, $replace, $string);
+    }
+    
+    /**
+     * Decode data from websafe base64
+     * @param  string $text Websafe base64 encoded string to decode
+     * @return string       Decoded text
+     */
+    public static function websafeDecode($text)
+    {
+        $search = array("-", "_", ".");
+        $replace = array("+", "/", "=");
+        $string = str_replace($search, $replace, $text);
+        return base64_decode($string);
+    }
 }
-?>
