@@ -92,7 +92,7 @@ class CSRFGuard
         // Get CSRF token from cookie, if it does not exist
         // create a new token
         if (isset($_COOKIE[$this->_cookie_name])) {
-            $this->csrf_token = $_COOKIE[$this->_cookie_name];
+            $this->_csrf_token = $_COOKIE[$this->_cookie_name];
         } else {
             $this->resetToken();
         }
@@ -106,7 +106,7 @@ class CSRFGuard
      */
     public function getToken($salt = null)
     {
-        $raw = $this->websafeDecode($this->csrf_token);
+        $raw = $this->websafeDecode($this->_csrf_token);
         $token = explode("|", $raw);
 
         // Calculate and verify HMAC of cookie data to ensure cookie
@@ -136,10 +136,10 @@ class CSRFGuard
         $hmac = hash_hmac("sha1", $r, $this->_site_key, true);
         // Append HMAC to random data, encode in websafe base64
         // and store in a cookie
-        $this->csrf_token = $this->websafeEncode($r."|".$hmac);
+        $this->_csrf_token = $this->websafeEncode($r."|".$hmac);
         setcookie(
             $name = $this->_cookie_name,
-            $value = $this->csrf_token,
+            $value = $this->_csrf_token,
             $expire = $this->_cookie_expires + time(),
             $path = "/",
             $path = $this->_cookie_domain,

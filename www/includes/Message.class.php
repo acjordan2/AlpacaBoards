@@ -241,14 +241,24 @@ class MessageRevision Extends Message{
 		$this->user_avatar = $tmp_user->getAvatar();
 	}
 
-    public function deleteMessage($action)
+    public function deleteMessage($action, $user_id = null, $reason = null)
     {
         if ($action != 1 && $action != 2) {
             return false;
         } else {
             $sql = "UPDATE Messages SET deleted = ? WHERE message_id = ".$this->message_id;
             $statement = $this->pdo_conn->prepare($sql);
-            $this->message = "[This message has been deleted]";
+            if ($action == 2) {
+                $sql2 = "INSERT INTO DisciplineHistory 
+                    (user_id, mod_id, message_id, action_taken, description, date)
+                    VALUES (?, $user_id, ?, 'Message Deleted', ?, ".time().")";
+                $statement2 = $this->pdo_conn->prepare($sql2);
+                $statement2->execute(array($this->user_id, $this->message_id, $reason));
+                $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
+            } else {
+                $this->message = $GLOBALS['locale_messages']['message']['deleted'];
+            }
+            $this->message_deleted = true;
             return $statement->execute(array($action));
         }
     }

@@ -871,14 +871,14 @@ INSERT INTO `SiteOptions` (`sitename`, `sitekey`, `registration`, `invites`) VAL
 --
 
 INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
-(1, 'Adminstrator');
+(1, 'Administrator');
 
 --
 -- Dumping data for table `StaffPermissions`
 --
 
 INSERT INTO `StaffPermissions` (`position_id`, `title`, `title_color`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`, `tag_edit`, `tag_create`) VALUES
-(1, "Adminstrator", "red", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+(1, "Administrator", "red", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 INSERT INTO `TopicalTags` (`tag_id`, `title`, `description`, `type`, `user_id`, `created`)
 VALUES (1, 'LUE', 'Main Social Board', 1, 1, UNIX_TIMESTAMP(NOW()));
@@ -887,3 +887,6 @@ VALUES (1, 'LUE', 'Main Social Board', 1, 1, UNIX_TIMESTAMP(NOW()));
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+ALTER TABLE  `DisciplineHistory` ADD  `message_id` INT( 11 ) UNSIGNED NULL AFTER  `mod_id` ;
+
