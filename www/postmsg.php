@@ -143,7 +143,10 @@ if ($auth === true) {
        $smarty->assign("new_topic", TRUE);
        $smarty->assign("board_id", 42);
        $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
-       $smarty->assign("e_message", htmlentities(@$_POST['message']));
+       
+       if (isset($_POST['message'])) {
+            $smarty->assign("e_message", htmlentities(@$_POST['message']));
+       }
        $display = "postmsg.tpl";
        if(@$_POST['preview'] == "Preview Message"){
             $smarty->assign("preview_message", TRUE);
