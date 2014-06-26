@@ -4,7 +4,7 @@ html, body {
   padding: 0px;
 }
 body {
-  background: #222222 url('../images/logo.jpg') no-repeat center;
+  background: #222222;
 }
 body, a {
   color: #fff;
