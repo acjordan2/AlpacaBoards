@@ -16,6 +16,7 @@
 {/if}
 	<form action="postmsg.php" method="post">
 		<span style="color: #ff0000">
+            {if isset($error_message)}{$error_message}<br />{/if}
 			<b>The rules:</b> Don't be an ass hat. I will ban
 		</span>
 		<br />
