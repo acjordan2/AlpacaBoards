@@ -35,8 +35,10 @@ if ($auth == true) {
     }
     // Get user list
     $query = @$_GET['user'];
-    $userlist = $authUser->getUserList($current_page, $query);
-    $page_count = User::$page_count;
+    $userlist = $site->getUserList($authUser, $current_page, $query);
+    $page_count = $userlist[0]['page_count'];
+    // remove page count from userlist array
+    $userlist[0] = array_shift($userlist[0]);
     if ($page_count == 0) {
         $page_count = 1;
     }

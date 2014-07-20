@@ -53,7 +53,7 @@ if ($auth === false) {
             // using the email address on file
             $mail = new PHPMailer();
             $email = $results['private_email'];
-            $mail->From = "no-reply@".DOMAIN;
+            $mail->From = "no-reply@".$site->getDomain();
             $mail->FromName = "Do Not Reply";
             $mail->AddAddress($results['private_email']);
             $mail->WordWrap = 50;

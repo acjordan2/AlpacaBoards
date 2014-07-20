@@ -62,9 +62,9 @@ if ($auth === true) {
     }
     $display = "showtopics.tpl";
     $page_title = $board->getTitle();
-    if (count($topic_list) == 0) {
-        include "404.php";
-    } else {
+    //if (count($topic_list) == 0) {
+    //    include "404.php";
+    //} else {
         $smarty->assign("topicList", $topic_list);
         if (isset($sticky_list)) {
             $smarty->assign("stickyList", $sticky_list);
@@ -77,7 +77,7 @@ if ($auth === true) {
         $smarty->assign("page_count", $board->getPageCount());
         $smarty->assign("current_page", $current_page);
         $smarty->assign("num_readers", $board->getReaders());
-    }
+    //}
 } else {
     include "404.php";
 }

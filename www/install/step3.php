@@ -1,6 +1,6 @@
 <?php
 /*
- * step2.php
+ * step3.php
  * 
  * Copyright (c) 2012 Andrew Jordan
  * 
@@ -26,70 +26,53 @@
 require("Install.inc.php");
 require("../includes/init.php");
 
-$message = NULL;
-$finished = FALSE;
+$message = null;
+$finished = false;
 
-if(isset($_POST['username']) && isset($_POST['email']) && 
-	isset($_POST['password']) && isset($_POST['password2'])){
-	try{
-		$message = "";
-		if(strlen($_POST['password']) < 8)
-			$message = "Password must be at least 8 characters<br />";
-		if($_POST['password'] != $_POST['password2'])
-			$message .= "Password don't match<br />";
-		if(!$authUser->validateEmail($_POST['email']))
-			$message .= "Please enter a valid email address";
-		if($message == ""){
-			$status = $authUser->registerUser($_POST);
-			switch($status){
-				case -1:
-					$message = "That username already exists<br />";
-					break;
-				case -2:
-					$message = "Invalid invite code. Invite codes are case sensitive<br />";
-					break;
-				case 1:
-					$sql_setLevel = "UPDATE Users SET level=1 WHERE username=?";
-					$statement_setLevel = $db->prepare($sql_setLevel);
-					$statement_setLevel->execute(array($_POST['username']));
-					file_put_contents("install.lock", "");
-					header("Location: ../index.php?m=1");
-					break;
-			}
-		}
-	}
-	catch(PDOException $e){
-		print $e->getMessage();
-	}
+if(isset($_POST['sitename'])) {
+    $site->updateSiteOptions(
+        $_POST['sitename'],
+        (int)$_POST['registration'],
+        (int)$_POST['invites']
+    );
+    $site->setDomain($_POST['domain']);
+    header("Location: ./step4.php");
 }
-
 
 ?>
 <html>
 <head>
-	<title>Install - Step 3</title>
+    <title>Install - Step 3</title>
 </head>
 <body>
 <div id="message"><?php print $message; ?></div>
-<form action="" method="POST">	  
-		<fieldset style="width:250px;">
-			<legend><small>Create Administrative User:</small></legend>
-			<br />
-			Username:<br />
-			<input type="text" name="username" style="width:100%;" />
-			<br /><br />
-			Email:<br />
-			<input type="text" name="email" style="width:100%;" />
-			<br /><br />
-			Password:<br />
-			<input type="password" name="password" style="width:100%;" autocomplete="off"/>
-			<br /><br />
-			Password (Again):<br />
-			<input type="password" name="password2" style="width:100%;" autocomplete="off"/>
-			<br /><br />			
-			<input type="submit" value="Register">
-		  </fieldset>
-		</form>
+<form action="" method="POST">      
+        <fieldset style="width:250px;">
+            <legend><small>Site Settings:</small></legend>
+            <br />
+            Site Name:<br />
+            <input type="text" name="sitename" style="width:100%;" value="<?php print SITENAME ?>" />
+            <br /><br />
+            Domain:<br />
+            <input type="text" name="domain" style="width:100%;" value="<?php print DOMAIN ?>"/>
+            <br /><br />
+            Registration:<br />
+            <select name="registration">
+                    <option value="0">Disabled</option>
+                    <option value="1">Invite Only</option>
+                    <option value="2">Open</option>
+                </select>
+            <br /><br />
+            Invites:<br />
+            <select name="invites">
+                    <option value="0">Disabled</option>
+                    <option value="1">Can be bought</option>
+                    <option value="2">Open</option>
+                </select>
+            <br /><br />
+            <input type="submit" value="Next">
+          </fieldset>
+        </form>
 </form>
 </body>
 </html>

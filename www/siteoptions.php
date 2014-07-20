@@ -31,12 +31,13 @@ require "includes/Parser.class.php";
 if ($auth === true) {
     if ($authUser->checkPermissions("site_options")) {
         if (isset($_POST['token'])) {
-            if ($csrf->validateToken($_POST['token'])) {
+            if ($csrf->validateToken($_POST['token'], "siteoptions")) {
                 $site->updateSiteOptions(
                     $_POST['sitename'],
                     (int)$_POST['registration'],
                     (int)$_POST['invites']
                 );
+                $site->setDomain($_POST['domain']);
                 header("location: ./siteoptions.php?m=1");
                 exit();
             }
@@ -45,7 +46,20 @@ if ($auth === true) {
             $message = "Site Options Updated!";
             $smarty->assign("message", $message);
         }
-        $smarty->assign("token", $csrf->getToken());
+        if (isset($_GET['domain'])) {
+            $smarty->assign("message", "Please check your domain settings");
+            if ($site->getDomain() == null) {
+                $domain = DOMAIN;
+                $needs_save = true;
+                $smarty->assign("needs_save", true);
+            } else {
+                $domain = $site->getDomain();
+            }
+        } else {
+            $domain = $site->getDomain();
+        }
+        $smarty->assign("token", $csrf->getToken("siteoptions"));
+        $smarty->assign("domain", htmlentities($domain));
         $smarty->assign("registration_status", $site->getRegistrationStatus());
         $smarty->assign("invite_status", $site->getInviteStatus());
 

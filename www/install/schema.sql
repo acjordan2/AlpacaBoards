@@ -419,6 +419,7 @@ CREATE TABLE IF NOT EXISTS `ShopTransactions` (
 
 CREATE TABLE IF NOT EXISTS `SiteOptions` (
   `sitename` varchar(256) NOT NULL,
+  `domain` varchar(256) NOT NULL,
   `sitekey` varchar(512) NOT NULL,
   `registration` int(1) NOT NULL,
   `invites` int(1) NOT NULL
@@ -861,8 +862,8 @@ INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `c
 -- Dumping data for table `SiteOptions`
 --
 
-INSERT INTO `SiteOptions` (`sitename`, `sitekey`, `registration`, `invites`) VALUES
-('Sper.gs', '3ohb+XDoyRaE1JPYkg8yl6rubIiVU0WKEcxUAKEajummXA+427pjiU0hf/ByIAmJGxciVdLWsuB14+7MP1o72g==', 2, 2);
+INSERT INTO `SiteOptions` (`sitename`, `registration`, `invites`) VALUES
+('Sper.gs', 2, 2);
 
 
 

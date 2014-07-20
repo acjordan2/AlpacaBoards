@@ -26,7 +26,7 @@
 
 class Site {
 
-    private $_pdoconn;
+    private $_pdo_conn;
 
     private $_sitename;
 
@@ -36,12 +36,13 @@ class Site {
 
     private $_invites;
 
+    private $_domain;
 
     public function __construct()
     {
-        $this->_pdoconn = ConnectionFactory::getInstance()->getConnection();
-        $sql = "SELECT sitename, sitekey, registration, invites FROM SiteOptions";
-        $statement = $this->_pdoconn->prepare($sql);
+        $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
+        $sql = "SELECT sitename, sitekey, registration, invites, domain FROM SiteOptions";
+        $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute();
         $results = $statement->fetch();
 
@@ -49,6 +50,7 @@ class Site {
         $this->_sitekey = $results['sitekey'];
         $this->_registration = $results['registration'];
         $this->_invites = $results['invites'];
+        $this->_domain = $results['domain'];
     }
 
     /**
@@ -72,14 +74,74 @@ class Site {
             );
             $sql = "UPDATE SiteOptions set sitename = :sitename, registration = :registration, 
                 invites = :invites";
-            $statement = $this->_pdoconn->prepare($sql);
+            $statement = $this->_pdo_conn->prepare($sql);
             return $statement->execute($params);
         }
+    }
+
+    public function getUserList($user, $page = 1, $query = null)
+    {
+        // Get users 50 at a time
+        if (!is_int($page)) {
+            $page = 1;
+        }
+        $offset = 50 * ($page-1);
+        $user_search  = "";
+
+        $data = array();
+        $data['offset'] = $offset;
+
+        // Search for a speficied username
+        if (!is_null($query)) {
+            if (strlen($query) == 1) {
+                $query = str_replace("%", "", $query);
+            }
+            $query = "%".$query."%";
+            $user_search = "WHERE Users.username LIKE :query";
+        }
+        $sql = "SELECT Users.username, Users.user_id, Users.account_created, 
+            Users.last_active FROM Users LEFT Join Karma using (user_id) 
+            LEFT JOIN ShopTransactions USING (user_id) $user_search GROUP 
+            BY Users.user_id ORDER BY User_id ASC LIMIT 50 OFFSET :offset";
+        $statement = $this->_pdo_conn->prepare($sql);
+        if (!is_null($query)) {
+            $data['query'] = $query;
+            $statement->execute($data);
+        } else {
+            $statement->execute($data);
+        }
+        $sql2 = "SELECT COUNT(Users.user_id) as count FROM Users";
+        $statement2 = $this->_pdo_conn->query($sql2);
+        $row = $statement2->fetch();
+        $page_count = intval($row['count']/50);
+        if ($page_count % 50 != 0) {
+            $page_count++;
+        }
+        $userList = $statement->fetchAll();
+        foreach ($userList as $key => $value) {
+           $userList[$key]['karma']
+                = $user->getContributionKarma($userList[$key]['user_id']);
+        }
+        array_unshift($userList, array("page_count" => $page_count));
+        return $userList;
+    }
+
+    public function setDomain($domain)
+    {
+        $sql = "UPDATE SiteOptions SET domain = :domain";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam(":domain", $domain);
+        $statement->execute();
     }
 
     public function getSiteName()
     {
         return $this->_sitename;
+    }
+
+    public function getDomain()
+    {
+        return $this->_domain;
     }
 
     public function getSiteKey()

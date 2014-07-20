@@ -115,7 +115,7 @@ if ($auth == true) {
             $smarty->assign("current_page", $current_page);
             $smarty->assign("num_readers", $topic->getReaders());
             $smarty->assign("token", $csrf->getToken());
-            $smarty->assign("action", $authUser->checkInventory(1));
+            $smarty->assign("action", $authUser->getInventory(5));
             $smarty->assign("topic_tags", $tag->getObjectTags($_GET['topic'], 1));
             $display = "showmessages.tpl";
             $page_title = $topic->getTopicTitle();

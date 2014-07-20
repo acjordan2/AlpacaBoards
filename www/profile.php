@@ -39,9 +39,9 @@ if ($auth === true) {
         $user_id=$_GET['user'];
     }
     if (is_numeric($user_id)) {
-        $profile_user = new User($user_id);
+        $profile_user = new User($site, $user_id);
         // Verify the provided user ID is valid
-        if ($profile_user->doesExist()) {
+        try {
             
             // Check account permissions. If
             // account has moderator privelages,
@@ -154,8 +154,8 @@ if ($auth === true) {
                 $page_title = "User Profile - ".$profile_user->getUsername();
             }
             include "includes/deinit.php";
-        } else {
-            include "404.php";
+        } catch (Exception $e) {
+           include "404.php";
         }
     } else {
         include "404.php";

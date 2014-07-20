@@ -60,12 +60,6 @@ if (file_exists($root_path."/includes/Database.ini.php")) {
     exit();
 }
 
-if (verify_domain($_SERVER['HTTP_HOST'])) {
-    define("DOMAIN", htmlentities(trim($_SERVER['HTTP_HOST'])));
-} else {
-    define("DOMAIN", "");
-}
-
 $db = ConnectionFactory::getInstance()->getConnection();
 
 $site = new Site();
@@ -77,6 +71,15 @@ define("SITENAME", $sitename);
 define("BASEURL", $base_url);
 define("ROOTPATH", $root_path);
 
+if ($site->getDomain() != null) {
+    define("DOMAIN", $site->getDomain());
+} else if (verify_domain($_SERVER['HTTP_HOST'])) {
+    define("DOMAIN", htmlentities(trim($_SERVER['HTTP_HOST'])));
+} else {
+    define("DOMAIN", "");
+}
+
+
 // Templating System Setup
 $smarty = new Smarty();
 $smarty->template_dir = TEMPLATE_DIR."/default";
@@ -84,7 +87,7 @@ $smarty->compile_dir = TEMPLATE_COMPILE;
 $smarty->cache_dir = TEMPLATE_CACHE;
 $smarty->config_dir = TEMPLATE_CONFIG;
 $smarty->assign("sitename", SITENAME);
-$smarty->assign("domain", DOMAIN);
+$smarty->assign("domain", $site->getDomain());
 $smarty->assign("dateformat", DATE_FORMAT_SMARTY);
 $smarty->assign("board_id", 42);
 $smarty->assign("base_url", $base_url);
@@ -93,24 +96,31 @@ $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
 $csrf = new CSRFGuard($site->getSiteKey(), USE_SSL);
 
-$authUser = new User();
+$authUser = new User($site);
+
+$auth = false;
 
 if (isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])) {
     if ($csrf->validateToken($_POST['token'])) {
-        $auth = $authUser->checkAuthentication(@$_POST['username'], @$_POST['password']);
+        $auth = $authUser->authenticateWithCredentials($_POST['username'], $_POST['password']);
         if ($auth == true) {
             $csrf->resetToken();
         }
     } else {
         $auth = false;
     }
-} else {
-    $auth = $authUser->checkAuthentication();
+} elseif (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
+    $auth = $authUser->authenticateWithCookie();
 }
 if ($auth == true) {
+    if (($site->getDomain() == null) && ($authUser->getAccessLevel() == 1) && !isset($_COOKIE['redirect'])){
+        setcookie("redirect", true);
+        header("Location: ./siteoptions.php?domain");
+        exit();
+    }
     $smarty->assign("username", $authUser->getUsername());
     $smarty->assign("user_id", $authUser->getUserID());
-    $authUser->awardKarma();
+    $authUser->awardCredit();
     $smarty->assign("karma", $authUser->getKarma());
     if ($authUser->getStatus() == -1) {
         $message = "You have been banned";

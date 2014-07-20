@@ -72,7 +72,7 @@ class Topic
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_parser = $parser;
-        $this->_user_id = $user->getUserID();
+        $this->_user_id = $user->getUserId();
     }
 
     /**
@@ -187,7 +187,7 @@ class Topic
                 LEFT JOIN TopicHistory Using(topic_id)
                 WHERE Messages.topic_id=".$topic_data[$i]['topic_id']." AND 
                 Messages.message_id > TopicHistory.message_id AND 
-                TopicHistory.user_id = 1";
+                TopicHistory.user_id = ".$this->_user_id;
             $statement_history = $this->_pdo_conn->query($sql_history);
             $history_count = $statement_history->fetchAll();
             $statement_history->closeCursor();
