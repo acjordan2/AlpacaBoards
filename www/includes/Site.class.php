@@ -128,10 +128,22 @@ class Site {
 
     public function setDomain($domain)
     {
-        $sql = "UPDATE SiteOptions SET domain = :domain";
-        $statement = $this->_pdo_conn->prepare($sql);
-        $statement->bindParam(":domain", $domain);
-        $statement->execute();
+        if ($this->verify_domain($domain)) {
+            $sql = "UPDATE SiteOptions SET domain = :domain";
+            $statement = $this->_pdo_conn->prepare($sql);
+            $statement->bindParam(":domain", $domain);
+            $statement->execute();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function verify_domain($domain_name)
+    {
+        return (preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $domain_name) //valid chars check
+            && preg_match("/^.{1,253}$/", $domain_name) //overall length check
+            && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name)   ); //length of each label
     }
 
     public function getSiteName()

@@ -37,13 +37,21 @@ if ($auth === true) {
                     (int)$_POST['registration'],
                     (int)$_POST['invites']
                 );
-                $site->setDomain($_POST['domain']);
-                header("location: ./siteoptions.php?m=1");
-                exit();
+                if (!$site->setDomain($_POST['domain'])) {
+                    header("Location: ./siteoptions.php?m=2");
+                    exit();
+                } else {
+                    header("location: ./siteoptions.php?m=1");
+                    exit();
+                }
             }
         }
         if (@$_GET['m'] == 1) {
             $message = "Site Options Updated!";
+            $smarty->assign("message", $message);
+        }
+        if (@$_GET['m'] == 2) {
+            $message = "Invalid domain!";
             $smarty->assign("message", $message);
         }
         if (isset($_GET['domain'])) {
