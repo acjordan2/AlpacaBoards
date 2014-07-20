@@ -477,6 +477,14 @@ class User
         }
     }
 
+    /**
+     * Create a new user
+     * @param  string  $username       Username
+     * @param  string  $password       Password
+     * @param  string  $email          Private email address
+     * @param  integer $registerStatus Site registration status
+     * @return integer                 -1 if user account exists, 1 if user was registered
+     */
     public function createUser($username, $password, $email, $registerStatus = 0)
     {
         if (!preg_match('/[^A-z0-9.\-_\ ]/', $username)) {

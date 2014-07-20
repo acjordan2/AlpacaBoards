@@ -26,13 +26,23 @@
  
 require "includes/init.php";
 
+function checkInvite($db, $invite_code) {
+    $sql = "SELECT invited_by FROM InviteTree WHERE invite_code 
+        COLLATE latin1_general_cs = :invite_code and invited_user IS 
+        NULL and created > ".(time()-(60*60*72));
+    $statement = $db->prepare($sql);
+    $statement->bindParam(":invite_code", $invite_code);
+    $statement->execute();
+    return $statement->rowCount();
+}
+
 if ($site->getRegistrationStatus() == 0) {
     die("Site Registration is closed");
 } elseif ($site->getRegistrationStatus() == 1) {
     // Create new anti-CSRF token
     if (isset($_GET['code'])) {
         // Validate invite code
-        $invite_check = $authUser->checkInvite($_GET['code']);
+        $invite_check = checkInvite($db, $_GET['code']);
         if ($invite_check) {
             $smarty->assign("invite_code", htmlentities($_GET['code']));
             $smarty->assign("invite", $invite_check);

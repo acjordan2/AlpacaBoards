@@ -12,7 +12,7 @@
 	<body>
 		<div class="login">
 			<div class="message">{if isset($message)}<br />{$message}{/if}</div>
-			<form action="register.php" method="POST" autocomplete="OFF">
+			<form action="register.php{if isset($invite)}?code={$invite_code}{/if}" method="POST" autocomplete="OFF">
 				<input type="hidden" name="token" value="{$token}" />
 				<label>
 					<span>Username: </span> 

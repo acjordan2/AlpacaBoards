@@ -37,7 +37,7 @@ if ($auth == true) {
         if (sizeof($inventory) > 0) {
             $invites = true;
             if (isset($_POST['email'])
-                && $csrf->validateToken(@$_POST['token']) == true
+                && $csrf->validateToken(@$_POST['token'], "invite") == true
             ) {
                 if ($authUser->inviteUser($_POST['email'], $inventory[0]['transaction_id'])) {
                     $message = "Invite has been sent!";
@@ -54,10 +54,48 @@ if ($auth == true) {
     } elseif ($site->getInviteStatus() == 2) {
         $invites = true;
         if (isset($_POST['email'])
-            && $csrf->validateToken(@$_POST['token']) == true
+            && $csrf->validateToken(@$_POST['token'], "invite") == true
             && $authUser->validateEmail($_POST['email']) == true
         ) {
-            if ($authUser->inviteUser($_POST['email'])) {
+            $invite_code = CSRFGuard::websafeEncode(
+                mcrypt_create_iv(33, MCRYPT_DEV_URANDOM)
+            );
+
+            $sql = "INSERT INTO InviteTree (invite_code, email, invited_by, created)
+                VALUES ('$invite_code', :email, ".$authUser->getUserID().", ".time().")";
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":email", $_POST['email']);
+            $statement->execute();
+
+
+            $mail = new PHPMailer();
+            $email = $_POST['email'];
+            $mail->From = "no-reply@".DOMAIN;
+            $mail->FromName = "Do Not Reply";
+            $mail->AddAddress($email);
+
+            $mail->WordWrap = 50;
+            $mail->IsHTML(true);
+
+            $mail->Subject = "You have been invited to ".$site->getSiteName();
+            $mail->Body    = "The user ".$authUser->getUsername()." has invited you to
+                join ".$site->getSiteName()." and has specified this address (".$email.") as your 
+                email. If you do not know this person, please disregard.<br /><br />
+                <br />To confirm your invite, click on the folowing link:<br /><br />
+                ".$site->getSiteName()."/register.php?code=$invite_code<br /><br />
+                After you register, you will be able to use your account. Please take 
+                note that if you do not use this invite in the next 3 days, 
+                it will expire.";
+            $mail->AltBody = "The user ".$authUser->getUsername()." has invited you to
+                join ".$site->getSiteName()." and has specified this address (".$email.") as your 
+                email. If you do not know this person, please disregard.\n\n
+                To confirm your invite, click on the folowing link:\n\n
+                ".BASEURL."/register.php?code=$invite_code\n\n
+                After you register, you will be able to use your account. Please take 
+                note that if you do not use this invite in the next 3 days, 
+                it will expire.";
+
+            if ($mail->Send()) {
                     $message = "Invite has been sent!";
             } else {
                 $message = "Error sending invite";
@@ -67,7 +105,7 @@ if ($auth == true) {
     // Set template variables
     $smarty->assign("message", @$message);
     $smarty->assign("invite_status", $invites);
-    $smarty->assign("token", $csrf->getToken());
+    $smarty->assign("token", $csrf->getToken("invite"));
     // Set template page
     $display = "invite.tpl";
     $page_title = "Send Invite";
