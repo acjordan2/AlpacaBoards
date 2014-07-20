@@ -11,7 +11,7 @@
 			<a href="./links.php?mode=fav">Favorites</a> | 
 			<a href="./links.php?mode=search">Search</a> | 
 			<a href="./stats.php">Stats</a> | 
-			<a href="./showtopics.php?board={$board_id}">Boards</a> | 
+			<a href="./showtopics.php">Boards</a> | 
 			<a href="./userlist.php">User List</a> | 
 			<a href="./logout.php">Logout</a> | 
 			<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
