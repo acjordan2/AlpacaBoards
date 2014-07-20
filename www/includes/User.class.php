@@ -477,7 +477,7 @@ class User
         }
     }
 
-    public function createUser($username, $password, $email)
+    public function createUser($username, $password, $email, $registerStatus = 0)
     {
         if (!preg_match('/[^A-z0-9.\-_\ ]/', $username)) {
             $sql = "SELECT Users.user_id FROM Users WHERE Users.username = :username";

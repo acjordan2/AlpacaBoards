@@ -61,7 +61,7 @@ if ($site->getRegistrationStatus() == 0) {
                 // Validate username does not exist and
                 // check invite code. Then create account
                 if ($error_msg == "") {
-                    $status = $authUser->registerUser($_POST, $site->getRegistrationStatus());
+                    $status = $authUser->createUser($_POST['username'], $_POST['password'], $_POST['email'], $site->getRegistrationStatus());
                     switch($status){
                         case -1:
                             $error_msg = "That username already exists<br />";
@@ -101,7 +101,7 @@ if ($site->getRegistrationStatus() == 0) {
             // Validate username does not exist and
             // check invite code. Then create account
             if ($error_msg == "") {
-                $status = $authUser->registerUser($_POST, $site->getRegistrationStatus());
+                $status = $authUser->createUser($_POST['username'], $_POST['password'], $_POST['email'], $site->getRegistrationStatus());
                 switch($status){
                     case -1:
                         $error_msg = "That username already exists<br />";
