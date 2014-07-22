@@ -82,7 +82,7 @@ if ($auth == true) {
                 join ".$site->getSiteName()." and has specified this address (".$email.") as your 
                 email. If you do not know this person, please disregard.<br /><br />
                 <br />To confirm your invite, click on the folowing link:<br /><br />
-                ".$site->getSiteName()."/register.php?code=$invite_code<br /><br />
+                ".BASEURL."/register.php?code=$invite_code<br /><br />
                 After you register, you will be able to use your account. Please take 
                 note that if you do not use this invite in the next 3 days, 
                 it will expire.";
