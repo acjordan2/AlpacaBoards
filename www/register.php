@@ -26,7 +26,8 @@
  
 require "includes/init.php";
 
-function checkInvite($db, $invite_code) {
+function checkInvite($db, $invite_code)
+{
     $sql = "SELECT invited_by FROM InviteTree WHERE invite_code 
         COLLATE latin1_general_cs = :invite_code and invited_user IS 
         NULL and created > ".(time()-(60*60*72));
@@ -46,47 +47,47 @@ if ($site->getRegistrationStatus() == 0) {
         if ($invite_check) {
             $smarty->assign("invite_code", htmlentities($_GET['code']));
             $smarty->assign("invite", $invite_check);
-        } else {
-            
         }
-    } else {
-        if ($csrf->validateToken(@$_POST['token'])) {
-            if (isset($_POST['username']) && isset($_POST['email'])
-                && isset($_POST['password']) && isset($_POST['password2'])
-            ) {
-                $error_msg = "";
-                $smarty->assign("username", htmlentities($_POST['username']));
-                $smarty->assign("email", htmlentities($_POST['email']));
+    }
+    if ($csrf->validateToken(@$_POST['token'])) {
+        if (isset($_POST['username']) && isset($_POST['email'])
+            && isset($_POST['password']) && isset($_POST['password2'])
+        ) {
+            $error_msg = "";
+            $smarty->assign("username", htmlentities($_POST['username']));
+            $smarty->assign("email", htmlentities($_POST['email']));
 
-                // Validate supplied data
-                if (strlen($_POST['password']) < 8) {
-                    $error_msg = "Password must be at least 8 characters<br />";
-                }
-                if ($_POST['password'] != $_POST['password2']) {
-                    $error_msg .= "Password don't match<br />";
-                }
-                if (!$authUser->validateEmail($_POST['email'])) {
-                    $error_msg .= "Please enter a valid email address";
-                }
-                // Validate username does not exist and
-                // check invite code. Then create account
-                if ($error_msg == "") {
-                    $status = $authUser->createUser($_POST['username'], $_POST['password'], $_POST['email'], $site->getRegistrationStatus());
-                    switch($status){
-                        case -1:
-                            $error_msg = "That username already exists<br />";
-                            break;
-                        case -2:
-                            $error_msg
-                                = "Invalid invite code. Invite codes are case sensitive<br />";
-                            break;
-                        case 1:
-                            header("Location: ./index.php?m=1");
-                            break;
-                    }
-                }
-                $smarty->assign("message", $error_msg);
+            // Validate supplied data
+            if (strlen($_POST['password']) < 8) {
+                $error_msg = "Password must be at least 8 characters<br />";
             }
+            if ($_POST['password'] != $_POST['password2']) {
+                $error_msg .= "Password don't match<br />";
+            }
+            if (!$authUser->validateEmail($_POST['email'])) {
+                $error_msg .= "Please enter a valid email address<br />";
+            }
+            if (checkInvite($db, $_POST['invite_code']) == 0) {
+                $error_msg .= "Invalid invite code. Invite codes are case sensitive";
+            }
+            // Validate username does not exist and
+            // check invite code. Then create account
+            if ($error_msg == "") {
+                $status = $authUser->createUser($_POST['username'], $_POST['password'], $_POST['email'], $site->getRegistrationStatus());
+                switch($status){
+                    case -1:
+                        $error_msg .= "That username already exists<br />";
+                        break;
+                    case -2:
+                        $error_msg
+                            .= "Invalid invite code. Invite codes are case sensitive<br />";
+                        break;
+                    case 1:
+                        header("Location: ./index.php?m=1");
+                        break;
+                }
+            }
+            $smarty->assign("message", $error_msg);
         }
     }
 } elseif ($site->getRegistrationStatus() == 2) {
