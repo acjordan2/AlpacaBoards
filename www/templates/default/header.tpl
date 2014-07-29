@@ -16,7 +16,7 @@
 <body class="regular">
     <div class="body">
         {include file="navigation.tpl"}
-    <div style=
-        "position:fixed;z-index:999;background:red;width:1px;height:1px;bottom:45px!important;bottom:10000px;right:24px">
-        <!--a reminder, for all that we fought against. -->
-    </div>
+        <div style=
+            "position:fixed;z-index:999;background:red;width:1px;height:1px;bottom:45px!important;bottom:10000px;right:24px">
+            <!--a reminder, for all that we fought against. -->
+        </div>
