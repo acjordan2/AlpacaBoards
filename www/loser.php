@@ -30,7 +30,7 @@ require "includes/init.php";
 if ($auth == true) {
     // Validate provided user ID
     // default to current logged
-    // in user. 
+    // in user.
     $user_id = @$_GET['user'];
     if (is_null($user_id)) {
         $user_id=$authUser->getUserID();
@@ -39,10 +39,10 @@ if ($auth == true) {
     }
         
     if (is_numeric($user_id)) {
-        // Get user stats
-        $stat_user = new User($user_id);
-        if ($stat_user->doesExist()) {
-            // Assign template variables 
+        try {
+            // Get user stats
+            $stat_user = new User($site, $user_id);
+            // Assign template variables
             $smarty->assign("p_username", $stat_user->getUsername());
             $smarty->assign("messages_posted", $stat_user->getNumberOfPosts());
             $smarty->assign("topics_created", $stat_user->getNumberOfTopics());
@@ -54,13 +54,12 @@ if ($auth == true) {
             $display = "loser.tpl";
             $page_title = "Loser";
             include "includes/deinit.php";
-        } else {
+        } catch (Exception $e) {
             include "404.php";
         }
     } else {
         include "404.php";
     }
 } else {
-    include "404.php";
+    include "403.php";
 }
-?>
