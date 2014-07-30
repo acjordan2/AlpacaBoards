@@ -29,6 +29,7 @@ require "includes/PHPMailer.class.php";
 
 // Check authentication 
 if ($auth == true) {
+    $csrf->setPageSalt("invite".$authUser->getUserId());
     $invites = false;
     if ($site->getInviteStatus() == 0) {
         $message = "Invites are disabled";
@@ -62,7 +63,7 @@ if ($auth == true) {
             );
 
             $sql = "INSERT INTO InviteTree (invite_code, email, invited_by, created)
-                VALUES ('$invite_code', :email, ".$authUser->getUserID().", ".time().")";
+                VALUES ('$invite_code', :email, ".$authUser->getUserId().", ".time().")";
             $statement = $db->prepare($sql);
             $statement->bindParam(":email", $_POST['email']);
             $statement->execute();

@@ -38,6 +38,8 @@ class Site {
 
     private $_domain;
 
+    private $_root_path;
+
     public function __construct()
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
@@ -51,6 +53,7 @@ class Site {
         $this->_registration = $results['registration'];
         $this->_invites = $results['invites'];
         $this->_domain = $results['domain'];
+        $this->setRootPath();
     }
 
     /**
@@ -128,7 +131,7 @@ class Site {
 
     public function setDomain($domain)
     {
-        if ($this->verify_domain($domain)) {
+        if ($this->verifyDomain($domain)) {
             $sql = "UPDATE SiteOptions SET domain = :domain";
             $statement = $this->_pdo_conn->prepare($sql);
             $statement->bindParam(":domain", $domain);
@@ -139,11 +142,27 @@ class Site {
         }
     }
 
-    public function verify_domain($domain_name)
+    public function verifyDomain($domain_name)
     {
         return (preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $domain_name) //valid chars check
             && preg_match("/^.{1,253}$/", $domain_name) //overall length check
             && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name)   ); //length of each label
+    }
+
+    public function setRootPath()
+    {
+        $root_path = "";
+        $root_path_array = explode("/", dirname(__FILE__));
+        for ($i=0; $i<sizeof($root_path_array)-1; $i++) {
+            $root_path .= $root_path_array[$i]."/";
+        }
+        $root_path = substr($root_path, 0, strlen($root_path)-1);
+        $this->_root_path = $root_path;
+    }
+
+    public function getRootPath()
+    {
+        return $this->_root_path;
     }
 
     public function getSiteName()

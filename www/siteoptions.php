@@ -29,9 +29,10 @@ require "includes/Parser.class.php";
 
 // Check authentication
 if ($auth === true) {
+    $csrf->setPageSalt("siteoptions");
     if ($authUser->checkPermissions("site_options")) {
         if (isset($_POST['token'])) {
-            if ($csrf->validateToken($_POST['token'], "siteoptions")) {
+            if ($csrf->validateToken($_POST['token'])) {
                 $site->updateSiteOptions(
                     $_POST['sitename'],
                     (int)$_POST['registration'],

@@ -49,6 +49,7 @@ if ($auth === true) {
             if (isset($_GET['mod_action'])
                 && $authUser->checkPermissions($_GET['mod_action'])
             ) {
+                $csrf->setPageSalt("profile_moderator");
                 $smarty->assign("token", $csrf->getToken());
                 $smarty->assign("mod_action", $_GET['mod_action']);
 

@@ -40,28 +40,16 @@ class CSRFGuard
     private $_site_key;
 
     /**
-    * Name of the CSRF cookie
-    * @var string
-    */
-    private $_cookie_name;
+     * Array used to change various parameters for the CSRF token generation
+     * @var array
+     */
+    private $_options = array();
 
     /**
-    * Flag to set the 'Secure' cookie option
-    * @var boolean
-    */
-    private $_cookie_secure;
-
-    /**
-    * Domain scope to set the cookie
-    * @var string
-    */
-    private $_cookie_domain;
-
-    /**
-    * Amount of time before the CSRF cookie is valid for
-    * @var integer
-    */
-    private $_cookie_expires = 86400; // 24 hours
+     * Salt used to give each page a unique CSRF token
+     * @var string
+     */
+    private $_page_salt = null;
 
     /**
      * Create a new CSRF token
@@ -71,31 +59,46 @@ class CSRFGuard
      * @param string  $domain             Domain to scope the cookie to
      * @return void
      */
-    public function __construct($site_key = null, $cookie_secure_flag = false, $cookie_name = 'csrf', $domain = null)
+    public function __construct($site_key = null, $options = null)
     {
+        
         $this->_site_key = $site_key;
-        $this->_cookie_name = $cookie_name;
-        $this->_cookie_secure = $cookie_secure_flag;
+        $default_options = array(
+            "namespace" => "csrf",
+            "session_salt" => null,
+            "global_timespan" => 60 * 60 * 24,
+            "token_timespan" => null,
+            "reusable" => true,
+            "domain" => null,
+            "path" => null,
+            "ssl" => false
+        );
 
-        // If domain is not set use value from HTTP_HOST
-        if ($domain == null) {
-            $domain = $_SERVER['HTTP_HOST'];
-        }
-
-        // Ensure provided domain is valid
-        if ($this->_verify_domain($domain)) {
-            $this->_cookie_domain = $domain;
-        } else {
-            $this->_cookie_domain = null;
+        foreach ($default_options as $key => $value) {
+            $this->_options[$key] = isset($options[$key]) ? $options[$key] : $value;
         }
 
         // Get CSRF token from cookie, if it does not exist
         // create a new token
-        if (isset($_COOKIE[$this->_cookie_name])) {
-            $this->_csrf_token = $_COOKIE[$this->_cookie_name];
+        if (isset($_COOKIE[$this->_options['namespace']])) {
+            $this->_csrf_token = $_COOKIE[$this->_options['namespace']];
         } else {
             $this->resetToken();
         }
+    }
+
+    /**
+     * Set an salt to give each page a unique CSRF token
+     * without creating a new cookie
+     * @param mixed $salt String or array to be used as the salt
+     * @return void
+     */
+    public function setPageSalt($salt)
+    {
+        if (is_array($salt)) {
+            $salt = implode($salt);
+        }
+        $this->_page_salt = $salt;
     }
     
     /**
@@ -104,7 +107,7 @@ class CSRFGuard
      * (Should be the same salt used in validateToken())
      * @return string       The value of the CSRF token
      */
-    public function getToken($salt = null)
+    public function getToken()
     {
         $raw = $this->websafeDecode($this->_csrf_token);
         $token = explode("|", $raw);
@@ -115,7 +118,12 @@ class CSRFGuard
         if ($hmac_cookie == $token[1]) {
             // Generate CSRF token based on random data in cookie and the salt
             // and HMAC'd with the sites private key
-            $hash = hash_hmac("sha256", $raw.$salt, $this->_site_key, true);
+            $hash = hash_hmac(
+                "sha256",
+                $raw.$this->_options['session_salt'].$this->_page_salt,
+                $this->_site_key,
+                true
+            );
             $encoded_hash = $this->websafeEncode($hash);
         } else {
             $this->resetToken();
@@ -138,12 +146,12 @@ class CSRFGuard
         // and store in a cookie
         $this->_csrf_token = $this->websafeEncode($r."|".$hmac);
         setcookie(
-            $name = $this->_cookie_name,
+            $name = $this->_options['namespace'],
             $value = $this->_csrf_token,
-            $expire = $this->_cookie_expires + time(),
-            $path = "/",
-            $path = $this->_cookie_domain,
-            $secure = $this->_cookie_secure,
+            $expire = $this->_options['global_timespan'] + time(),
+            $path = $this->_options['path'],
+            $domain = $this->_options['domain'],
+            $secure = $this->_options['ssl'],
             $httponly = true
         );
     }
@@ -154,12 +162,17 @@ class CSRFGuard
      * @param string $salt    Salt used to create a per page CSRF token (Should be the same salt used in getToken())
      * @return boolean        True if the token is valid
      */
-    public function validateToken($request, $salt = null)
+    public function validateToken($request)
     {
         $raw_request = $this->websafeDecode($request);
-        $raw_cookie = $this->websafeDecode($_COOKIE[$this->_cookie_name]);
+        $raw_cookie = $this->websafeDecode($this->_csrf_token);
 
-        $hmac_cookie = hash_hmac("sha256", $raw_cookie.$salt, $this->_site_key, true);
+        $hmac_cookie = hash_hmac(
+            "sha256",
+            $raw_cookie.$this->_options['session_salt'].$this->_page_salt,
+            $this->_site_key,
+            true
+        );
         if ($hmac_cookie == $raw_request) {
             return true;
         } else {
@@ -168,28 +181,13 @@ class CSRFGuard
     }
 
     /**
-     * Verify provided domain name is in the correct format
-     * @param  string $domain_name Domain to validate
-     * @return boolean             True if domain is valid
-     */
-    private function _verify_domain($domain_name)
-    {
-        return (preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $domain_name) //valid chars check
-            && preg_match("/^.{1,253}$/", $domain_name) //overall length check
-            && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name)   ); //length of each label
-    }
-
-    /**
      * Encode data using websafe base64
      * @param  string $text Text to encode
      * @return string       Encoded text
      */
-    public static function websafeEncode($text)
+    public static function websafeEncode($data)
     {
-        $search = array("+", "/", "=");
-        $replace = array("-", "_", ".");
-        $string = base64_encode($text);
-        return str_replace($search, $replace, $string);
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
     
     /**
@@ -197,11 +195,8 @@ class CSRFGuard
      * @param  string $text Websafe base64 encoded string to decode
      * @return string       Decoded text
      */
-    public static function websafeDecode($text)
+    public static function websafeDecode($data)
     {
-        $search = array("-", "_", ".");
-        $replace = array("+", "/", "=");
-        $string = str_replace($search, $replace, $text);
-        return base64_decode($string);
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 }

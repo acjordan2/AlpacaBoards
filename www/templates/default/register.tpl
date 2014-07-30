@@ -31,14 +31,12 @@
                     <input class="text" type="password" name="password2" id="password2"/>
                 </label>
                 {if $registration_status == 1}
-                    {if isset($invite)}
-                        <input type="hidden" name="invite_code" value="{$invite_code}" />
-                    {else}
-                        <label>
-                            <span>Invite Code: </span> 
-                            <input type="text" name="invite_code" value="" />
-                        </label>
-                    {/if}
+                {if isset($invite)}<input type="hidden" name="invite_code" value="{$invite_code}" />
+                {else}
+                <label>
+                    <span>Invite Code: </span> 
+                    <input type="text" name="invite_code" value="" />
+                </label>{/if}
                 {/if}
                 <input type="submit" value="Register">
             </form>

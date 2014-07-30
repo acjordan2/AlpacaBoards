@@ -32,11 +32,11 @@ require "includes/Parser.class.php";
 if ($auth === true) {
     // Edit existing link
     if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-        $link_edit = new Link($db, $authUser->getUserID(), $_GET['edit']);
+        $link_edit = new Link($db, $authUser->getUserId(), $_GET['edit']);
         $link_edit_data = $link_edit->getLink();
         // Check to make sure the link
         // creator is the one editing the link
-        if ($link_edit_data['user_id'] == $authUser->getUserID()) {
+        if ($link_edit_data['user_id'] == $authUser->getUserId()) {
             // Assign template variables
             $smarty->assign("title", htmlentities($link_edit_data['title']));
             $smarty->assign(
@@ -108,7 +108,7 @@ if ($auth === true) {
         
     } else {
         // Add new link
-        $links = new Link($db, $authUser->getUserID());
+        $links = new Link($db, $authUser->getUserId());
         if (isset($_POST['title'])
             && isset($_POST['description'])
             && isset($_POST['token'])

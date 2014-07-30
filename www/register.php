@@ -40,7 +40,7 @@ function checkInvite($db, $invite_code)
 if ($site->getRegistrationStatus() == 0) {
     die("Site Registration is closed");
 } elseif ($site->getRegistrationStatus() == 1) {
-    // Create new anti-CSRF token
+    $csrf->setPageSalt("register");
     if (isset($_GET['code'])) {
         // Validate invite code
         $invite_check = checkInvite($db, $_GET['code']);

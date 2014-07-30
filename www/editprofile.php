@@ -33,6 +33,7 @@ require "includes/PHPThumbnailer/ThumbLib.inc.php";
 if ($auth == true) {
     $avatar = "";
     if (isset($_POST['go'])) {
+        $csrf->setPageSalt("editprofile".$authUser->getUserId());
         // Update profile information
         $public_email = $_POST['email'];
         $private_email = $_POST['pemail'];
@@ -58,7 +59,7 @@ if ($auth == true) {
             $authUser->setSignature($sig);
             $authUser->setQuote($quote_r);
             if (!is_null($_FILES['picture'])) {
-                $upload = new Upload($db, $authUser->getUserID());
+                $upload = new Upload($db, $authUser->getUserId());
                 $avatar = $upload->uploadImage($_FILES['picture']);
                 if ($avatar) {
                     $authUser->setAvatar($avatar['uploadlog_id']);

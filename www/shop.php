@@ -29,7 +29,8 @@ require "includes/Shop.class.php";
 
 // Check authentication
 if ($auth == true) {
-    // Verify shop itme
+    $csrf->setPageSalt("shop");
+    // Verify shop item
     $item_id = @$_GET['item'];
     $shop = new Shop($db, $authUser->getUserID());
     $smarty->assign("credits", $authUser->getCredits());

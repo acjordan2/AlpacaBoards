@@ -286,7 +286,7 @@ class User
                     $value = $session_key2,
                     $expire = 0,
                     $path = "/",
-                    $path = $this->_site->getDomain(),
+                    $domain = $this->_site->getDomain(),
                     $secure = USE_SSL,
                     $httponly = true
                 );
@@ -303,7 +303,7 @@ class User
                     "useragent" => $_SERVER['HTTP_USER_AGENT']
                 );
                 $statement_session->execute($session_data);
-                $this->_updateActivity();
+                $this->_updateActivity($session_key1, $session_key2);
                 return true;
             } else {
                 // Password does not match
@@ -360,8 +360,15 @@ class User
      * Update the user's and the session's last active time 
      * @return void
      */
-    private function _updateActivity() 
+    private function _updateActivity($session_key1 = null, $session_key2 = null)
     {
+        if (is_null($session_key1)) {
+            $session_key1 = $_COOKIE[AUTH_KEY1];
+        }
+        if (is_null($session_key2)) {
+            $session_key2 = $_COOKIE[AUTH_KEY2];
+        }
+
         // Update user activtiy
         $sql_updateUserActivity = "UPDATE Users SET last_active = ".time().
             " WHERE user_id = ".$this->_user_id;
@@ -372,8 +379,8 @@ class User
             " WHERE session_key1 = :session_key1 AND session_key2 = :session_key2";
         $statement_updateSessionActivity = $this->_pdo_conn->prepare($sql_updateSessionActivity);
         $data_session = array(
-            "session_key1" => $_COOKIE[AUTH_KEY1],
-            "session_key2" => $_COOKIE[AUTH_KEY2]
+            "session_key1" => $session_key1,
+            "session_key2" => $session_key2
         );
         $statement_updateSessionActivity->execute($data_session);
     }

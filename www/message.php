@@ -45,8 +45,8 @@ if ($auth === true) {
         $message_id = intval($_GET['id']);
         $topic_id = intval($_GET['topic']);
 
-        $csrf_salt = $message_id.$topic_id.$authUser->getUserID();
-
+        $csrf_salt = "message".$message_id.$topic_id.$authUser->getUserId();
+        $csrf->setPageSalt($csrf_salt);
         $message = new MessageRevision($db, $message_id, $revision_no, $link);
         if ($message->doesExist()) {
             $mod_message_delete = $authUser->checkPermissions("topic_delete_message");
@@ -54,12 +54,12 @@ if ($auth === true) {
             // for HTML tags.
             if (isset($_POST['action'])) {
                 if (($_POST['action'] == 1 && $authUser->getUserID() == $message->getUserID() && $message->isDeleted() == 0)) {
-                    if ($csrf->validateToken($_POST['token'], $csrf_salt)) {
+                    if ($csrf->validateToken($_POST['token'])) {
                         $message->deleteMessage($_POST['action']);
                     }
                 } elseif (($_POST['action'] == 1 && $mod_message_delete == 1 && $message->isDeleted() == 0)) {
-                    if ($csrf->validateToken($_POST['token'], $csrf_salt)) {
-                        $message->deleteMessage(2, $authUser->getUserID(), @$_POST['reason']);
+                    if ($csrf->validateToken($_POST['token'])) {
+                        $message->deleteMessage(2, $authUser->getUserId(), @$_POST['reason']);
                     }
                 }
             }
@@ -107,7 +107,7 @@ if ($auth === true) {
                 $smarty->assign("message_id", $message_id);
                 $smarty->assign("m_user_id", $message->getUserID());
                 $smarty->assign("m_username", $message->getUsername());
-                $smarty->assign("token", $csrf->getToken($csrf_salt));
+                $smarty->assign("token", $csrf->getToken());
                 $smarty->assign("message_deleted", $message->isDeleted());
                 $smarty->assign("m_avatar", $message->getAvatar());
                 $smarty->assign("mod_message_delete", $mod_message_delete);

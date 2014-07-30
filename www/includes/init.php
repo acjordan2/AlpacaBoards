@@ -66,7 +66,6 @@ $site = new Site();
 $sitekey = base64_decode($site->getSiteKey());
 $sitename = htmlentities($site->getSiteName());
 
-define("SITE_KEY", $sitekey);
 define("SITENAME", $sitename);
 define("BASEURL", $base_url);
 define("ROOTPATH", $root_path);
@@ -94,7 +93,11 @@ $smarty->assign("base_url", $base_url);
 $smarty->assign("base_image_url", BASE_IMAGE_URL);
 $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
-$csrf = new CSRFGuard($site->getSiteKey(), USE_SSL);
+$options = array(
+    "domain" => $site->getDomain(),
+    "ssl" => USE_SSL
+);
+$csrf = new CSRFGuard($site->getSiteKey(), $options);
 
 $authUser = new User($site);
 
