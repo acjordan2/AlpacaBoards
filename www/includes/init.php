@@ -116,7 +116,7 @@ if (isset($_POST['token']) && isset($_POST['username']) && isset($_POST['passwor
     $auth = $authUser->authenticateWithCookie();
 }
 if ($auth == true) {
-    if (($site->getDomain() == null) && ($authUser->getAccessLevel() == 1) && !isset($_COOKIE['redirect'])){
+    if (($site->getDomain() == null) && ($authUser->getAccessLevel() == 1) && !isset($_COOKIE['redirect'])) {
         setcookie("redirect", true);
         header("Location: ./siteoptions.php?domain");
         exit();
