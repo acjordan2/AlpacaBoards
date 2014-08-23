@@ -76,6 +76,13 @@ class CSRFGuard
 
         foreach ($default_options as $key => $value) {
             $this->_options[$key] = isset($options[$key]) ? $options[$key] : $value;
+            unset($options[$key]);
+        }
+
+        if (count($options) > 0) {
+            foreach ($options as $key => $value) {
+                trigger_error("Unknown option ".htmlentities($key), E_USER_WARNING);
+            }
         }
 
         // Get CSRF token from cookie, if it does not exist
