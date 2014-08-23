@@ -28,6 +28,18 @@ require "includes/Topic.class.php";
 require "includes/Parser.class.php";
 require "includes/Tag.class.php";
 
+function in_array_r($needle, $haystack, $strict = false)
+{
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle)
+            ||(is_array($item)
+            && in_array_r($needle, $item, $strict))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 if ($auth == true) {
     if (is_numeric($_GET['topic'])) {
         $topic_id = $_GET['topic'];
@@ -84,7 +96,15 @@ if ($auth == true) {
                 }
                 $smarty->assign("status_message", $status_message);
             }
-            $messages = $topic->getMessages($current_page, @$_GET['u']);
+
+            $tag = new Tag($authUser->getUserId());
+            $tags = $tag->getObjectTags($_GET['topic'], 1);
+
+            if (in_array_r("Anonymous", $tags)) {
+                $anonymous = true;
+            }
+
+            $messages = $topic->getMessages($current_page, @$_GET['u'], $anonymous);
             if (isset($_GET['u']) && is_numeric($_GET['u'])) {
                 $smarty->assign("filter", true);
             }
@@ -101,8 +121,6 @@ if ($auth == true) {
                 )
             );
 
-            $tag = new Tag($authUser->getUserID());
-
             $smarty->assign("p_signature", htmlentities($authUser->getSignature()));
             $smarty->assign("topic_id", intval($topic_id));
             $smarty->assign(
@@ -116,7 +134,7 @@ if ($auth == true) {
             $smarty->assign("num_readers", $topic->getReaders());
             $smarty->assign("token", $csrf->getToken());
             $smarty->assign("action", $authUser->getInventory(5));
-            $smarty->assign("topic_tags", $tag->getObjectTags($_GET['topic'], 1));
+            $smarty->assign("topic_tags", $tags);
             $display = "showmessages.tpl";
             $page_title = $topic->getTopicTitle();
             include "includes/deinit.php";

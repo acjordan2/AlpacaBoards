@@ -208,7 +208,7 @@ class Topic
      * @param  string  $filter Filter for returned messages (eg user:1 will return messages from user with ID 1)
      * @return array           Messages
      */
-    public function getMessages($page = 1, $filter = null)
+    public function getMessages($page = 1, $filter = null, $anonymous = false)
     {
         $offset = $this->_messages_per_page * ($page - 1);
         $this->_page_count = $this->getPageCount();
@@ -264,6 +264,15 @@ class Topic
         $results = $statement->fetchAll();
         $statement->closeCursor();
         
+        if ($anonymous == true) {
+            $sql_getUsers = "SELECT DISTINCT(user_id)
+                FROM Messages WHERE topic_id = ".$this->_topic_id."
+                ORDER BY message_id";
+            $statement_getUsers = $this->_pdo_conn->query($sql_getUsers);
+            $results_getUsers = $statement_getUsers->fetchAll(PDO::FETCH_COLUMN, 0);
+        }
+
+
         foreach ($results as &$key) {
             if (!is_null($key['avatar'])) {
                 $key['filename'] = urlencode($key['filename']).".jpg";
@@ -280,6 +289,11 @@ class Topic
             } else {
                 $key['message'] = $this->_parser->parse($key['message']);
                 $key['message'] = autolink($key['message']);
+            }
+            if ($anonymous == true) {
+                $human = array_search($key['user_id'], $results_getUsers)+1;
+                $key['username'] = "Human #".$human;
+                $key['user_id'] = $human * -1;
             }
         }
         if (count($results) > 0) {
