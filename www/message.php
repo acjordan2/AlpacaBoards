@@ -26,6 +26,19 @@
 require "includes/init.php";
 require "includes/Parser.class.php";
 require "includes/Message.class.php";
+require "includes/Tag.class.php";
+
+function in_array_r($needle, $haystack, $strict = false)
+{
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle)
+            ||(is_array($item)
+            && in_array_r($needle, $item, $strict))) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // Check authetication
 if ($auth === true) {
@@ -63,6 +76,20 @@ if ($auth === true) {
                     }
                 }
             }
+
+            $tag = new Tag($authUser->getUserId());
+            $tags = $tag->getObjectTags($topic_id, 1);
+
+            if (in_array_r("Anonymous", $tags)) {
+                $anonymous = true;
+                $user_id = "-1";
+                $username = "Human #1";
+            } else {
+                $anonymous = false;
+                $username = $message->getUsername();
+                $user_id = $message->getUserId();
+            }
+
             $message_content = $message->getMessage();
             $parser = new Parser($db);
             $message_content = $parser->parse($message_content);
@@ -105,8 +132,8 @@ if ($auth === true) {
                 $smarty->assign("board_id", $message->getBoardID());
                 $smarty->assign("revision_no", $message->getRevisionID());
                 $smarty->assign("message_id", $message_id);
-                $smarty->assign("m_user_id", $message->getUserID());
-                $smarty->assign("m_username", $message->getUsername());
+                $smarty->assign("m_user_id", $user_id);
+                $smarty->assign("m_username", $username);
                 $smarty->assign("token", $csrf->getToken());
                 $smarty->assign("message_deleted", $message->isDeleted());
                 $smarty->assign("m_avatar", $message->getAvatar());

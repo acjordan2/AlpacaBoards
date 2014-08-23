@@ -102,6 +102,8 @@ if ($auth == true) {
 
             if (in_array_r("Anonymous", $tags)) {
                 $anonymous = true;
+            } else {
+                $anonymous = false;
             }
 
             $messages = $topic->getMessages($current_page, @$_GET['u'], $anonymous);
