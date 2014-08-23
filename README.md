@@ -13,9 +13,9 @@ Sper.gs Messaging Board
 
 ##Install Directions
 1. Put contents of www in your webroot
-2. Navigate to the install direcotry with your browser and run the installer
-3. Edit Sphinx varibles to match your enviroment in www/includes/Config.ini.php and sphinx/sphinx.conf
-4. Start the sphinx search damon by navigating to the sphinx directory and running "php start_sphinx.php". Creating a better way to do this is on my "to-do" list.
+2. Navigate to the install directory with your browser and run the installer
+3. Edit Sphinx varibles to match your environment in www/includes/Config.ini.php and sphinx/sphinx.conf
+4. Start the sphinx search daemon by navigating to the sphinx directory and running "php start_sphinx.php". Creating a better way to do this is on my "to-do" list.
 
 ###Notes:
 	* Make sure to turn off magic quotes in your php.ini as it causes unexpected behavior. 
