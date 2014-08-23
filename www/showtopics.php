@@ -30,6 +30,18 @@ require "includes/Tag.class.php";
 require "includes/Parser.class.php";
 require "includes/Topic.class.php";
 
+function in_array_r($needle, $haystack, $strict = false)
+{
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle)
+            ||(is_array($item)
+            && in_array_r($needle, $item, $strict))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Check authentication
 if ($auth === true) {
     if (!is_int(@$_GET['board'])) {

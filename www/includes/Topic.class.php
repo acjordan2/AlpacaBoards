@@ -197,6 +197,10 @@ class Topic
             $topic_data[$i]['last_message'] = $history_count[0]['last_message'];
             $tag = new Tag($this->_user_id);
             $topic_data[$i]['tags'] = $tag->getObjectTags($topic_data[$i]['topic_id'], 1);
+            if (in_array_r("Anonymous", $topic_data[$i]['tags'])) {
+                $topic_data[$i]['username'] = "Human";
+                $topic_data[$i]['user_id'] = -1;
+            }
         }
         return $topic_data;
     }
