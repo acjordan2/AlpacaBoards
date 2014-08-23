@@ -95,7 +95,7 @@ $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
 $options = array(
     "domain" => $site->getDomain(),
-    "ssl" => USE_SSL
+    "ssl" => USE_SSL,
 );
 $csrf = new CSRFGuard($site->getSiteKey(), $options);
 
