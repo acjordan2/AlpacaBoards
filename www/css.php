@@ -27,6 +27,10 @@
 require "includes/init.php";
 require TEMPLATE_DIR."/default/index.php";
 
+$expires = 60*60*24; // how long to cache in secs..
+header("Pragma: public");
+header("Cache-Control: maxage=".$expires);
+header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
 header("Content-Type: text/css");
 
 $string = "";

@@ -258,7 +258,7 @@ class Parser
                 $quote_author = $this->doc->createElement("a", $results['username']);
                 $quote_author->setAttribute(
                     "href",
-                    "./profile.php?id=".$results['user_id']
+                    "./profile.php?user=".$results['user_id']
                 );
             
                 // Date of original quote

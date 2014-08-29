@@ -39,10 +39,9 @@ if ($auth === true) {
         $user_id=$_GET['user'];
     }
     if (is_numeric($user_id)) {
-        $profile_user = new User($site, $user_id);
         // Verify the provided user ID is valid
         try {
-            
+            $profile_user = new User($site, $user_id);
             // Check account permissions. If
             // account has moderator privelages,
             // allow moderation actions.
@@ -156,11 +155,11 @@ if ($auth === true) {
             }
             include "includes/deinit.php";
         } catch (Exception $e) {
-           include "404.php";
+            include "404.php";
         }
     } else {
         include "404.php";
     }
 } else {
-    include "404.php";
+    include "403.php";
 }
