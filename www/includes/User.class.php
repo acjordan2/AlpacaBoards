@@ -1056,7 +1056,12 @@ class User
      */
     public function getSignature()
     {
-        return $this->_signature;
+        $signature = $this->_signature;
+        if (strlen($this->_signature) > 0) {
+            $signature = "\n---\n".$signature;
+        }
+        return $signature;
+
     }
     
     /**

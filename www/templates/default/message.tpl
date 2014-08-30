@@ -1,10 +1,8 @@
 {include file="header.tpl"}
 	<h1>Message Detail</h1>
 {if $link != TRUE}
-	<b>Board:</b> {$board_title}
-	<br />
 	<b>Topic:</b> 
-	<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}">{$topic_title}</a>
+	<a href="./showmessages.php?topic={$topic_id}">{$topic_title}</a>
 {else}
 	<b>Link:</b> 
 	<a href="./linkme.php?l={$topic_id}">{$link_title}</a>
@@ -29,9 +27,6 @@
     <form method="get" action="./postmsg.php" style="display:inline;">
         <input type="hidden" name="id" value="{$message_id}" />
         <input type="hidden" name="{if $link == TRUE}link{else}topic{/if}" value="{$topic_id}" />
-    {if $link == FALSE}
-        <input type="hidden" name="board" value="{$board_id}" />
-    {/if}
         <input type="submit" value="Edit this message" />
     </form>
     <form method="post" action="./message.php?id={$message_id}&amp;{if $link == TRUE}link={$topic_id}{else}topic={$topic_id}{/if}&amp;r={$revision_no}" style="display:inline;">
@@ -60,10 +55,10 @@
 {if $message_deleted == 0}
 	<h3>Revisions</h3>    
 {foreach from=$revision_history item='table'}
-		#{$table.revision_no + 1} 
+		#{$table.revision_no + 1}: 
 		{if $revision_no == $table.revision_no}<b>
 		{else}<a href="./message.php?id={$message_id}&amp;
-		{if $link==TRUE}link={$topic_id}&amp;link=1{else}topic={$topic_id}{/if}&amp;r={$table.revision_no}">{/if}: 
+		{if $link==TRUE}link={$topic_id}&amp;link=1{else}topic={$topic_id}{/if}&amp;r={$table.revision_no}">{/if}
 		{$table.posted|date_format:$dateformat}
 		{if $revision_no == $table.revision_no}</b>{else}</a>{/if}<br />
 {/foreach}

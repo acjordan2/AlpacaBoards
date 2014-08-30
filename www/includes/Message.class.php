@@ -1,303 +1,191 @@
 <?php
+/*
+ * Message.class.php
+ * 
+ * Copyright (c) 2014 Andrew Jordan
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining 
+ * a copy of this software and associated documentation files (the 
+ * "Software"), to deal in the Software without restriction, including 
+ * without limitation the rights to use, copy, modify, merge, publish, 
+ * distribute, sublicense, and/or sell copies of the Software, and to 
+ * permit persons to whom the Software is furnished to do so, subject to 
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software. 
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
-Class Message{
-
-	protected $pdo_conn;
-	
-	protected $message_id;
-	
-	protected $message;
-	
-	protected $user_id;
-	
-	protected $topic_id;
-	
-	protected $revision_id;
-	
-	protected $exists;
-	
-	protected $link_id;
-	
-	protected $link_title;
-
-    protected $message_deleted;
-
-	protected $user_avatar;
-	
-	function __construct(&$db_connection, $aMessage_id, $aUser_id=NULL, $is_link=FALSE){
-		$this->pdo_conn = &$db_connection;
-		$this->message_id = $aMessage_id;
-		$this->is_link = $is_link;
-		if($is_link == TRUE){
-			$sql = "SELECT LinkMessages.link_id,
-						 LinkMessages.revision_no as revision_no,
-						 LinkMessages.user_id,
-						 LinkMessages.message
-					FROM
-						LinkMessages
-					WHERE LinkMessages.message_id = ?";
-			if(!is_null($aUser_id))
-				$sql .= " AND LinkMessages.user_id=$aUser_id";
-			$sql .= " ORDER BY LinkMessages.revision_no DESC LIMIT 1";			
-		}else{
-			$sql = "SELECT Messages.topic_id,
-						 Messages.revision_no as revision_no,
-						 Messages.user_id,
-						 Messages.message,
-                         Messages.deleted
-					FROM
-						Messages
-					WHERE Messages.message_id = ?";
-			if(!is_null($aUser_id))
-				$sql .= " AND Messages.user_id=$aUser_id";
-			$sql .= " ORDER BY Messages.revision_no DESC LIMIT 1";
-		}
-		
-		$statement = $this->pdo_conn->prepare($sql);
-		$statement->execute(array($this->message_id));
-		$statement->setFetchMode(PDO::FETCH_ASSOC);
-		if($statement->rowCount())
-			$this->exists = TRUE;
-		$row = $statement->fetch();
-		$this->setMessageData($row);
-	}
-	
-	protected function setMessageData($data){
-		if($this->is_link)
-			$this->link_id = $data['link_id'];
-
-		else
-			$this->topic_id = $data['topic_id'];
-		$this->user_id = $data['user_id'];
-		$this->revision_id = $data['revision_no'];
-        $this->message_deleted = $data['deleted'];
-        if($this->message_deleted == 1) {
-            $this->message = $GLOBALS['locale_messages']['message']['deleted'];
-        } elseif ($this->message_deleted == 2) {
-            $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
-        } else {
-		  $this->message = $data['message'];
-        }
-	}
-		
-	public function getRevisions(){
-		
-		if($this->is_link){
-		$sql = "SELECT LinkMessages.revision_no, 
-					   LinkMessages.posted
-			    FROM LinkMessages
-			    WHERE LinkMessages.message_id = $this->message_id
-			    ORDER BY revision_no DESC";
-		}else{
-			$sql = "SELECT Messages.revision_no, 
-						   Messages.posted
-					FROM Messages
-					WHERE Messages.message_id = $this->message_id
-					ORDER BY revision_no DESC";
-		}
-		$statement = $this->pdo_conn->query($sql);
-		$statement->setFetchMode(PDO::FETCH_ASSOC);
-		return $statement->fetchAll();
-	}
-	
-	public function getLinkID(){
-		return $this->link_id;
-	}
-	
-	public function doesExist(){
-		return $this->exists;
-	}
-	
-	public function getMessage(){
-		return $this->message;
-	}
-	
-	public function getUserID(){
-		return $this->user_id;
-	}
-	
-	public function getTopicID(){
-		return $this->topic_id;
-	}
-	
-	public function getRevisionID(){
-		return $this->revision_id;
-	}
-
-    public function isDeleted(){
-        return $this->message_deleted;
-    }
-		
-}
-
-#Hack because PHP is lame and does not allow
-#function overloading
-class MessageRevision Extends Message{
-	
-	private $revision_no;
-	
-	private $topic_title;
-	
-	private $board_title;
-	
-	private $board_id;
-	
-	private $username;
-	
-	private $posted;
-
-    protected $message_deleted;
-
-    protected $message;
-	
-	protected $is_link;
-	
-	function __construct(&$db_connection, $aMessage_id, $aRevision_no, $is_link){
-		$this->pdo_conn = &$db_connection;
-		$this->message_id = $aMessage_id;
-		$this->revision_no = $aRevision_no;
-		$this->is_link = $is_link;
-		if($is_link){
-			$sql = "SELECT LinkMessages.link_id,
-						 LinkMessages.revision_no as revision_no,
-						 LinkMessages.user_id,
-						 LinkMessages.message,
-						 Users.username,
-						 Links.title as link_title
-					FROM 
-						Users
-					LEFT JOIN LinkMessages USING(user_id)
-					LEFT JOIN Links USING(link_id)
-					WHERE LinkMessages.message_id = ? AND LinkMessages.revision_no = ?
-					ORDER BY LinkMessages.revision_no DESC LIMIT 1";
-			$sql2 = "SELECT LinkMessages.posted FROM LinkMessages WHERE LinkMessages.message_id = ? AND LinkMessages.revision_no=0";
-		}
-		else{
-			$sql = "SELECT Messages.topic_id,
-						 Messages.revision_no as revision_no,
-						 Messages.user_id,
-						 Messages.message,
-                         Messages.deleted,
-						 Users.username,
-						 Topics.title as topic_title,
-						 Boards.title as board_title,
-						 Boards.board_id
-					FROM
-						Users
-					LEFT JOIN Messages USING(user_id)
-					LEFT JOIN Topics USING(topic_id)
-					LEFT JOIN Boards USING(board_id)
-					WHERE Messages.message_id = ? AND Messages.revision_no = ?
-					ORDER BY Messages.revision_no DESC LIMIT 1";
-			$sql2 = "SELECT Messages.posted FROM Messages WHERE Messages.message_id = ? AND revision_no=0";
-		}
-		$statement = $this->pdo_conn->prepare($sql);
-												
-		$statement2 = $this->pdo_conn->prepare($sql2);
-		$statement->execute(array($this->message_id, $this->revision_no));
-		$statement2->execute(array($this->message_id));
-		$statement->setFetchMode(PDO::FETCH_ASSOC);
-		$statement2->setFetchMode(PDO::FETCH_ASSOC);
-		
-		if($statement->rowCount())
-			$this->exists = TRUE;
-			$row = $statement->fetch();
-			$row2 = $statement2->fetch();
-			$row = array_merge($row, $row2);
-			$this->setMessageData($row);
-	}
-	
-	protected function setMessageData($data){
-		if($this->is_link){
-			$this->link_id = $data['link_id'];
-			$this->link_title = $data['link_title'];
-		}else{
-			$this->topic_id = $data['topic_id'];
-			$this->topic_title = $data['topic_title'];
-			$this->board_title = $data['board_title'];
-			$this->board_id = $data['board_id'];
-		}
-
-		
-		$this->user_id = $data['user_id'];
-		$this->revision_id = $data['revision_no'];
-        $this->message_deleted = $data['deleted'];
-        if ($data['deleted'] == 1){
-            $this->revision_id = 0;
-            $this->message = $GLOBALS['locale_messages']['message']['deleted'];
-        } elseif ($data['deleted'] == 2) {
-            $this->revision_id = 0;
-            $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
-        } else {
-		  $this->message = $data['message'];
-        }
-		$this->posted = $data['posted'];
-		$this->username = $data['username'];
-		/*$this->user_avatar = array("height" => $data['thumb_height'],
-								   "width" => $data['thumb_width'],
-								   "avatar" => $data['sha1_sum']."/".urlencode(substr($data['filename']);
-		*/
-		$tmp_user = new User($this->user_id);
-		$this->user_avatar = $tmp_user->getAvatar();
-	}
-
-    public function deleteMessage($action, $user_id = null, $reason = null)
-    {
-        if ($action != 1 && $action != 2) {
-            return false;
-        } else {
-            $sql = "UPDATE Messages SET deleted = ? WHERE message_id = ".$this->message_id;
-            $statement = $this->pdo_conn->prepare($sql);
-            if ($action == 2) {
-                $sql2 = "INSERT INTO DisciplineHistory 
-                    (user_id, mod_id, message_id, action_taken, description, date)
-                    VALUES (?, $user_id, ?, 'Message Deleted', ?, ".time().")";
-                $statement2 = $this->pdo_conn->prepare($sql2);
-                $statement2->execute(array($this->user_id, $this->message_id, $reason));
-                $this->message = $GLOBALS['locale_messages']['message']['deleted_moderator'];
-            } else {
-                $this->message = $GLOBALS['locale_messages']['message']['deleted'];
-            }
-            $this->message_deleted = true;
-            return $statement->execute(array($action));
-        }
-    }
-	
-	public function getUsername(){
-		return $this->username;
-	}
-	
-	public function getBoardTitle(){
-		return $this->board_title;
-	}
-	
-	public function getTopicTitle(){
-		return $this->topic_title;
-	}
-	
-	public function getPosted(){
-		return $this->posted;
-	}
-	
-	public function getBoardID(){
-		return $this->board_id;
-	}
-	
-	public function getLinkTitle(){
-		return $this->link_title;
-	}
-
-	public function getAvatar(){
-		return $this->user_avatar;
-	}
-	
-    public function getMessage(){
-        return $this->message;
-    }
-
-    public function isDeleted(){
-        return $this->message_deleted;
-    }
+Class Message {
     
+    private $_pdo_conn;
+
+    private $_site;
+
+    private $_message_id;
+
+    private $_message;
+
+    private $_topic_id;
+
+    private $_revision_no;
+
+    private $_user_id;
+
+    private $_username;
+
+    private $_title;
+
+    private $_state;
+
+    public function __construct($site, $message_id, $revision_no = 0)
+    {
+        $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
+        $this->_site = $site;
+        $this->_loadMessage($message_id, $revision_no);
+    }
+
+    private function _loadMessage($message_id, $revision_no)
+    {
+        $sql = "SELECT Messages.topic_id, Messages.message_id, Messages.revision_no, Messages.user_id, 
+            Messages.message, Messages.deleted, Users.username, Topics.title, 
+            (SELECT Messages.posted FROM Messages WHERE Messages.message_id = :message_id_post
+                AND Messages.revision_no = 0) as posted
+        FROM Users
+        LEFT JOIN Messages USING(user_id)
+        LEFT JOIN Topics USING(topic_id)
+        WHERE Messages.message_id = :message_id AND Messages.revision_no = :revision_no
+        ORDER BY Messages.revision_no DESC LIMIT 1";
+        
+        $data_loadMessage = array(
+            "message_id_post" => $message_id,
+            "message_id" => $message_id,
+            "revision_no" => $revision_no
+        );
+
+        $statement_loadMessage = $this->_pdo_conn->prepare($sql);
+        $statement_loadMessage->execute($data_loadMessage);
+
+        if ($statement_loadMessage->rowCount() == 1) {
+            $results = $statement_loadMessage->fetch();
+            $statement_loadMessage->closeCursor();
+
+            $this->_message_id = $results['message_id'];
+            $this->_user_id = $results['user_id'];
+            $this->_username = $results['username'];
+            $this->_title = $results['title'];
+            $this->_state = $results['deleted'];
+            $this->_posted = $results['posted'];
+            $this->_topic_id = $results['topic_id'];
+            $this->_revision_no = $results['revision_no'];
+
+            
+            if ($this->_state == 0) {
+                $this->_message = $results['message'];
+            } elseif ($this->_state == 1) {
+                $this->_message = $this->_site->getMessage("message_deleted");
+            } elseif ($results['deleted'] == 2) {
+                $this->_message = $this->_site->getMessage("message_deleted_moderator");
+            }
+            
+        } else {
+            throw new Exception('Message does not exist');
+        }
+    }
+
+    public function delete($action, $moderator_id = null, $reason = null)
+    {
+        $sql_delete = "UPDATE Messages SET deleted = :deleted WHERE message_id = ".$this->_message_id;
+        $statement_delete = $this->_pdo_conn->prepare($sql_delete);
+        $statement_delete->bindParam("deleted", $action);
+        $statement_delete->execute();
+        $statement_delete->closeCursor();
+
+        if ($action == 2) {
+            $sql_modDelete = "INSERT INTO DisciplineHistory 
+                (user_id, mod_id, message_id, action_taken, description, date)
+                VALUES (".$this->_user_id.", $moderator_id, ".$this->_message_id.", 
+                'Message Deleted', :description, ".time().")";
+            $statement_modDelete = $this->_pdo_conn->perpare($sql_modDelete);
+            $statement_modDelete->bindParam("description", $reason);
+            $statement_modDelete->closeCursor();
+            $this->_message = $this->_site->getMessage("message_deleted_moderator");
+        } else {
+            $this->_message = $this->_site->getMessage("message_deleted");
+        }
+    }
+
+    public function getRevisions()
+    {
+        $table_name = "Messages";
+
+        $sql = "SELECT revision_no, posted
+            FROM $table_name WHERE message_id = ".$this->_message_id.
+            " ORDER BY revision_no DESC";
+        $statement = $this->_pdo_conn->query($sql);
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $statement->closeCursor();
+        return $results;
+    }
+
+    public function getMessage($quote = false)
+    {
+        if ($quote == true) {
+            $message = explode("\n---", $this->_message);
+
+            if (count($message > 1)) {
+                array_pop($message);
+                $message = trim(implode("---", $message));
+            } else {
+                $message = $this->_message;
+            }
+
+            $quote = "<quote msgid=t,".$this->_topic_id.","
+                .$this->_message_id."@".$this->_revision_no.">";
+            $quote .= $message;
+            $quote .= "</quote>";
+            $message = $quote;
+        } else {
+            $message = $this->_message;
+        }
+        return $message;
+    }
+
+    public function getState()
+    {
+        return $this->_state;
+    }
+
+    public function getTitle()
+    {
+        return $this->_title;
+    }
+
+    public function getUsername()
+    {
+        return $this->_username;
+    }
+
+    public function getUserId()
+    {
+        return $this->_user_id;
+    }
+
+    public function getPosted()
+    {
+        return $this->_posted;
+    }
+
+    public function getRevisionId()
+    {
+        return $this->_revision_no;
+    }
 }
-?>

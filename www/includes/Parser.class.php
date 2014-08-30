@@ -220,6 +220,7 @@ class Parser
     */
     private function _createQuoteNode($node)
     {
+        $results = null;
         if ($node->hasAttribute("msgid")) {
             $msgid = $node->getAttribute("msgid");
             // Verify the msgid attribute is in the right

@@ -60,19 +60,19 @@ if ($auth === true) {
 
         $csrf_salt = "message".$message_id.$topic_id.$authUser->getUserId();
         $csrf->setPageSalt($csrf_salt);
-        $message = new MessageRevision($db, $message_id, $revision_no, $link);
-        if ($message->doesExist()) {
+        try {
+            $message = new Message($site, $message_id, $revision_no, $link);
             $mod_message_delete = $authUser->checkPermissions("topic_delete_message");
             // Get message contents and parse them
             // for HTML tags.
             if (isset($_POST['action'])) {
-                if (($_POST['action'] == 1 && $authUser->getUserID() == $message->getUserID() && $message->isDeleted() == 0)) {
+                if (($_POST['action'] == 1 && $authUser->getUserID() == $message->getUserID() && $message->getState() == 0)) {
                     if ($csrf->validateToken($_POST['token'])) {
-                        $message->deleteMessage($_POST['action']);
+                        $message->delete($_POST['action']);
                     }
-                } elseif (($_POST['action'] == 1 && $mod_message_delete == 1 && $message->isDeleted() == 0)) {
+                } elseif (($_POST['action'] == 1 && $mod_message_delete == 1 && $message->getState() == 0)) {
                     if ($csrf->validateToken($_POST['token'])) {
-                        $message->deleteMessage(2, $authUser->getUserId(), @$_POST['reason']);
+                        $message->delete(2, $authUser->getUserId(), @$_POST['reason']);
                     }
                 }
             }
@@ -117,26 +117,23 @@ if ($auth === true) {
                 $smarty->assign("revision_history", $message->getRevisions());
                 $smarty->assign(
                     "topic_title",
-                    htmlentities($message->getTopicTitle())
+                    htmlentities($message->getTitle())
                 );
                 $smarty->assign(
                     "link_title",
-                    htmlentities($message->getLinkTitle())
-                );
-                $smarty->assign(
-                    "board_title",
-                    htmlentities($message->getBoardTitle())
+                    htmlentities($message->getTitle())
                 );
 
+                $message_user = new User($site, $message->getUserId());
+
                 $smarty->assign("topic_id", $topic_id);
-                $smarty->assign("board_id", $message->getBoardID());
                 $smarty->assign("revision_no", $message->getRevisionID());
                 $smarty->assign("message_id", $message_id);
                 $smarty->assign("m_user_id", $user_id);
                 $smarty->assign("m_username", $username);
                 $smarty->assign("token", $csrf->getToken());
-                $smarty->assign("message_deleted", $message->isDeleted());
-                $smarty->assign("m_avatar", $message->getAvatar());
+                $smarty->assign("message_deleted", $message->getState());
+                $smarty->assign("m_avatar", $message_user->getAvatar());
                 $smarty->assign("mod_message_delete", $mod_message_delete);
 
                 // Set template page
@@ -144,7 +141,8 @@ if ($auth === true) {
                 $page_title = "Message Detail";
                 include "includes/deinit.php";
             }
-        } else {
+        } catch (exception $e) {
+            print $e;
             include "404.php";
         }
     } else {

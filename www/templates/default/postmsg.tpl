@@ -1,20 +1,21 @@
 {include file="header.tpl"}
 	<h1>Post Message</h1>
-{if isset($p_message)}
-	<form action="postmsg.php" method="post">
-		<input type="hidden" name="message" value="$p_message" />
-    		<input type="hidden" name="h" value="{$token}" />
-    		<input type="hidden" name="topic" value="{$topic_id}" />
+{if isset($preview_message)}
+	<form action="postmsg2.php{$query_string}" method="post">
+		<input type="hidden" name="message" value="{$preview_message_raw}" />
+        <input type="hidden" name="preview" value="true" />
+    	<input type="hidden" name="token" value="{$token}" />
+    	<input type="hidden" name="topic" value="{$topic}" />
 		{if isset($message_id)}
-			<input type="hidden" name="id" value="{$message_id}" />
+		<input type="hidden" name="id" value="{$message_id}" />
 		{/if}
 		<div class="message">
-			{$p_message}
+			{$preview_message}
 		</div>
     		<input type="submit" name="submit" value="Post This Message" />
 	</form>
 {/if}
-	<form action="postmsg.php" method="post">
+	<form action="postmsg2.php{$query_string}" method="post">
 		<span style="color: #ff0000">
             {if isset($error_message)}{$error_message}<br />{/if}
 			<b>The rules:</b> Don't be an ass hat. I will ban
@@ -40,25 +41,24 @@
 	     		<input type="hidden" name="link" value="{$link_id}" />
 		{else}
 			<b>Current Topic:</b> 
-      			<a href="showmessages.php?topic={$topic_id}&amp;board={$board_id}" target="_blank">{$topic_title}</a><br />
+      			<a href="showmessages.php?topic={$topic}" target="_blank">{$topic_title}</a><br />
       			(Click to open a new window with the current messages)<br />
       			<br />
-     	 		<input type="hidden" name="topic" value="{$topic_id}" />
+     	 		<input type="hidden" name="topic" value="{$topic}" />
 		{/if}
 		{if isset($message_id)}
 			<input type="hidden" name="id" value="{$message_id}" />
 		{/if}
-		<input type="hidden" name="board" value="{$board_id}" /> 
 		<b>Your Message</b><br />
 		Enter your message text below.<br />
-		<textarea cols="100" rows="20" name="message" id="message">
-{if isset($e_message)}{$e_message}{elseif isset($quote)}<quote msgid="t,{$quote_topic},{$quote_id}@{$quote_revision}">{$quote_message}</quote>{$signature}{else}{$signature}{/if}</textarea><br />
-      <br />
+		<textarea cols="100" rows="20" name="message" id="message">{$message}</textarea>
+        <br />
+        <br />
 
       <div>
         <input type="hidden" name="token" value="{$token}" /> 
         <input type="submit" name="preview" value="Preview Message" /> 
-        <input type="submit" name="submit" id="save" value="Post Message" /> 
+        <input type="submit" name="submit" id="save" value="{if isset($message_id)}Submit Revision{else}Post Message{/if}" /> 
         <input type="button" id="btn_upload" value="Upload Image" />
      </div>
     </form>

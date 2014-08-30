@@ -59,7 +59,7 @@ if ($auth === true) {
         elseif(is_numeric(@$_REQUEST['id'])){
             $message_id = intval($_REQUEST['id']);
             $smarty->assign("message_id", $message_id);
-            $message = new Message($db, $message_id, $aUser_id=$authUser->getUserID());
+            $message = new Message($site, $message_id);
             if($message->doesExist() && $message->isDeleted() == 0){
                 $message_body = $message->getMessage();
                 $smarty->assign("e_message", htmlentities($message_body));

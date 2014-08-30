@@ -160,6 +160,11 @@ class Site {
         $this->_root_path = $root_path;
     }
 
+    public function getMessage($id)
+    {
+        return "Message deleted";
+    }
+
     public function getRootPath()
     {
         return $this->_root_path;

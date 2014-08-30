@@ -68,11 +68,14 @@ class Topic
      * @param integer $topic_id Topic ID
      * @param integer $user_id  User ID of the current user
      */
-    public function __construct(User $user, Parser $parser)
+    public function __construct(User $user, Parser $parser, $topic_id = null)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_parser = $parser;
         $this->_user_id = $user->getUserId();
+        if (is_numeric($topic_id)) {
+            $this->loadTopic($topic_id);
+        }
     }
 
     /**
