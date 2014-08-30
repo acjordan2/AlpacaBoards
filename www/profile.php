@@ -104,7 +104,7 @@ if ($auth === true) {
                 // Parse for HTML tags, encode
                 // dangerous tags.
                 $parser = new Parser($db);
-                $signature = $profile_user->getSignature();
+                $signature = substr($profile_user->getSignature(), 4);
                 $signature = $parser->parse($signature);
 
                 if ($profile_user->getQuote() != "") {
