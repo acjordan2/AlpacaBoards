@@ -24,8 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-require "includes/init.php" ;
-require "includes/Board.class.php";
+require "includes/init.php";
 require "includes/Topic.class.php";
 require "includes/Message.class.php";
 require "includes/Link.class.php";
@@ -33,151 +32,122 @@ require "includes/Parser.class.php";
 require "includes/Tag.class.php";
 
 if ($auth === true) {
-    $smarty->assign("token", $csrf->getToken());
-    if (is_numeric(@$_REQUEST['topic'])) {
+    if (isset($_REQUEST['topic_id'])) {
+        $csrf->setPageSalt($_REQUEST['topic_id']);
+    } else {
+        $csrf->setPageSalt("postmsg");
+    }
+
+    $parser = new Parser();
+
+    $message = "";
+    $query_string = "?";
+    $edit = false;
+    $new_topic = false;
+
+    if (isset($_REQUEST['topic']) && is_numeric($_REQUEST['topic'])) {
         $topic_id = intval($_REQUEST['topic']);
-        $parser = new Parser();
-        $topic = new Topic($authUser, $parser);
-        $topic->loadTopic($topic_id);
-        $smarty->assign("topic_id", $topic_id);
-        $smarty->assign("topic_title", htmlentities($topic->getTopicTitle()));
-        $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
-        $smarty->assign("board_id", "42");
-        if(is_numeric(@$_GET['quote'])){
-            $message = new Message($db, intval($_GET['quote']));
-            if($message->doesExist()){
-                $smarty->assign("quote", true);
-                $smarty->assign("quote_id", htmlentities($_GET['quote']));
-                $smarty->assign("quote_topic", $message->getTopicID());
-                $message_body = explode("\n---", $message->getMessage());
-                $smarty->assign("quote_message", htmlentities(substr($message_body[0], 0, strlen($message_body[0]))));
-                $smarty->assign("quote_revision", $message->getRevisionID());
-            }
-            else
-                require("404.php");
-        }
-        elseif(is_numeric(@$_REQUEST['id'])){
-            $message_id = intval($_REQUEST['id']);
-            $smarty->assign("message_id", $message_id);
-            $message = new Message($site, $message_id);
-            if($message->doesExist() && $message->isDeleted() == 0){
-                $message_body = $message->getMessage();
-                $smarty->assign("e_message", htmlentities($message_body));
-            }else
-                require("404.php");
-        }
-        elseif(!is_null(@$_GET['quote']))
-            require("404.php");
-            
-        if(@$_POST['preview'] == "Preview Message"){
-            $smarty->assign("preview_message", TRUE);
-            $message = new Message($db, 13);
-            $smarty->assign("p_message", autolink($message->formatComments(closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
-        }
-        elseif(@$_POST['submit'] == "Post Message"){
-            if($csrf->validateToken($_REQUEST['token'])){            
-                if(is_numeric($message_id))
-                    $message_id = intval(@$_REQUEST['id']);
-                if($topic->postMessage($_POST['message'], $message_id)){
-                    $topic->getMessages();
-                    header("Location: ./showmessages.php?board=".$board_id."&topic=".$topic_id."&page=1");
+        $query_string .= "topic=".$topic_id;
+        try {
+            $topic = new Topic($authUser, $parser, $topic_id);
+
+            // Add a quote to the message post
+            if (isset($_GET['quote']) && is_numeric($_GET['quote'])) {
+                try {
+                    $quote_id = $_GET['quote'];
+                    $query_string .= "&quote=".$quote_id;
+                    $quote = new Message($site, $quote_id);
+                    $quote_body = $quote->getMessage(true);
+                    $message .= $quote_body;
+
+                } catch (exception $e) {
+                    // Message ID for quote does not exist
+                    include "404.php";
+                }
+            } elseif (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+                $message_id = $_REQUEST['id'];
+                $query_string .= "&id=".$message_id;
+                try {
+                    $message_edit = new Message($site, $message_id);
+                    if ($message_edit->getState() == 0 && $message_edit->getUserId() == $authUser->getUserId()) {
+                        $message = $message_edit->getMessage();
+                        $edit = true;
+                        $smarty->assign("message_id", $message_id);
+                    } else {
+                        include "403.php";
+                    }
+                } catch (exception $e) {
+                    // Message ID does not exist
+                    include "404.php";
                 }
             }
-        }
-        if(!is_null(@$_POST['message']))
-            $smarty->assign("e_message", htmlentities(@$_POST['message']));
-        $display = "postmsg.tpl";
-    }
-    elseif(is_numeric(@$_REQUEST['link'])){
-        $link_id = $_REQUEST['link'];
-        $smarty->assign("is_link", TRUE);
-        $smarty->assign("preview_message", FALSE);
-        $link = new Link($db, $authUser->getUserID(), $link_id);
-        $link_data = $link->getLink();
-        $smarty->assign("link_id", $link_id);
-        $smarty->assign("link_title", $link_data['title']);
-        $display = "postmsg.tpl";
-        $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
-        $smarty->assign("e_message", (htmlentities(@$_POST['message'])));
-        if(is_numeric(@$_GET['quote'])){
-            $message = new Message($db, intval($_GET['quote']), null, TRUE);
-            if($message->doesExist()){
-                $smarty->assign("quote", TRUE);
-                $smarty->assign("quote_id", htmlentities($_GET['quote']));
-                $smarty->assign("quote_topic", $message->getLinkID());
-                $message_body = explode("\n---", $message->getMessage());
-                $smarty->assign("quote_message", htmlentities(substr($message_body[0], 0, strlen($message_body[0])-1)));
-                $smarty->assign("quote_revision", $message->getRevisionID());
+
+            if (isset($_POST['submit'])) {
+                // Post new message
+                if ($csrf->validateToken($_POST['token'])) {
+                    $message = $_POST['message'];
+                    if (isset($_POST['preview']) && $_POST['preview'] == true) {
+                        $message = base64_decode($message);
+                    }
+                    if (isset($message_id) && $edit == true) {
+                        $topic->postMessage($message, $message_id);
+                    } else {
+                        $topic->postMessage($message);
+                    }
+                    header("Location: ./showmessages.php?topic=".$topic_id);
+                    exit();
+                }
             }
-            else
-                require("404.php");
+
+            $smarty->assign("topic_title", $topic->getTopicTitle());
+            $smarty->assign("topic", $topic->getTopicID());
+
+        } catch (exception $e) {
+            include "404.php";
         }
-        elseif(is_numeric(@$_REQUEST['id'])){
-            $message_id = intval($_REQUEST['id']);
-            $smarty->assign("message_id", $message_id);
-            $message = new Message($db, $message_id, $aUser_id=$authUser->getUserID(), TRUE);
-            if($message->doesExist()){
-                $message_body = $message->getMessage();
-                $smarty->assign("e_message", htmlentities($message_body));
-            }else
-                require("404.php");
-        }
-        if(@$_POST['preview'] == "Preview Message"){
-            $smarty->assign("preview_message", TRUE);
-            $message = new Message($db, 13);
-            $smarty->assign("p_message", autolink($message->formatComments(closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
-        }
-        elseif(@$_POST['submit'] == "Post Message"){
-            if($csrf->validateToken($_REQUEST['token'])){            
-                if(is_numeric($message_id))
-                    $message_id = intval(@$_REQUEST['id']);
-                if($link->postMessage($_POST['message'], $message_id))
-                    header("Location: ./linkme.php?l=".$link_id);
-            }
-        }
-        if(!is_null(@$_POST['message']))
-            $smarty->assign("e_message", htmlentities(@$_POST['message']));
-    }
-    else {
-       $smarty->assign("preview_message", FALSE);
-       $smarty->assign("new_topic", TRUE);
-       $smarty->assign("board_id", 42);
-       $smarty->assign("signature", "\n---\n".htmlentities($authUser->getSignature()));
-       
-       if (isset($_POST['message'])) {
-            $smarty->assign("e_message", htmlentities(@$_POST['message']));
-       }
-       $display = "postmsg.tpl";
-       if(@$_POST['preview'] == "Preview Message"){
-            $smarty->assign("preview_message", TRUE);
-            $message = new Message($db, 13);
-            $smarty->assign("p_message", autolink($message->formatComments(closeTags(str_replace("\n", "<br/>", htmlentities($_POST['message'], $allowed_tags))))));
-        }
-       elseif(@$_POST['submit'] == "Post Message"){
-           
-           if(strlen(trim($_POST['title'])) < 5 || strlen(trim($_POST['title'])) > 80)
+    } else {
+        // No topic specified, create a new one
+        $smarty->assign("new_topic", true);
+
+        if (isset($_POST['submit'])) {
+            if (strlen(trim($_POST['title'])) < 5 || strlen(trim($_POST['title'])) > 80) {
                 $smarty->assign("error_message", "Title must be between 5 and 80 characters");
-           else{
-               //$board = new Board($db, intval($_REQUEST['board']), $authUser->getUserID());
-               //$newTopic = $board->createTopic(trim($_POST['title']), @$_POST['message']);
-               $topic_title = (trim($_POST['title']));
-               $message = $_POST['message'];
-               $tags = explode(",", $_POST['tags']);
+            } else {
+                $topic_title = trim($_POST['title']);
+                $message = $_POST['message'];
+                $tags = explode(",", $_POST['tags']);
+                $topic = new Topic($authUser, $parser);
+                $tagEngine = new Tag($authUser->getUserId());
 
-               $parser = new Parser();
-               $tagEngine = new Tag($authUser->getUserID());
-               $topic = new Topic($authUser, $parser);
-
-               $newTopic = $topic->createTopic($topic_title, $tags, $message);
-               if($newTopic)
-                    header("Location: ./showmessages.php?topic=".$newTopic);
+                $new_topic_id = $topic->createTopic($topic_title, $tags, $message);
+                header("Location: ./showmessages.php?topic=".$new_topic_id);
                 exit();
-           }
-       }
-   }
+            }
+        }
+    }
+
+    if (isset($_POST['preview'])) {
+        if ($csrf->validateToken($_POST['token'])) {
+            // Preview message before posting
+            $preview_message = $parser->parse($_POST['message']);
+            $smarty->assign("preview_message", $preview_message);
+            $smarty->assign("preview_message_raw", base64_encode($_POST['message']));
+        }
+    }
+
+    if (isset($_POST['message'])) {
+        $message = $_POST['message'];
+    } elseif ($edit == false) {
+        $message .= $authUser->getSignature();
+    }
+
+    $smarty->assign("query_string", $query_string);
+    $smarty->assign("token", $csrf->getToken());
+    $smarty->assign("message", htmlentities($message));
+
+    $page_title = "Post Message";
+    $display = "postmsg.tpl";
+    include "includes/deinit.php";
+} else {
+    include "403.php";
 }
-else
-    require("404.php");
-$page_title = "Post Message";
-require("includes/deinit.php");
-?>
