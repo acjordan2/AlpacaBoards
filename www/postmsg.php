@@ -32,8 +32,8 @@ require "includes/Parser.class.php";
 require "includes/Tag.class.php";
 
 if ($auth === true) {
-    if (isset($_REQUEST['topic_id'])) {
-        $csrf->setPageSalt($_REQUEST['topic_id']);
+    if (isset($_REQUEST['topic'])) {
+        $csrf->setPageSalt($_REQUEST['topic']);
     } else {
         $csrf->setPageSalt("postmsg");
     }

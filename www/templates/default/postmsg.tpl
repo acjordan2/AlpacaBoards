@@ -1,7 +1,7 @@
 {include file="header.tpl"}
 	<h1>Post Message</h1>
 {if isset($preview_message)}
-	<form action="postmsg2.php{$query_string}" method="post">
+	<form action="postmsg.php{$query_string}" method="post">
 		<input type="hidden" name="message" value="{$preview_message_raw}" />
         <input type="hidden" name="preview" value="true" />
     	<input type="hidden" name="token" value="{$token}" />
@@ -15,7 +15,7 @@
     		<input type="submit" name="submit" value="Post This Message" />
 	</form>
 {/if}
-	<form action="postmsg2.php{$query_string}" method="post">
+	<form action="postmsg.php{$query_string}" method="post">
 		<span style="color: #ff0000">
             {if isset($error_message)}{$error_message}<br />{/if}
 			<b>The rules:</b> Don't be an ass hat. I will ban

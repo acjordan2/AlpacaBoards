@@ -45,6 +45,7 @@ if ($auth == true) {
         $topic_id = $_GET['topic'];
         // Verify topic
         try {
+            $csrf->setPageSalt($topic_id);
             $parser = new Parser();
             $topic = new Topic($authUser, $parser);
             $topic->loadTopic($topic_id);
@@ -112,18 +113,8 @@ if ($auth == true) {
             }
             // Set template variables
             $smarty->assign("messages", $messages);
-            $smarty->assign(
-                "signature",
-                str_replace(
-                    "\r\n",
-                    "\\n",
-                    addslashes(
-                        str_replace("+", " ", $authUser->getSignature())
-                    )
-                )
-            );
 
-            $smarty->assign("p_signature", htmlentities($authUser->getSignature()));
+            $smarty->assign("p_signature", htmlentities("\n".$authUser->getSignature()));
             $smarty->assign("topic_id", intval($topic_id));
             $smarty->assign(
                 "topic_title",

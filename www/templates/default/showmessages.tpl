@@ -132,11 +132,7 @@
 		<input type="hidden" name="topic" value="{$topic_id}" />
 		<input type="hidden" name="token" value="{$token}" />
 		<b>Your Message:</b><br />
-		<textarea id="qpmessage" name="message">
-
----
-{$p_signature}
-		</textarea>
+		<textarea id="qpmessage" name="message">{$p_signature}</textarea>
 		<br />
 		<input type="submit" value="Post Message" name="submit"/>
         <input type="button" id="btn_upload" value="Upload Image" />
