@@ -94,12 +94,13 @@ Class Message
      * @param Site    $site        Site object to get globals variables
      * @param integer $message_id  ID of the message to retrieve
      * @param integer $revision_no Revision number of the message
+     * @param integer $type        Message type (0 for topic, 1 for link, 2 for pm)
      */
-    public function __construct(Site $site, $message_id, $revision_no = 0)
+    public function __construct(Site $site, $message_id, $revision_no = 0, $type = 0)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_site = $site;
-        $this->_loadMessage($message_id, $revision_no);
+        $this->_loadMessage($message_id, $revision_no, $type);
     }
 
     /**
@@ -109,7 +110,7 @@ Class Message
      * @throws exception              If the provided Message ID and revision number do not exist
      * @return void              
      */
-    private function _loadMessage($message_id, $revision_no)
+    private function _loadMessage($message_id, $revision_no, $type = 0)
     {
         $sql = "SELECT Messages.topic_id, Messages.message_id, Messages.revision_no, Messages.user_id, 
             Messages.message, Messages.deleted, Users.username, Topics.title, 
@@ -118,13 +119,15 @@ Class Message
         FROM Users
         LEFT JOIN Messages USING(user_id)
         LEFT JOIN Topics USING(topic_id)
-        WHERE Messages.message_id = :message_id AND Messages.revision_no = :revision_no
+        WHERE Messages.message_id = :message_id AND Messages.revision_no = :revision_no AND
+        Messages.type = :type
         ORDER BY Messages.revision_no DESC LIMIT 1";
         
         $data_loadMessage = array(
             "message_id_post" => $message_id,
             "message_id" => $message_id,
             "revision_no" => $revision_no
+            "type" => $type
         );
 
         $statement_loadMessage = $this->_pdo_conn->prepare($sql);

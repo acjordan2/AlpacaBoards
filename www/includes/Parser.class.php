@@ -237,11 +237,11 @@ class Parser
                         Messages.posted, Messages.deleted FROM Messages LEFT JOIN 
                         Users Using(user_id) WHERE Messages.topic_id=? 
                         AND Messages.message_id=? AND Messages.revision_no = 0";
-                } else { // Link
+                } elseif ($msgid_array[0] == "l") { // Link
                     $sql_quote = "SELECT Users.username, Users.user_id, 
                         LinkMessages.posted FROM LinkMessages LEFT JOIN 
-                        Users Using(user_id) WHERE LinkMessages.message_id=? 
-                        AND LinkMessages.link_id=? AND 
+                        Users Using(user_id) WHERE LinkMessages.link_id=? 
+                        AND LinkMessages.message_id=? AND 
                         LinkMessages.revision_no = 0";
                 }
 

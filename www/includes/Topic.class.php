@@ -241,7 +241,7 @@ class Topic
             LEFT JOIN UploadedImages
                 On UploadedImages.image_id = UploadLog.image_id
             WHERE
-                Messages.topic_id = :topic_id";
+                Messages.topic_id = :topic_id AND Messages.type = 0";
         if (!is_null($filter)) {
             $filter_data = explode(":", $filter);
             switch ($filter_data[0]) {
