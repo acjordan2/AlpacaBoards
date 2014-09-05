@@ -126,7 +126,7 @@ Class Message
         $data_loadMessage = array(
             "message_id_post" => $message_id,
             "message_id" => $message_id,
-            "revision_no" => $revision_no
+            "revision_no" => $revision_no,
             "type" => $type
         );
 

@@ -28,106 +28,84 @@ require "includes/Parser.class.php";
 require "includes/Message.class.php";
 require "includes/Tag.class.php";
 
-function in_array_r($needle, $haystack, $strict = false)
-{
-    foreach ($haystack as $item) {
-        if (($strict ? $item === $needle : $item == $needle)
-            ||(is_array($item)
-            && in_array_r($needle, $item, $strict))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// Check authetication
 if ($auth === true) {
-    // Check that message ID is valid
-    if (is_numeric(@$_GET['id']) && is_numeric(@$_GET['topic'])) {
+    if(isset($_GET['id']) && (isset($_GET['topic']) || isset($_GET['link']))) {
+        if (isset($_GET['topic'])) {
+            $parent_id = intval($_GET['topic']);
+            $type = 0;
+        } elseif (isset($_GET['link'])) {
+            $parent_id = intval($_GET['link']);
+            $type = 1;
+        }
 
-        if (is_numeric(@$_GET['r'])) {
+        if (isset($_GET['r'])) {
             $revision_no = intval($_GET['r']);
         } else {
             $revision_no = 0;
         }
-        if (@$_GET['link'] == 1) {
-            $link = true;
-        } else {
-            $link = false;
-        }
-        $message_id = intval($_GET['id']);
-        $topic_id = intval($_GET['topic']);
 
-        $csrf_salt = "message".$message_id.$topic_id.$authUser->getUserId();
-        $csrf->setPageSalt($csrf_salt);
+        $message_id = intval($_GET['id']);
+
+        $csrf->setPageSalt("message".$message_id.$authUser->getUserId());
+
         try {
-            $message = new Message($site, $message_id, $revision_no, $link);
+            $message = new Message($site, $message_id, $revision_no, $type);
             $mod_message_delete = $authUser->checkPermissions("topic_delete_message");
-            // Get message contents and parse them
-            // for HTML tags.
+
+            // Delete message
             if (isset($_POST['action'])) {
-                if (($_POST['action'] == 1 && $authUser->getUserID() == $message->getUserID() && $message->getState() == 0)) {
-                    if ($csrf->validateToken($_POST['token'])) {
-                        $message->delete($_POST['action']);
-                    }
-                } elseif (($_POST['action'] == 1 && $mod_message_delete == 1 && $message->getState() == 0)) {
-                    if ($csrf->validateToken($_POST['token'])) {
-                        $message->delete(2, $authUser->getUserId(), @$_POST['reason']);
-                    }
+                $action = $_POST['action'];
+                if ($action == 1 
+                    && $authUser->getUserId == $message->getUserId()
+                    && $message->getState() == 0) {
+                    // Deleted by a user
+                    $message->delete($action);
+                } elseif ($action == 2
+                    && $mod_message_delete == 1
+                    && $message->getState() == 0) {
+                    // Deleted by a moderator
+                    $message->delete($action, $authUser->getUserId(), $_POST['reason']);
                 }
             }
 
             $tag = new Tag($authUser->getUserId());
-            $tags = $tag->getObjectTags($topic_id, 1);
+            $tag_list = $tag->getObjectTags($parent_id, $type + 1);
 
-            if (in_array_r("Anonymous", $tags)) {
-                $anonymous = true;
-                $user_id = "-1";
-                $username = "Human #1";
-            } else {
-                $anonymous = false;
-                $username = $message->getUsername();
-                $user_id = $message->getUserId();
-            }
+            $parser = new Parser();
+            $message_content = $parser->parse($message->getMessage());
 
-            $message_content = $message->getMessage();
-            $parser = new Parser($db);
-            $message_content = $parser->parse($message_content);
-            
-            // Sperate signature from message body
-            $signature = explode("---", $message_content);
-            
-            // JSON output for AJAX calls
-            // May move to ajax.php
-            if (@$_GET['output'] == "json") {
-                $signature = explode("---", $message->getMessage());
-                $content = array("id" => $message_id,
-                                "topic" => $topic_id,
-                                "r" => $message->getRevisionID(),
-                                "message" => $signature[0],
-                                "signature" => @$signature[1]);
-                header("Content-Type: application/json");
-                print json_encode($content);
+            $user_id = $message->getUserId();
+            $username = $message->getUsername();
+
+            if (isset($_GET['output'])) {
+                if ($_GET['output'] == "json") {
+                    $signature = explode("---", $message_content);
+                    $content = array(
+                        "id" => $message_id,
+                        "topic" => $topic_id,
+                        "r" => $message->getRevisionID(),
+                        "message" => $signature[0],
+                        "signature" => @$signature[1]
+                    );
+                    header("Content-Type: application/json");
+                    print json_encode($content);
+                }
             } else {
-                // Assign message data to template
-                // varibles
+
                 $smarty->assign("message", $message_content);
-                $smarty->assign("link", $link);
+                $smarty->assign("type", $type);
                 $smarty->assign("posted", $message->getPosted());
-                $smarty->assign("revision_history", $message->getRevisions());
+                $smarty->assign("revision_history",  $message->getRevisions());
                 $smarty->assign(
-                    "topic_title",
-                    htmlentities($message->getTitle())
-                );
-                $smarty->assign(
-                    "link_title",
+                    "title", 
                     htmlentities($message->getTitle())
                 );
 
                 $message_user = new User($site, $message->getUserId());
 
-                $smarty->assign("topic_id", $topic_id);
-                $smarty->assign("revision_no", $message->getRevisionID());
+                $smarty->assign("parent_id", $parent_id);
+                $smarty->assign("message", $message_content);
+                $smarty->assign("revision_no", $message->getRevisionId());
                 $smarty->assign("message_id", $message_id);
                 $smarty->assign("m_user_id", $user_id);
                 $smarty->assign("m_username", $username);
@@ -136,18 +114,14 @@ if ($auth === true) {
                 $smarty->assign("m_avatar", $message_user->getAvatar());
                 $smarty->assign("mod_message_delete", $mod_message_delete);
 
-                // Set template page
                 $display = "message.tpl";
                 $page_title = "Message Detail";
                 include "includes/deinit.php";
             }
         } catch (exception $e) {
-            print $e;
             include "404.php";
         }
-    } else {
-        include "404.php";
-    }
+    } 
 } else {
-    include "404.php";
+    include "403.php";
 }
