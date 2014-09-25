@@ -70,7 +70,7 @@ class User
      * User's public email address
      * @var string
      */
-    private $_email; 
+    private $_email;
 
     /**
      * User's private email address 
@@ -153,7 +153,7 @@ class User
      * @throws exception        If user does not exist
      * @return void
      */
-    private function _loadUserById($user_id) 
+    private function _loadUserById($user_id)
     {
         $sql_loadUserById = "SELECT Users.user_id, Users.username, 
             Users.email, Users.private_email,
@@ -246,7 +246,7 @@ class User
      * @param  string $password Password
      * @return boolean          True if valid credentials are provided
      */
-    public function authenticateWithCredentials($username, $password) 
+    public function authenticateWithCredentials($username, $password)
     {
         // Get password hash stored in the database associated with provided usernam
         $sql_authenticate = "SELECT user_id, password FROM Users WHERE username = :username";
@@ -322,7 +322,7 @@ class User
      * @param array $user_data Array of user data
      * @return void
      */
-    private function _setUserData($user_data) 
+    private function _setUserData($user_data)
     {
         $this->_user_id = $user_data['user_id'];
         $this->_username = $user_data['username'];
@@ -393,7 +393,7 @@ class User
      * @param  boolean $reset       True if the user forgot there password and used the password rest
      * @return boolean              True if supplied old password matches the database record
      */
-    public function updatePassword($oldPassword, $newPassword = null, $reset = false) 
+    public function updatePassword($oldPassword, $newPassword = null, $reset = false)
     {
         if ($newPassword == null) {
             // If a new password is not set, the old one is rehashed using the
@@ -499,7 +499,7 @@ class User
             $statement = $this->_pdo_conn->prepare($sql);
             $statement->bindParam(":username", $username);
             $statement->execute();
-            if($statement->rowCount() === 1) {
+            if ($statement->rowCount() === 1) {
                 return -1;
             } else {
                 $hash = password_hash($password, $this->_hash_algo, $this->_hash_options);
@@ -535,9 +535,9 @@ class User
      * @param  string $email Email address to validate
      * @return boolean       True if email is valid
      */
-    public function validateEmail($email) 
+    public function validateEmail($email)
     {
-                if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
+        if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
             return false;
         }
         // Split it into sections to make life easier
@@ -664,7 +664,7 @@ class User
            "width" => $result['width'],
            "height" => $result['height']
         );
-    }    
+    }
 
     /**
      * Update the user's signature
@@ -699,7 +699,8 @@ class User
      * @param  integer $timezone Timezone
      * @return void
      */
-    public function setTimezone($timezone) {
+    public function setTimezone($timezone)
+    {
         $sql = "UPDATE Users SET timezone = :timezone WHERE user_id = ".$this->_user_id;
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->bindParam(":timezone", $timezone);
@@ -828,7 +829,8 @@ class User
      * Get total amount of availble credits for a user
      * @return integer Number of availbile credits
      */
-    public function getCredits(){
+    public function getCredits()
+    {
         $sql = "SELECT SUM(Karma.value) as value1, (SELECT SUM(ShopTransactions.value)
             FROM ShopTransactions WHERE user_id=$this->_user_id) as value2
             FROM Karma WHERE Karma.user_id=$this->_user_id GROUP BY user_id";
@@ -872,7 +874,7 @@ class User
      * @param  integer $user_id User ID
      * @return integer          Amount of contribution karma
      */
-    public function getContributionKarma($user_id = null) 
+    public function getContributionKarma($user_id = null)
     {
         if ($user_id == null) {
             $user_id = $this->_user_id;
@@ -887,7 +889,7 @@ class User
         if ($rank[0] < 0) {
             $contributionKarma = $contributionKarma * -1;
         }
-        return $contributionKarma;    
+        return $contributionKarma;
     }
 
     /**
@@ -895,9 +897,10 @@ class User
      * @param  integer $item_id Item ID to filter by
      * @return array            Array of inventory items
      */
-    public function getInventory($item_id = null) 
+    public function getInventory($item_id = null)
     {
-        $sql_getInventory = "SELECT Inventory.transaction_id, ShopTransactions.item_id, ShopItems.name, ShopItems.description 
+        $sql_getInventory = "SELECT Inventory.transaction_id, ShopTransactions.item_id, 
+            ShopItems.name, ShopItems.description 
             FROM Inventory LEFT JOIN ShopTransactions USING(transaction_id) 
             LEFT JOIN ShopItems USING(item_id) WHERE Inventory.user_id=$this->_user_id";
         if ((int) $item_id != 0) {
@@ -939,7 +942,7 @@ class User
             WHERE UploadLog.user_id=".$this->_user_id." GROUP BY UploadLog.user_id, 
             UploadLog.image_id ORDER BY MaxCreated DESC";
 
-        $statement = $this->pdo_conn->query($sql);
+        $statement = $this->_pdo_conn->query($sql);
         $results = $statement->fetchAll();
         return $results;
     }
@@ -954,7 +957,8 @@ class User
         $sql = "SELECT DISTINCT Topics.topic_id, Topics.topic_id as t, '???' as board_title,
             Topics.title, MAX(Messages.posted) as u_last_posted,
             (SELECT MAX(Messages.posted) FROM Messages WHERE Messages.topic_id = t) as last_post,
-            (SELECT COUNT(Messages.message_id) as count FROM Messages WHERE Messages.topic_id = t AND Messages.revision_no = 0) as number_of_posts
+            (SELECT COUNT(Messages.message_id) as count FROM Messages WHERE Messages.topic_id = t 
+                AND Messages.revision_no = 0) as number_of_posts
             FROM Topics
             LEFT JOIN Messages USING(topic_id)
             WHERE Messages.user_id = ".$this->_user_id." AND Messages.revision_no=0
@@ -962,7 +966,7 @@ class User
         $statement = $this->_pdo_conn->query($sql);
         $results = $statement->fetchAll(PDO::FETCH_ASSOC);
         $statement->closeCursor();
-        foreach($results as &$key) {
+        foreach ($results as &$key) {
             $key['title'] = htmlentities($key['title']);
 
         }
