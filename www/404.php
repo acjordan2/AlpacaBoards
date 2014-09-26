@@ -40,7 +40,8 @@ if ($auth === true) {
     session_name("r");
     session_start();
     $uri = $_SERVER['REQUEST_URI'];
-    $_SESSION['redirect'] = trim(urldecode($uri));
-    header("Location: ./");
+    $string = preg_replace('/[^[:print:]]/', '', $uri);
+    $_SESSION['redirect'] = $string;
+    header("Location: ./?r=".urlencode($string));
     exit();
 }

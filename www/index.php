@@ -71,7 +71,11 @@ if ($auth === false) {
             );
         }
         session_destroy();
-        header("Location: ".$r);
+        if ($r == urldecode($_GET['r'])) {
+            header("Location: ".$r);
+        } else {
+            header("Location: ./main.php");
+        }
         exit();
     } else {
         header("Location: ./main.php");

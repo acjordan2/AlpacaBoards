@@ -34,5 +34,5 @@ if ($auth === true) {
     //$myBoard->getTopics(0,0, $authUser->getUserID());
     header("Location: ./showtopics.php");
 } else {
-    header("Location: ./?r=main.php");
+    include "403.php";
 }
