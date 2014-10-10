@@ -24,9 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-include "../www/includes/init.php";
+include "../../www/includes/init.php";
 
-if ($auth === true) {
     $sql = "SELECT LinkMessages.message_id, LinkMessages.link_id, 
         LinkMessages.revision_no, LinkMessages.message, LinkMessages.posted,
         LinkMessages.user_id
@@ -34,20 +33,22 @@ if ($auth === true) {
     $statement = $db->query($sql);
     $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
+	print "Moving messages from `LinkMessages` to `Messages`\n";
     foreach ($results as $key) {
-        $sql = "INSERT INTO Messages (topic_id, revision_no, message, posted, type, link_id, user_id)
-            VALUES (:link_id, :revision_no, :message, :posted, 1, :message_id, :user_id)";
+        $sql = "INSERT INTO Messages (link_id, revision_no, message, posted, type, user_id)
+            VALUES (:link_id, :revision_no, :message, :posted, :message_id, :user_id)";
         $statement = $db->prepare($sql);
         $statement->execute($key);
         $statement->closeCursor();
     }
 
-    $sql = "SELECT Messages.message, Messages.message_id, Messages.link_id FROM Messages WHERE type = 1";
+    $sql = "SELECT Messages.message, Messages.message_id, Messages.link_id FROM Messages WHERE Messages.link_id != 0";
     $statement = $db->query($sql);
     $results = $statement->fetchAll(PDO::FETCH_ASSOC);
     $statement->closeCursor();
 
     $pattern = "/<quote msgid=\"l,([0-9]),([0-9])@([0-9])\"/";
+	print "Updating quotes\n";
     foreach($results as $key) {
         
         if (!is_null($key['link_id'])) {
@@ -60,12 +61,9 @@ if ($auth === true) {
                 $results2 = $statement->fetch(PDO::FETCH_ASSOC);
                 $statement->closeCursor();
 
-                print_r($results2);
-
                 $message = $key['message'];
 
                 $message = str_replace($matches[0][0], "<quote msgid=\"l,".$matches[1][0].",".$results2['message_id']."@".$matches[3][0]."\"", $key['message']);
-                print $message;
 
                 $sql2 = "UPDATE Messages SET message = :message WHERE message_id = ".$key['message_id'];
                 $statement2 = $db->prepare($sql2);
@@ -76,8 +74,10 @@ if ($auth === true) {
         }
 
     }
-    $sql = "UPDATE Messages SET link_id = 0";
+	print "Cleaning Up\n";
+    $sql = "UPDATE Messages SET type = 0";
     $statement = $db->query($sql);
     $statement->execute();
     $statement->closeCursor();
-}
+
+	print "Done\n";

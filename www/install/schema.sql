@@ -890,4 +890,5 @@ VALUES (1, 'LUE', 'Main Social Board', 1, 1, UNIX_TIMESTAMP(NOW()));
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 ALTER TABLE  `DisciplineHistory` ADD  `message_id` INT( 11 ) UNSIGNED NULL AFTER  `mod_id` ;
-
+ALTER TABLE  `Messages` ADD  `type` INT( 1 ) NOT NULL ;
+ALTER TABLE  `Messages` ADD  `link_id` INT( 11 ) NULL AFTER `topic_id` ;

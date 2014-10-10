@@ -320,7 +320,7 @@ class Topic
             "topic_id" => $this->_topic_id
         );
         $sql = "SELECT COUNT(DISTINCT(message_id)) as count FROM Messages
-            WHERE Messages.topic_id = :topic_id";
+            WHERE Messages.topic_id = :topic_id AND Messages.type = 0";
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
         $results = $statement->fetch();

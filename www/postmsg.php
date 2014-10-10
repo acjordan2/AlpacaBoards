@@ -39,6 +39,7 @@ if ($auth === true) {
     }
 
     $parser = new Parser();
+    $tag = new Tag($authUser->getUserId());
 
     $message = "";
     $query_string = "?";
@@ -90,7 +91,7 @@ if ($auth === true) {
                         $message = base64_decode($message);
                     }
                     if (isset($message_id) && $edit == true) {
-                        $topic->postMessage($message, $message_id);
+                        $message_edit->editMessage($message);
                     } else {
                         $topic->postMessage($message);
                     }
@@ -105,24 +106,68 @@ if ($auth === true) {
         } catch (exception $e) {
             include "404.php";
         }
-    } else {
-        // No topic specified, create a new one
-        $smarty->assign("new_topic", true);
+    } elseif (isset($_GET['link']) && is_numeric($_GET['link'])) {
+        try {
+            $link_id = intval($_GET['link']);
+            $link = new Link($authUser, $parser, $tag, $link_id);
 
-        if (isset($_POST['submit'])) {
-            if (strlen(trim($_POST['title'])) < 5 || strlen(trim($_POST['title'])) > 80) {
-                $smarty->assign("error_message", "Title must be between 5 and 80 characters");
-            } else {
-                $topic_title = trim($_POST['title']);
-                $message = $_POST['message'];
-                $tags = explode(",", $_POST['tags']);
-                $topic = new Topic($authUser, $parser);
-                $tagEngine = new Tag($authUser->getUserId());
+            $query_string .= "link=".$link_id;
 
-                $new_topic_id = $topic->createTopic($topic_title, $tags, $message);
-                header("Location: ./showmessages.php?topic=".$new_topic_id);
-                exit();
+
+            // Add a quote to the message post
+            if (isset($_GET['quote']) && is_numeric($_GET['quote'])) {
+                try {
+                    $quote_id = $_GET['quote'];
+                    $query_string .= "&quote=".$quote_id;
+                    $quote = new Message($site, $quote_id);
+                    $quote_body = $quote->getMessage(true);
+                    $message .= $quote_body;
+
+                } catch (exception $e) {
+                    // Message ID for quote does not exist
+                    include "404.php";
+                }
+            } elseif (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+                $message_id = $_REQUEST['id'];
+                $query_string .= "&id=".$message_id;
+                try {
+                    $message_edit = new Message($site, $message_id, null, 2);
+                    if ($message_edit->getState() == 0 && $message_edit->getUserId() == $authUser->getUserId()) {
+                        $message = $message_edit->getMessage();
+                        $edit = true;
+                        $smarty->assign("message_id", $message_id);
+                    } else {
+                        include "403.php";
+                    }
+                } catch (exception $e) {
+                    // Message ID does not exist
+                    include "404.php";
+                }
             }
+
+            if (isset($_POST['submit'])) {
+                // Post new message
+                if ($csrf->validateToken($_POST['token'])) {
+                    $message = $_POST['message'];
+                    if (isset($_POST['preview']) && $_POST['preview'] == true) {
+                        $message = base64_decode($message);
+                    }
+                    if (isset($message_id) && $edit == true) {
+                        $message_edit->editMessage($message);
+                    } else {
+                        $link->postMessage($message);
+                    }
+                    header("Location: ./linkme.php?l=".$link_id);
+                    exit();
+                }
+            }
+
+
+            $smarty->assign("link_title", htmlentities($link->getTitle()));
+            $smarty->assign("link_id", $link->getLinkId());
+            $smarty->assign("is_link", true);
+        } catch (Exception $e) {
+            include "404.php";
         }
     }
 

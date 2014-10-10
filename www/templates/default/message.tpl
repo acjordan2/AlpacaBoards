@@ -1,6 +1,6 @@
 {include file="header.tpl"}
 	<h1>Message Detail</h1>
-{if $type == 0}
+{if $type == 1}
 	<b>Topic:</b> 
 	<a href="./showmessages.php?topic={$parent_id}">{$title}</a>
 {else}
@@ -26,10 +26,10 @@
 {if $user_id == $m_user_id && $message_deleted == 0}
     <form method="get" action="./postmsg.php" style="display:inline;">
         <input type="hidden" name="id" value="{$message_id}" />
-        <input type="hidden" name="{if $type == 1}link{else}topic{/if}" value="{$parent_id}" />
+        <input type="hidden" name="{if $type == 2}link{else}topic{/if}" value="{$parent_id}" />
         <input type="submit" value="Edit this message" />
     </form>
-    <form method="post" action="./message.php?id={$message_id}&amp;{if $type == 1}link={$parent_id}{else}topic={$parent_id}{/if}&amp;r={$revision_no}" style="display:inline;">
+    <form method="post" action="./message.php?id={$message_id}&amp;{if $type == 2}link={$parent_id}{else}topic={$parent_id}{/if}&amp;r={$revision_no}" style="display:inline;">
         <input type="hidden" name="token" value="{$token}" />
         <input type="hidden" name="action"value="1" />
         <input type="submit" value="Delete this message" onclick="return confirm(&quot;Are you sure you want to delete this message&quot;)" />
@@ -58,7 +58,7 @@
 		#{$table.revision_no + 1}: 
 		{if $revision_no == $table.revision_no}<b>
 		{else}<a href="./message.php?id={$message_id}&amp;
-		{if $type == 1}link={$parent_id}&amp;link=1{else}topic={$parent_id}{/if}&amp;r={$table.revision_no}">{/if}
+		{if $type == 2}link={$parent_id}{else}topic={$parent_id}{/if}&amp;r={$table.revision_no}">{/if}
 		{$table.posted|date_format:$dateformat}
 		{if $revision_no == $table.revision_no}</b>{else}</a>{/if}<br />
 {/foreach}

@@ -29,13 +29,13 @@ require "includes/Message.class.php";
 require "includes/Tag.class.php";
 
 if ($auth === true) {
-    if(isset($_GET['id']) && (isset($_GET['topic']) || isset($_GET['link']))) {
+    if (isset($_GET['id']) && (isset($_GET['topic']) || isset($_GET['link']))) {
         if (isset($_GET['topic'])) {
             $parent_id = intval($_GET['topic']);
-            $type = 0;
+            $type = 1;
         } elseif (isset($_GET['link'])) {
             $parent_id = intval($_GET['link']);
-            $type = 1;
+            $type = 2;
         }
 
         if (isset($_GET['r'])) {
@@ -50,75 +50,84 @@ if ($auth === true) {
 
         try {
             $message = new Message($site, $message_id, $revision_no, $type);
-            $mod_message_delete = $authUser->checkPermissions("topic_delete_message");
 
-            // Delete message
-            if (isset($_POST['action'])) {
-                $action = $_POST['action'];
-                if ($action == 1 
-                    && $authUser->getUserId == $message->getUserId()
-                    && $message->getState() == 0) {
-                    // Deleted by a user
-                    $message->delete($action);
-                } elseif ($action == 2
-                    && $mod_message_delete == 1
-                    && $message->getState() == 0) {
-                    // Deleted by a moderator
-                    $message->delete($action, $authUser->getUserId(), $_POST['reason']);
+            // Helps prevent enumerating messages easily since both the topic/link id
+            // and the message ID need to be known
+            if ($message->getParentId() == $parent_id) {
+
+                $mod_message_delete = $authUser->checkPermissions("topic_delete_message");
+
+                // Delete message
+                if (isset($_POST['action'])) {
+                    $action = $_POST['action'];
+                    if ($action == 1
+                        && $authUser->getUserId == $message->getUserId()
+                        && $message->getState() == 0) {
+                        // Deleted by a user
+                        $message->delete($action);
+                    } elseif ($action == 2
+                        && $mod_message_delete == 1
+                        && $message->getState() == 0) {
+                        // Deleted by a moderator
+                        $message->delete($action, $authUser->getUserId(), $_POST['reason']);
+                    }
                 }
-            }
 
-            $tag = new Tag($authUser->getUserId());
-            $tag_list = $tag->getObjectTags($parent_id, $type + 1);
+                $tag = new Tag($authUser->getUserId());
+                $tag_list = $tag->getObjectTags($parent_id, $type + 1);
 
-            $parser = new Parser();
-            $message_content = $parser->parse($message->getMessage());
+                $parser = new Parser();
+                $message_content = $parser->parse($message->getMessage());
 
-            $user_id = $message->getUserId();
-            $username = $message->getUsername();
+                $user_id = $message->getUserId();
+                $username = $message->getUsername();
 
-            if (isset($_GET['output'])) {
-                if ($_GET['output'] == "json") {
-                    $signature = explode("---", $message_content);
-                    $content = array(
-                        "id" => $message_id,
-                        "topic" => $topic_id,
-                        "r" => $message->getRevisionID(),
-                        "message" => $signature[0],
-                        "signature" => @$signature[1]
+                if (isset($_GET['output'])) {
+                    if ($_GET['output'] == "json") {
+                        $signature = explode("---", $message_content);
+                        $content = array(
+                            "id" => $message_id,
+                            "topic" => $topic_id,
+                            "r" => $message->getRevisionID(),
+                            "message" => $signature[0],
+                            "signature" => @$signature[1]
+                        );
+                        header("Content-Type: application/json");
+                        print json_encode($content);
+                    }
+                } else {
+
+                    $smarty->assign("message", $message_content);
+                    $smarty->assign("type", $type);
+                    $smarty->assign("posted", $message->getPosted());
+                    $smarty->assign("revision_history",  $message->getRevisions());
+                    $smarty->assign(
+                        "title",
+                        htmlentities($message->getTitle())
                     );
-                    header("Content-Type: application/json");
-                    print json_encode($content);
+
+                    $message_user = new User($site, $message->getUserId());
+
+                    $smarty->assign("parent_id", $parent_id);
+                    $smarty->assign("message", $message_content);
+                    $smarty->assign("revision_no", $message->getRevisionId());
+                    $smarty->assign("message_id", $message_id);
+                    $smarty->assign("m_user_id", $user_id);
+                    $smarty->assign("m_username", $username);
+                    $smarty->assign("token", $csrf->getToken());
+                    $smarty->assign("message_deleted", $message->getState());
+                    $smarty->assign("m_avatar", $message_user->getAvatar());
+                    $smarty->assign("mod_message_delete", $mod_message_delete);
+
+                    $display = "message.tpl";
+                    $page_title = "Message Detail";
+                    include "includes/deinit.php";
                 }
             } else {
-
-                $smarty->assign("message", $message_content);
-                $smarty->assign("type", $type);
-                $smarty->assign("posted", $message->getPosted());
-                $smarty->assign("revision_history",  $message->getRevisions());
-                $smarty->assign(
-                    "title", 
-                    htmlentities($message->getTitle())
-                );
-
-                $message_user = new User($site, $message->getUserId());
-
-                $smarty->assign("parent_id", $parent_id);
-                $smarty->assign("message", $message_content);
-                $smarty->assign("revision_no", $message->getRevisionId());
-                $smarty->assign("message_id", $message_id);
-                $smarty->assign("m_user_id", $user_id);
-                $smarty->assign("m_username", $username);
-                $smarty->assign("token", $csrf->getToken());
-                $smarty->assign("message_deleted", $message->getState());
-                $smarty->assign("m_avatar", $message_user->getAvatar());
-                $smarty->assign("mod_message_delete", $mod_message_delete);
-
-                $display = "message.tpl";
-                $page_title = "Message Detail";
-                include "includes/deinit.php";
+                include "403.php";
             }
         } catch (exception $e) {
+            print $e->getMessage();
             include "404.php";
         }
     } 

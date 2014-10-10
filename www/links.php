@@ -26,13 +26,19 @@
  
 require "includes/init.php";
 require "includes/Link.class.php";
+require "includes/Tag.class.php";
+require "includes/Parser.class.php";
 
 // Check authentication
 if ($auth === true) {
+
+    $parser = new Parser();
+    $tag = new Tag($authUser->getUserId());
+
     // Set template display for listing links
     $page_title = "Links";
     $display = "links.tpl";
-    $links = new Link($db, $authUser->getUserID());
+    $links = new Link($authUser, $parser, $tag);
 
     // Get sort order
     switch (@$_GET['mode']) {
@@ -104,7 +110,7 @@ if ($auth === true) {
         if (isset($_GET['tags'])) {
             $link_list = $links->getLinkListByTag($_GET['tags']);
         } else {
-            $link_list = $links->getLinkList($order);
+            $link_list = $links->getLinks(1);
         }
     }
     $smarty->assign("links", $link_list);

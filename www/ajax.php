@@ -25,6 +25,7 @@
  */
 
 require "includes/init.php";
+require "includes/Tag.class.php";
 
 // Check authentication
 if ($auth == true) {
@@ -45,15 +46,14 @@ if ($auth == true) {
         // Get link related actions
         case "link":
             include "includes/Link.class.php";
+            $tagObject = new Tag($authUser->getUserId());
             $link_id = @$_POST['l'];
             if (!is_numeric($link_id)) {
-                $link = new Link($db);
+                $link = new Link($authUser);
                 switch($action) {
                     case "tags":
                         header('content-type: application/json; charset=utf-8');
-                        $output = array("tags" => $link->getTags(@$_GET['q']));
-                        print json_encode($output);
-                        die();
+                        $output = array("tags" => $tagObject->getTags("[type:0|2][title:".$_GET['q']."]"));
                         break;
                     case "checkParentTag":
                         $tags_tmp = explode(":", $_POST['tags']);
@@ -70,10 +70,10 @@ if ($auth == true) {
                         $output = "{\"error\": \"Invalid Link ID\"}";
                 }
             } else {
-                $link = new Link($db, $authUser->getUserID(), $link_id);
+                $link = new Link($authUser, null, null, $_POST['l']);
                 
                 // Confirm provided link id is valid
-                if ($link->doesExist()) {
+                try {
                     // Link actions
                     switch($action){
                         // Link voting
@@ -97,18 +97,20 @@ if ($auth == true) {
                             if ((@$_POST['f'] === "1" || @$_POST['f'] === "0")
                                 && $csrf->validateToken(@$_REQUEST['token'])
                             ) {
-                                if ($link->addToFavorites($_POST['f'])) {
-                                    if ($_POST['f'] === "1") {
-                                        $output['f'] = "Remove from Favorites";
-                                        $output['message'] = "Added to favorites!";
-                                    } elseif ($_POST['f'] === "0") {
-                                        $output['f'] = "Add to Favorites";
-                                        $output['message'] = "Removed from favorites!";
-                                    }
+                                if ($_POST['f'] === "1") {
+                                    $link->addToFavorites();
+                                    $output['f'] = "Remove from Favorites";
+                                    $output['message'] = "Added to favorites!";
+                                } elseif ($_POST['f'] === "0") {
+                                    $link->removeFromFavorites();
+                                    $output['f'] = "Add to Favorites";
+                                    $output['message'] = "Removed from favorites!";
                                 }
                             }
                             break;
                     }
+                } catch (Exception $e) {
+                    $output['message'] = "Error processing request";
                 }
                 break;
             }

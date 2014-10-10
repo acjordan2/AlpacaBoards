@@ -55,7 +55,7 @@ Class Message
      * Topic ID for the message
      * @var integer
      */
-    private $_topic_id;
+    private $_parent_id;
 
     /**
      * Message revision number
@@ -96,11 +96,20 @@ Class Message
      * @param integer $revision_no Revision number of the message
      * @param integer $type        Message type (0 for topic, 1 for link, 2 for pm)
      */
-    public function __construct(Site $site, $message_id, $revision_no = 0, $type = 0)
+    public function __construct(Site $site, $message_id, $revision_no = null, $type = 1)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_site = $site;
-        $this->_loadMessage($message_id, $revision_no, $type);
+
+        if ($type == 1) {
+            $this->_table = "Topics";
+            $this->_column = "topic_id";
+        } elseif ($type == 2) {
+            $this->_table = "Links";
+            $this->_column = "link_id";
+        }
+
+        $this->_loadMessage($message_id, $revision_no);
     }
 
     /**
@@ -110,25 +119,30 @@ Class Message
      * @throws exception              If the provided Message ID and revision number do not exist
      * @return void              
      */
-    private function _loadMessage($message_id, $revision_no, $type = 0)
+    private function _loadMessage($message_id, $revision_no, $type = 1)
     {
-        $sql = "SELECT Messages.topic_id, Messages.message_id, Messages.revision_no, Messages.user_id, 
-            Messages.message, Messages.deleted, Users.username, Topics.title, 
-            (SELECT Messages.posted FROM Messages WHERE Messages.message_id = :message_id_post
-                AND Messages.revision_no = 0) as posted
-        FROM Users
-        LEFT JOIN Messages USING(user_id)
-        LEFT JOIN Topics USING(topic_id)
-        WHERE Messages.message_id = :message_id AND Messages.revision_no = :revision_no AND
-        Messages.type = :type
-        ORDER BY Messages.revision_no DESC LIMIT 1";
         
         $data_loadMessage = array(
             "message_id_post" => $message_id,
             "message_id" => $message_id,
-            "revision_no" => $revision_no,
-            "type" => $type
         );
+
+        if (!is_null($revision_no)) {
+            $revision_sql = "AND Messages.revision_no = :revision_no";
+            $data_loadMessage["revision_no"] = $revision_no;
+        } else {
+            $revision_sql = "";
+        }
+
+        $sql = "SELECT Messages.$this->_column, Messages.message_id, Messages.revision_no, Messages.user_id, 
+            Messages.message, Messages.deleted, Users.username, $this->_table.title, 
+            (SELECT Messages.posted FROM Messages WHERE Messages.message_id = :message_id_post
+                AND Messages.revision_no = 0) as posted
+        FROM Users
+        LEFT JOIN Messages USING(user_id)
+        LEFT JOIN $this->_table USING($this->_column)
+        WHERE Messages.message_id = :message_id $revision_sql
+        ORDER BY Messages.revision_no DESC LIMIT 1";
 
         $statement_loadMessage = $this->_pdo_conn->prepare($sql);
         $statement_loadMessage->execute($data_loadMessage);
@@ -143,7 +157,7 @@ Class Message
             $this->_title = $results['title'];
             $this->_state = $results['deleted'];
             $this->_posted = $results['posted'];
-            $this->_topic_id = $results['topic_id'];
+            $this->_parent_id = $results[$this->_column];
             $this->_revision_no = $results['revision_no'];
 
             // Replace message text if the message has been deleted
@@ -223,7 +237,7 @@ Class Message
                 $message = $this->_message;
             }
 
-            $quote = "<quote msgid=t,".$this->_topic_id.","
+            $quote = "<quote msgid=t,".$this->_parent_id.","
                 .$this->_message_id."@".$this->_revision_no.">";
             $quote .= $message;
             $quote .= "</quote>";
@@ -232,6 +246,39 @@ Class Message
             $message = $this->_message;
         }
         return $message;
+    }
+
+    public function editMessage($message)
+    {
+        $sql = "SELECT MAX(revision_no) as revision_no FROM Messages
+            WHERE Messages.message_id = :message_id AND Messages.user_id = :user_id";
+        $data = array(
+            "message_id" => $this->_message_id,
+            "user_id" => $this->_user_id
+        );
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->execute($data);
+        $row = $statement->fetch();
+        $statement->closeCursor();
+        if ($statement->rowCount() == 1) {
+            // Provided message ID exists
+            $revision_number = $row[0] + 1;
+            $sql2 = "INSERT INTO Messages (message_id, user_id, $this->_column, message, 
+                revision_no, posted) 
+                VALUES(:message_id, :user_id, :$this->_column, :message, 
+                $revision_number, ".time().")";
+            $data2 = array(
+                "message_id" => $this->_message_id,
+                "user_id" => $this->_user_id,
+                "$this->_column" => $this->_parent_id,
+                "message" => $message
+            );
+            $statement2 = $this->_pdo_conn->prepare($sql2);
+            return $statement2->execute($data2);
+        } else {
+            // Provided message ID does not exist
+            return false;
+        }
     }
 
     /**
@@ -295,5 +342,10 @@ Class Message
     public function getRevisionId()
     {
         return $this->_revision_no;
+    }
+
+    public function getParentId()
+    {
+        return $this->_parent_id;
     }
 }

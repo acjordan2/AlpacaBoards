@@ -27,15 +27,20 @@
 require "includes/init.php";
 require "includes/Link.class.php";
 require "includes/Parser.class.php";
+require "includes/Tag.class.php";
 
 // Check authentication
 if ($auth === true) {
     $link_id = @$_GET['l'];
     // Check if provided link id is valid
     if (is_numeric($link_id)) {
-        $link = new Link($db, $authUser->getUserID(), $link_id);
-        if ($link->doesExist()) {
-            $link_data = $link->getLink();
+
+        $tag = new Tag($authUser->getUserId());
+        $parser = new Parser();
+
+        $link = new Link($authUser, $parser, $tag, $link_id);
+        if (true) {
+
             if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
                 $current_page = 1;
             } else {
@@ -87,8 +92,19 @@ if ($auth === true) {
 
             // Assign link data to template varibles
             $messages = $link->getMessages($current_page);
-            $smarty->assign("link_data", $link_data);
-            $smarty->assign("link_id", $link_id);
+            $smarty->assign("link_id", $link->getLinkId());
+            $smarty->assign("title", htmlentities($link->getTitle()));
+            $smarty->assign("url", autolink($link->getUrl()));
+            $smarty->assign("link_username", $link->getLinkUsername());
+            $smarty->assign("link_user_id", $link->getLinkUserId());
+            $smarty->assign("created", $link->getCreated());
+            $smarty->assign("hits", $link->getHitCount());
+            $smarty->assign("rating", $link->getRating());
+            $smarty->assign("rank", $link->getRank());
+            $smarty->assign("NumberOfVotes", $link->getNumberOfVotes());
+            $smarty->assign("short_code", $link->getShortCode());
+            $smarty->assign("description", $parser->parse($link->getDescription()));
+            $smarty->assign("tags", $tag->getObjectTags($link->getLinkId(), 2));
             $smarty->assign("messages", $messages);
             $smarty->assign(
                 "signature",
@@ -108,7 +124,7 @@ if ($auth === true) {
                 $smarty->assign("link_favorite", true);
             }
             $display = "linkme.tpl";
-            $page_title = $link_data['title'];
+            $page_title = htmlentities($link->getTitle());
             include "includes/deinit.php";
         } else {
             include "404.php";

@@ -27,31 +27,39 @@
 require "includes/init.php";
 require "includes/Link.class.php";
 require "includes/Parser.class.php";
+require "includes/Tag.class.php";
 
 // Check authentication
 if ($auth === true) {
     // Edit existing link
+    $parser = new Parser();
+    $tag = new Tag($authUser->getUserId());
     if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-        $link_edit = new Link($db, $authUser->getUserId(), $_GET['edit']);
-        $link_edit_data = $link_edit->getLink();
+        $csrf->setPageSalt("editLink".$authUser->getUserId().$_GET['edit']);
+        $link_edit = new Link($authUser, $parser, $tag, $_GET['edit']);
+        //$link_edit_data = $link_edit->getLink();
         // Check to make sure the link
         // creator is the one editing the link
-        if ($link_edit_data['user_id'] == $authUser->getUserId()) {
+        if ($link_edit->getLinkUserId() == $authUser->getUserId()) {
             // Assign template variables
-            $smarty->assign("title", htmlentities($link_edit_data['title']));
+            $smarty->assign("title", htmlentities($link_edit->getTitle()));
             $smarty->assign(
                 "description",
-                htmlentities($link_edit_data['raw_description'])
+                htmlentities($link_edit->getDescription())
             );
-            $smarty->assign("lurl", htmlentities($link_edit_data['url2']));
+            $smarty->assign("lurl", htmlentities($link_edit->getUrl()));
             $smarty->assign("link_edit", true);
-            $smarty->assign("link_id", $link_edit_data['link_id']);
-            $tags = $link_edit->getLinkTags($link_edit_data['link_id']);
+            $smarty->assign("link_id", $link_edit->getLinkId());
+            //$tags = $link_edit->getLinkTags($link_edit_data['link_id']);
 
+            $tags = $tag->getObjectTags($_GET['edit'], 2);
             $tag_list = array();
             foreach ($tags as $tag) {
-                $tag_list[] = $tag['tag_id'].":".$tag['title'];
+                if (!is_null($tag['tag_id'])) {
+                    $tag_list[] = $tag['tag_id'].":".$tag['title'];
+                }
             }
+
             $smarty->assign("tags", implode(",", $tag_list));
             if (isset($_POST['token'])) {
                 // Validate provided data
@@ -60,9 +68,6 @@ if ($auth === true) {
                     if (!validateURL($_POST['lurl'])) {
                         // Make sure URL is valid
                         $error_msg = "Please enter a valid URL<br />";
-                    } elseif ($link_edit->checkURLExist($_POST['lurl'])) {
-                        // Prevent duplicate links
-                        $error_msg = "A link with that URL already exists";
                     }
                     $smarty->assign("lurl", htmlentities($_POST['lurl']));
                 }
@@ -89,12 +94,26 @@ if ($auth === true) {
                 if ($error_msg=="") {
                     // Validate anti-CSRF token
                     if ($csrf->validateToken($_POST['token'])) {
-                        if ($link_edit->updateLink($_REQUEST)) {
-                            header(
-                                "Location: ./linkme.php?l=".$link_edit->getLinkID()
-                            );
-                            exit();
+                        if (!isset($_POST['lurl'])) {
+                            $url = null;
+                        } else {
+                            $url = $_POST['lurl'];
                         }
+
+                        $tag_edit = explode(",", $_POST['tags']);
+
+                        $new_tags = array();
+
+                        for ($i=0; $i<count($tag_edit); $i++) {
+                            $tmp = explode(":", $tag_edit[$i]);
+                            if (count($tmp) < 2) {
+                                $new_tags[] = $tag_edit[$i];
+                            }
+                        }
+
+                        $link_edit->updateLink($_POST['title'], $url, $_POST['description'], $new_tags);
+                        header("Location: ./linkme.php?l=".$link_edit->getLinkID());
+                        exit();
                     } else {
                         $error_msg = "There was a problem processing your request.
                             Please try again";
@@ -107,8 +126,9 @@ if ($auth === true) {
         }
         
     } else {
+        $csrf->setPageSalt("addlink");
         // Add new link
-        $links = new Link($db, $authUser->getUserId());
+        $links = new Link($authUser, $parser, $tag);
         if (isset($_POST['title'])
             && isset($_POST['description'])
             && isset($_POST['token'])
@@ -118,9 +138,6 @@ if ($auth === true) {
             if (isset($_POST['lurl'])) {
                 if (!validateURL($_POST['lurl'])) {
                     $error_msg = "Please enter a valid URL<br />";
-                } elseif ($links->checkURLExist($_POST['lurl'])) {
-                    // Prevent duplicate links
-                    $error_msg = "A link with that URL already exists";
                 }
                 $smarty->assign("lurl", htmlentities($_POST['lurl']));
             }
@@ -142,8 +159,10 @@ if ($auth === true) {
             if ($error_msg=="") {
                 // Validate anti-CSRF token
                 if ($csrf->validateToken($_POST['token'])) {
-                    if ($links->addLink($_REQUEST)) {
-                        header("Location: ./linkme.php?l=".$links->getLinkID());
+                    $tags = explode(",", $_POST['tags']);
+                    $link_id = $links->createLink($_POST['title'], $_POST['lurl'], $_POST['description'], $_POST['tags']);
+                    if ($link_id) {
+                        header("Location: ./linkme.php?l=$link_id");
                         exit();
                     }
                 } else {
@@ -154,8 +173,8 @@ if ($auth === true) {
             $smarty->assign("error", $error_msg);
         }
     }
+
     // Assign template variables
-    $smarty->assign("categories", Link::getCategories($db));
     $smarty->assign("token", $csrf->getToken());
 
     // Set template page

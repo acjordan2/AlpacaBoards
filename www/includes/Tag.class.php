@@ -413,4 +413,75 @@ class Tag
             return $results;
         }
     }
+
+    /**
+     * Edit object tags
+     * @param  integer $object_id   ID of the object
+     * @param  integer $object_type Object type (1 for topics 2 for links)
+     * @param  array   $tags        Array of tag IDs
+     */
+    public function editTags($object_id, $object_type, $tags)
+    {
+        $current_tags = $this->getObjectTags($object_id, $object_type);
+        $current_tag_ids = array();
+
+        for ($i=0; $i<count($current_tags); $i++) {
+            $current_tag_ids[] = $current_tags[$i]['tag_id'];
+        }
+
+        $tags_remove = array_diff($current_tag_ids, $tags);
+        $tags_add = array_diff($tags, $current_tag_ids);
+
+        $tag_list = $this->getTags("[type:0|".$object_type);
+
+        if (count($tags_remove) > 0) {
+
+            $tag_remove_data['object_id'] = $object_id;
+            $tag_remove_data['object_type'] = $object_type;
+
+            $sql_removeTags = "DELETE FROM Tagged WHERE data_id = :object_id 
+                AND type = :object_type AND (";
+            for ($i=0; $i<count($tags_remove); $i++) {
+                $sql_removeTags .= " tag_id = :tag_id".$i;
+                $tag_remove_data["tag_id".$i] = (int) $tags_remove[$i];
+                if ($i != (count($tags_remove) - 1)) {
+                    $sql_removeTags .= " OR ";
+                }
+            }
+
+            $sql_removeTags .= ")";
+
+            $statement_removeTags = $this->_pdo_conn->prepare($sql_removeTags);
+            $statement_removeTags->execute($tag_remove_data);
+        
+        }
+
+        if (count($tags_add) > 0) {
+            $sql_addTags = "INSERT INTO Tagged (data_id, tag_id, type)
+                values (:object_id, :tag_id, :object_type)";
+            $statement_addTags = $this->_pdo_conn->prepare($sql_addTags);
+
+            foreach ($tags_add as $tag_id) {
+                if ($this->validateTag($tag_id, $object_type)) {
+                    $statement_addTags->bindParam("object_id", $object_id);
+                    $statement_addTags->bindParam("tag_id", $tag_id);
+                    $statement_addTags->bindParam("object_type", $object_type);
+                    $statement_addTags->execute();
+                }
+            }
+        }
+
+    }
+
+    public function validateTag($tag_id, $object_type)
+    {
+        $sql = "SELECT COUNT(tag_id) FROM TopicalTags WHERE tag_id = :tag_id 
+            AND (type = :object_type OR type = 0)";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("tag_id", $tag_id);
+        $statement->bindParam("object_type", $object_type);
+        $statement->execute();
+        $results = $statement->fetch();
+        return $results[0];
+    }
 }
