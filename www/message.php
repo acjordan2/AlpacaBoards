@@ -61,7 +61,7 @@ if ($auth === true) {
                 if (isset($_POST['action'])) {
                     $action = $_POST['action'];
                     if ($action == 1
-                        && $authUser->getUserId == $message->getUserId()
+                        && $authUser->getUserId() == $message->getUserId()
                         && $message->getState() == 0) {
                         // Deleted by a user
                         $message->delete($action);
