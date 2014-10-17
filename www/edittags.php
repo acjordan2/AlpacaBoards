@@ -1,6 +1,6 @@
 <?php
 /*
- * userlist.php
+ * edittags.php
  * 
  * Copyright (c) 2014 Andrew Jordan
  * 
@@ -23,36 +23,29 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
 require "includes/init.php";
+require "includes/Parser.class.php";
+require "includes/Topic.class.php";
+require "includes/Tag.class.php";
 
-// Check authentication
-if ($auth == true) {
-    if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
-        $current_page = 1;
-    } else {
-        $current_page = intval($_GET['page']);
-    }
-    // Get user list
-    $query = @$_GET['user'];
-    $userlist = $site->getUserList($authUser, $current_page, $query);
-    $page_count = $userlist[0]['page_count'];
-    // remove page count from userlist array
-	array_shift($userlist);
-    if ($page_count == 0) {
-        $page_count = 1;
-    }
+if ($auth === true) {
+	
+	if (isset($_GET['topic_id']) && is_numeric($_GET['topic_id'])) {
+		$topic_id = $_GET['topic_id'];
+		$parser = new Parser();
 
-    // Set template variables
-    $smarty->assign("userlist", $userlist);
-    $smarty->assign("page_count", $page_count);
-    $smarty->assign("current_page", $current_page);
+		$topic = new Topic($authUser, $parser, $topic_id);		
 
-    // Set template page
-    $display = "userlist.tpl";
-    $page_title = "User List";
-    $smarty->assign("user_search", htmlentities($query));
-    include "includes/deinit.php";
+		$tag = new Tag($authUser->getUserId());
+
+		$current_tags = $tag->getObjectTags($topic_id, 1);
+		$smarty->assign("topic_title", $topic->getTopicTitle());
+		$smarty->assign("current_tags", $current_tags);
+
+		$display = "edittags.tpl";
+		$page_title = "Edit Topic Tags";
+		include "includes/deinit.php";
+	}
 } else {
-    include "404.php";
+	include "403.php";
 }
