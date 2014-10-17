@@ -4,23 +4,23 @@ Roadmap
 In no particular order
 
 ##Important
-* <del>Live message updates (ideally using websockets with a long poll fallback)</del> 
+* Live message updates (ideally using websockets with a long poll fallback) - needs to be fixed 
 * Links.php needs pagination 
 * A script to launch the sphinx daemon 
-* users.php token count is inaccurate. 
+* <del>users.php token count is inaccurate.</del> 
 * <del>invites cant be bought but you can actually use them, possibly add more store options.</del>
 * More accurate fallback search 
 * diff for message edits is message.php 
 * change website theme 
 * private messages 
-* Anonymous board (Enabeld/disabled by default) 
-* archive topics based on certain credential. 
-* add upload box to quick post. 
-* postmsg.php is horribly unorganized and should probably be rewritten to make it easier to edit. 
+* Anonymous board (Enabeld/disabled by default) - Sort of exists, anonymous posting still shows avatar and signature. Quoting anon posts reveals users identity. 
+* archive topics based on certain criteria. 
+* <del>add upload box to quick post.</del> 
+* <del>postmsg.php is horribly unorganized and should probably be rewritten to make it easier to edit.</del> YAY!
 * <del>Some sort of image map functionality</del>
     * I am thinking this could be used to tag and index images which could then be searched. 
 * <del>Topical Tags for both Links and topics</del>
-    * For topics
+    * <del>For topics</del>
 * In app updates 
 
 
