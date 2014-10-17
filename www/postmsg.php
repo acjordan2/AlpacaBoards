@@ -32,11 +32,15 @@ require "includes/Parser.class.php";
 require "includes/Tag.class.php";
 
 if ($auth === true) {
+
+	$salt_string = "postmsg";
     if (isset($_REQUEST['topic'])) {
-        $csrf->setPageSalt($_REQUEST['topic']);
-    } else {
-        $csrf->setPageSalt("postmsg");
-    }
+        $salt_string .= $_REQUEST['topic'];
+	}
+	elseif (isset($_REQUEST['link'])) {
+		$salt_string .= $_REQUEST['link'];
+    } 
+    $csrf->setPageSalt($salt_string);
 
     $parser = new Parser();
     $tag = new Tag($authUser->getUserId());

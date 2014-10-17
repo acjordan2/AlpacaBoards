@@ -20,9 +20,9 @@
 			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>
 		<!--<a href="./boardlist.php">Board List</a> | -->
-      	<a href="./showtopics.php?board=42">Topic List</a> | 
+      	<a href="./showtopics.php">Topic List</a> | 
 		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}">Post New Message</a>
-		<!--| <a href="//boards.endoftheinter.net/showmessages.php?board=42&amp;topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
+		<!--| <a href="//boards.endoftheinter.net/showmessages.php?topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
 		{if $action != NULL} 
 			| <a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
@@ -38,11 +38,11 @@
 	</script>
 {/literal}
 	<div class="infobar" id="u0_2">
-		{if $current_page > 1} <span><a href="./showmessages.php?board=42&amp;topic={$topic_id}&amp;page=1">First Page</a> |</span>{/if}
-		{if $current_page > 2}<span><a href="./showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
+		{if $current_page > 1} <span><a href="./showmessages.php?topic={$topic_id}&amp;page=1">First Page</a> |</span>{/if}
+		{if $current_page > 2}<span><a href="./showmessages.php?topic={$topic_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
 		Page {$current_page} of <span>{$page_count}</span> 
-		{if $current_page < $page_count - 1}<span>| <a href="./showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$current_page + 1}">Next Page</a></span> {/if}
-		{if $current_page < $page_count}<span>| <a href="./showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$page_count}">Last Page</a></span>{/if}
+		{if $current_page < $page_count - 1}<span>| <a href="./showmessages.php?topic={$topic_id}&amp;page={$current_page + 1}">Next Page</a></span> {/if}
+		{if $current_page < $page_count}<span>| <a href="./showmessages.php?topic={$topic_id}&amp;page={$page_count}">Last Page</a></span>{/if}
 	</div>
 	<div id="u0_1">
 {$i=5}
@@ -89,7 +89,7 @@
 		{if $k == $current_page}{$k} 
 			{if $k<$page_count}|{/if}
 			{else}
-				<a href="./showmessages.php?board=42&amp;topic={$topic_id}&amp;page={$k}">{$k}</a> 
+				<a href="./showmessages.php?topic={$topic_id}&amp;page={$k}">{$k}</a> 
 				{if $k < $page_count}| {/if}
 		{/if}
 		{assign var="k" value=$k+1}
