@@ -308,8 +308,8 @@ class Link
 
     public function removeFromFavorites()
     {
-        $sql = "DELETE FROM LinkFavorites WHERE LinkFavorites.user_id = ".$this->user_id.
-            "AND LinkFavorites.link_id = :link_id";
+        $sql = "DELETE FROM LinkFavorites WHERE LinkFavorites.user_id = ".$this->_user_id.
+            " AND LinkFavorites.link_id = :link_id";
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->bindParam("link_id", $this->_link_id);
         $statement->execute();
@@ -379,7 +379,7 @@ class Link
         $results = $statement->fetch();
         $statement->closeCursor();
         $page_count = intval($results['count']/$this->_messages_per_page);
-        if ($results['count'] % $this->_messages_per_page != 0) {
+        if ($results['count'] % $this->_messages_per_page != 0 || $results['count'] == 0) {
             $page_count++;
         }
         return $page_count;

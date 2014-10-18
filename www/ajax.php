@@ -48,6 +48,7 @@ if ($auth == true) {
             include "includes/Link.class.php";
             $tagObject = new Tag($authUser->getUserId());
             $link_id = @$_POST['l'];
+			$csrf->setPageSalt("linkme".$link_id);
             if (!is_numeric($link_id)) {
                 $link = new Link($authUser);
                 switch($action) {
@@ -78,7 +79,6 @@ if ($auth == true) {
                     switch($action){
                         // Link voting
                         case "vote":
-							$csrf->setPageSalt("linkme".$_POST['l']);
                             if (is_numeric(@$_POST['v'])
                                 && @$_POST['v'] >= 0
                                 && @$_POST['v'] <= 10

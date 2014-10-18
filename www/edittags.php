@@ -29,28 +29,26 @@ require "includes/Topic.class.php";
 require "includes/Tag.class.php";
 
 if ($auth === true) {
-	
-	if (isset($_GET['topic']) && is_numeric($_GET['topic'])) {
-		$topic_id = $_GET['topic'];
-		$parser = new Parser();
+    if (isset($_GET['topic']) && is_numeric($_GET['topic'])) {
+        $topic_id = $_GET['topic'];
+        $parser = new Parser();
 
-		try {
-			$topic = new Topic($authUser, $parser, $topic_id);		
-			$tag = new Tag($authUser->getUserId());
-			$current_tags = $tag->getObjectTags($topic_id, 1);
-			$smarty->assign("topic_title", $topic->getTopicTitle());
-			$smarty->assign("current_tags", $current_tags);
+        try {
+            $topic = new Topic($authUser, $parser, $topic_id);      
+            $tag = new Tag($authUser->getUserId());
+            $current_tags = $tag->getObjectTags($topic_id, 1);
+            $smarty->assign("topic_title", $topic->getTopicTitle());
+            $smarty->assign("current_tags", $current_tags);
 
-			print_r($current_tags);
+            print_r($current_tags);
 
-			$display = "edittags.tpl";
-			$page_title = "Edit Topic Tags";
-			include "includes/deinit.php";
-		} catch (Exception $e) {
-			include "404.php";
-		}
-		
-	}
+            $display = "edittags.tpl";
+            $page_title = "Edit Topic Tags";
+            include "includes/deinit.php";
+        } catch (Exception $e) {
+            include "404.php";
+        }        
+    }
 } else {
-	include "403.php";
+    include "403.php";
 }
