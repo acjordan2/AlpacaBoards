@@ -34,13 +34,12 @@ if ($auth === true) {
     $link_id = @$_GET['l'];
     // Check if provided link id is valid
     if (is_numeric($link_id)) {
-
         $tag = new Tag($authUser->getUserId());
         $parser = new Parser();
 
-        $link = new Link($authUser, $parser, $tag, $link_id);
-        if (true) {
-
+        try {
+        	$link = new Link($authUser, $parser, $tag, $link_id);
+			$csrf->setPageSalt("linkme".$link_id);
             if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
                 $current_page = 1;
             } else {
@@ -126,7 +125,7 @@ if ($auth === true) {
             $display = "linkme.tpl";
             $page_title = htmlentities($link->getTitle());
             include "includes/deinit.php";
-        } else {
+        } catch (Exception $e){
             include "404.php";
         }
     } elseif ($link_id == "random") {
