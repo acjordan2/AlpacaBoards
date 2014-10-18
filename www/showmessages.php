@@ -128,6 +128,7 @@ if ($auth == true) {
             $smarty->assign("token", $csrf->getToken());
             $smarty->assign("action", $authUser->getInventory(5));
             $smarty->assign("topic_tags", $tags);
+            $smarty->assign("topic_creator", $topic->getTopicCreator());
             $display = "showmessages.tpl";
             $page_title = $topic->getTopicTitle();
             include "includes/deinit.php";

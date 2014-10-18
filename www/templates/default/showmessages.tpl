@@ -29,6 +29,7 @@
 				{$action[0].name}
 			</a>
 		{/if}
+        {if $user_id == $topic_creator}| <a href="./edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
 	</div>
 {literal}
 	<script type="text/javascript">

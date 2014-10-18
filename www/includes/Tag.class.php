@@ -429,7 +429,7 @@ class Tag
             $current_tag_ids[] = $current_tags[$i]['tag_id'];
         }
 
-        $tags_remove = array_diff($current_tag_ids, $tags);
+        $tags_remove = array_values(array_diff($current_tag_ids, $tags));
         $tags_add = array_diff($tags, $current_tag_ids);
 
         $tag_list = $this->getTags("[type:0|".$object_type);

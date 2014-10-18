@@ -32,23 +32,55 @@ if ($auth === true) {
     if (isset($_GET['topic']) && is_numeric($_GET['topic'])) {
         $topic_id = $_GET['topic'];
         $parser = new Parser();
-
+        $csrf->setPageSalt("edittags".$topic_id);
+    
         try {
             $topic = new Topic($authUser, $parser, $topic_id);      
             $tag = new Tag($authUser->getUserId());
-            $current_tags = $tag->getObjectTags($topic_id, 1);
-            $smarty->assign("topic_title", $topic->getTopicTitle());
-            $smarty->assign("current_tags", $current_tags);
+            
+            if ($authUser->getUserId() === $topic->getTopicCreator()) {
+                if (isset($_POST['submit'])) {
+                    if ($csrf->validateToken($_POST['token'])) {
+                        $tag_edit = explode(",", $_POST['tags']);
+                        $new_tags = array();
+                        for ($i=0; $i<count($tag_edit); $i++) {
+                            $tmp = explode(":", $tag_edit[$i]);
+                            if (count($tmp) < 2) {
+                                $new_tags[] = $tag_edit[$i];
+                            }
+                        }
+                        $tag->editTags($topic_id, 1, $new_tags);
+                        $smarty->assign("message", "Changes Saved");
+                    }
+                }
+            
+                $current_tags = $tag->getObjectTags($topic_id, 1);
+                $taglist = array();
+                foreach($current_tags as $c_tag) {
+                    $taglist[] = $c_tag['tag_id'].":".$c_tag['title'];
+                }
+                $smarty->assign("token", $csrf->getToken()); 
+                $smarty->assign("topic", $topic_id);
+                $smarty->assign("topic_title", $topic->getTopicTitle());
+                $smarty->assign("current_tags", $current_tags);
+                $smarty->assign("tags", implode(",", $taglist));
 
-            print_r($current_tags);
-
-            $display = "edittags.tpl";
-            $page_title = "Edit Topic Tags";
-            include "includes/deinit.php";
+                $display = "edittags.tpl";
+                $page_title = "Change Topic Tags";
+                include "includes/deinit.php";
+            } else {
+                // User tried to edit tags to a topic they did not create
+                include "403.php";
+            }
         } catch (Exception $e) {
+            // Topic does not exist
             include "404.php";
-        }        
+        }     
+    } else {
+        // No parameters set, so there is nothing to do
+        include "404.php";
     }
 } else {
+    // User tried to access without authentication
     include "403.php";
 }

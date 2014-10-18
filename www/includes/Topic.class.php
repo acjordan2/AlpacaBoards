@@ -51,6 +51,12 @@ class Topic
     private $_user_id;
 
     /**
+     * User ID of the topic creator
+     * @var integer
+     */
+    private $_topic_creator;
+
+    /**
      * Amount of messages to show on each topic page,
      * default is 50
      * @var integer
@@ -86,7 +92,7 @@ class Topic
      */
     public function loadTopic($topic_id)
     {
-        $sql = "SELECT topic_id, title FROM Topics WHERE topic_id = :topic_id";
+        $sql = "SELECT topic_id, title, user_id FROM Topics WHERE topic_id = :topic_id";
         $data = array(
             "topic_id" => $topic_id
         );
@@ -97,6 +103,7 @@ class Topic
             $statement->closeCursor();
             $this->_topic_id = $results['topic_id'];
             $this->_topic_title = $results['title'];
+            $this->_topic_creator = $results['user_id'];
         } else {
             throw new Exception('Topic does not exist');
         }
@@ -484,5 +491,15 @@ class Topic
     public function getTopicTitle()
     {
         return $this->_topic_title;
+    }
+
+    
+    /**
+     * Get the user ID of the topic creator
+     * @return integer User ID
+     */
+    public function getTopicCreator()
+    {
+        return $this->_topic_creator;
     }
 }
