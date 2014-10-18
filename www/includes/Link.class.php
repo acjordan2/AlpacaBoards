@@ -315,6 +315,34 @@ class Link
         $statement->execute();
     }
 
+	public function setVote($vote) {
+		$vote = (int) $vote;
+		$sql = "INSERT INTO LinkVotes (link_id, vote, user_id, created)
+			VALUES(:link_id, :vote, ".$this->_user_id.", ".time().")
+			ON DUPLICATE KEY UPDATE vote = :vote2";
+		$statement = $this->_pdo_conn->prepare($sql);
+		$data = array(
+			"link_id" => $this->_link_id,
+			"vote" => $vote,
+			"vote2" => $vote
+		);
+		$statement->execute($data);
+	}
+
+	public function getVotes()
+	{
+		$sql = "SELECT COUNT(LinkVotes.vote) AS NumberOfVotes,
+			SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank,
+			FORMAT(SUM(LinkVotes.vote)/COUNT(LinkVotes.vote),2) AS rating
+		FROM LinkVotes WHERE link_id = :link_id";
+		
+		$statement = $this->_pdo_conn->prepare($sql);
+		$statement->bindParam("link_id", $this->_link_id);
+		$statement->execute();
+
+		return $statement->fetch(PDO::FETCH_ASSOC);
+	}
+
     public function getFavorites()
     {
         $sql = "SELECT Users.username, Links.link_id, Links.user_id, Links.title, Links.url, 

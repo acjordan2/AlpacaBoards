@@ -78,6 +78,7 @@ if ($auth == true) {
                     switch($action){
                         // Link voting
                         case "vote":
+							$csrf->setPageSalt("linkme".$_POST['l']);
                             if (is_numeric(@$_POST['v'])
                                 && @$_POST['v'] >= 0
                                 && @$_POST['v'] <= 10
@@ -85,7 +86,7 @@ if ($auth == true) {
                             ) {
                                 // Validate CSRF token
                                 if ($csrf->validateToken(@$_REQUEST['token'])) {
-                                    $link->vote($_POST['v']);
+                                    $link->setVote($_POST['v']);
                                     $output = $link->getVotes();
                                     $output['message'] = "Vote Added!";
                                 }

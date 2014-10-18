@@ -54,7 +54,7 @@ if ($auth === true) {
             ) {
                 // Validate anti-CSRF token
                 if ($csrf->validateToken(@$_REQUEST['token'])) {
-                    $link->vote($_POST['v']);
+                    $link->setVote($_POST['v']);
                     // Redirect to link page with
                     // success message to avoid the
                     // annoying message from browsers
