@@ -104,7 +104,7 @@ if ($auth === true) {
                 }
             }
 
-            $smarty->assign("topic_title", $topic->getTopicTitle());
+            $smarty->assign("topic_title", htmlentities($topic->getTopicTitle()));
             $smarty->assign("topic", $topic->getTopicID());
 
         } catch (exception $e) {
@@ -173,7 +173,30 @@ if ($auth === true) {
         } catch (Exception $e) {
             include "404.php";
         }
-    }
+    } else {
+		// New Topic
+		$smarty->assign("new_topic", true);
+		if (isset($_POST['submit'])) {
+			if (isset($_POST['preview']) && $_POST['preview'] == true) {
+				$title = trim(base64_decode($_POST['title']));
+				$message = base64_decode($_POST['message']);
+			} else {
+				$title = trim($_POST['title']);
+				$message = $_POST['message'];
+			}
+			if(strlen($title) < 5 || strlen($title) > 80) {
+				$smarty->assign("error_message", "Title must be between 5 and 80 characters");
+			} else {
+				$tags = explode(",", $_POST['tags']);
+				$topic = new Topic($authUser, $parser);
+				$topic_id = $topic->createTopic($title, $tags, $message);
+				if ($topic_id) {
+					header("Location: ./showmessages.php?topic=".$topic_id);
+					exit();
+				}		
+			}
+		}
+	}
 
     if (isset($_POST['preview'])) {
         if ($csrf->validateToken($_POST['token'])) {
@@ -181,6 +204,10 @@ if ($auth === true) {
             $preview_message = $parser->parse($_POST['message']);
             $smarty->assign("preview_message", $preview_message);
             $smarty->assign("preview_message_raw", base64_encode($_POST['message']));
+			if (isset($_POST['title'])) {
+				$smarty->assign("topic_title", htmlentities($_POST['title']));
+				$smarty->assign("preview_topic_title", base64_encode($_POST['title']));
+			}
         }
     }
 

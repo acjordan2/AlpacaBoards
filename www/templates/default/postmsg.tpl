@@ -3,9 +3,12 @@
 {if isset($preview_message)}
 	<form action="postmsg.php{$query_string}" method="post">
 		<input type="hidden" name="message" value="{$preview_message_raw}" />
-        <input type="hidden" name="preview" value="true" />
+        <input type="hidden" name="title" value="{$preview_topic_title}">
+		<input type="hidden" name="preview" value="true" />
     	<input type="hidden" name="token" value="{$token}" />
-    	<input type="hidden" name="topic" value="{$topic}" />
+    	{if isset($topic_id)}
+		<input type="hidden" name="topic" value="{$topic}" />
+		{/if}
 		{if isset($message_id)}
 		<input type="hidden" name="id" value="{$message_id}" />
 		{/if}
@@ -24,7 +27,7 @@
       		<br />
 		{if isset($new_topic)}
 			To create a new topic, enter a title for the topic below and create the first message.<br />
-			<input type="text" name="title" value="" maxlength="80" size="60" /><br />
+			<input type="text" name="title" value="{if isset($topic_title)}{$topic_title}{/if}" maxlength="80" size="60" /><br />
 			(Between 5 and 80 characters in length)<br /><br />
             <table>
                 <tr>
