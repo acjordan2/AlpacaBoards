@@ -25,7 +25,6 @@
  */
 
 require "includes/init.php";
-require "includes/Board.class.php";
 
 // Check authentication
 if ($auth === true) {

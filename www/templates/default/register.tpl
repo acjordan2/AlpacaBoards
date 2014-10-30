@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>{$sitename} - Register</title>
-        <link rel="stylesheet" type="text/css" href="./templates/default/css/login.css" />
+        <link rel="stylesheet" type="text/css" href="./css.php" />
         <script type="text/javascript">
             function checkField(){
                 

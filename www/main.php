@@ -25,13 +25,10 @@
  */
 
 require "includes/init.php";
-require "includes/Board.class.php";
 
 if ($auth === true) {
     //$smarty->assign("page", "Home");
     //$display = "main.tpl";
-    //$myBoard = new Board($db, 1, $authUser->getUserID());
-    //$myBoard->getTopics(0,0, $authUser->getUserID());
     header("Location: ./showtopics.php");
 } else {
     include "403.php";

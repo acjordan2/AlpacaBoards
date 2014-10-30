@@ -3,7 +3,7 @@
 	<head>
 		<title>Reset Password</title>
 		<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-		<link rel="stylesheet" type="text/css" href="./templates/default/css/login.css" />
+		<link rel="stylesheet" type="text/css" href="./css.php" />
 	</head>
 	<body onload="document.getElementsByTagName('input')[0].focus();">
 		<div class="login">

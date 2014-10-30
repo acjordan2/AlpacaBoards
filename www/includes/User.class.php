@@ -138,7 +138,7 @@ class User
      */
     private $_permissions;
 
-    public function __construct($site, $user_id = null)
+    public function __construct(Site $site, $user_id = null)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_site = $site;
@@ -401,16 +401,20 @@ class User
             $newPassword = $oldPassword;
         }
 
-        $sql_checkPassword = "SELECT password FROM Users WHERE username = ".$this->_username;
+        $sql_checkPassword = "SELECT password FROM Users WHERE username = :username";
         $statement_checkPassword = $this->_pdo_conn->prepare($sql_checkPassword);
+        $statement_checkPassword->bindParam("username", $this->_username);
+        $statement_checkPassword->execute();
         $row = $statement_checkPassword->fetch();
 
         if (password_verify($oldPassword, $row['password']) || $reset == true) {
             // Old password matches
             $hash = password_hash($newPassword, $this->_hash_algo, $this->_hash_options);
             $sql_updatePassword = "UPDATE Users SET password = '$hash'
-                WHERE username = ".$this->_username;
-            $this->pdo_conn->query($sql_updatePassword);
+                WHERE username = :username";
+            $statement_updatePassword = $this->_pdo_conn->prepare($sql_updatePassword);
+            $statement_updatePassword->bindParam("username", $this->_username);
+            $statement_updatePassword->execute();
             return true;
         } else {
             // Old password does not match

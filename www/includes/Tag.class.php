@@ -177,7 +177,7 @@ class Tag
     public function getContent($filter, $type)
     {
         preg_match_all("/\[.*?\]/", $filter, $matches);
-        if (count($matches[0]) != 0) {
+        if (count($matches[0]) != 0 || true) {
             $sql_getTagID = "SELECT TopicalTags.tag_id FROM TopicalTags WHERE (";
 
             $tag_id_data = array();

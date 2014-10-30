@@ -65,7 +65,7 @@ if ($auth === false) {
                     please click on the following link:<br />
                     <br />https://sper.gs/passwordReset.php?token=".$reset_token."
                     <br /><br />This link can only be used once and  will expire 
-                    in 3 days.";
+                    in 3 hours.";
             $mail->Send();
         }
         // Message shown to the user
@@ -77,9 +77,9 @@ if ($auth === false) {
         // If token is provided, validate
         // token and reset password.
         $reset_token = $_GET['token'];
-        // Tokens expire after 3 days of being generated
+        // Tokens expire after 3 hours of being generated
         $sql3 = "SELECT user_id FROM PasswordResetRequests 
-            WHERE token=? AND used=0 AND created >= ".(time()-60*60*24*3);
+            WHERE token=? AND used=0 AND created >= ".(time()-60*60*3);
         $statement3 = $db->prepare($sql3);
         $statement3->execute(array($reset_token));
         if ($statement3->rowCount() == 1) {
@@ -93,10 +93,10 @@ if ($auth === false) {
                     $message = "Password must be at least 8 characters";
                 } elseif (strcmp($new, $new2) === 0) {
                     $results2 = $statement3->fetch();
-                    $user = new User($results2['user_id']);
+                    $user = new User($site, $results2['user_id']);
                     // Invalidate token after being used to
                     // prevent replay attacks
-                    if ($user->changePassword(null, $new, true)) {
+                    if ($user->updatePassword(null, $new, true)) {
                         $sql4 = "UPDATE PasswordResetRequests 
                             SET used=1 WHERE token=?";
                         $statement4 = $db->prepare($sql4);
