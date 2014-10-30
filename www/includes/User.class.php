@@ -138,7 +138,7 @@ class User
      */
     private $_permissions;
 
-    public function __construct(Site $site, $user_id = null)
+    public function __construct($site, $user_id = null)
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_site = $site;
