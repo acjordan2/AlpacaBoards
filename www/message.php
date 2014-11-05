@@ -84,12 +84,12 @@ if ($auth === true) {
 
                 if (isset($_GET['output'])) {
                     if ($_GET['output'] == "json") {
-                        $signature = explode("---", $message_content);
+                        $signature = explode("---", $message->getMessage());
                         $content = array(
                             "id" => $message_id,
-                            "topic" => $topic_id,
+                            "topic" => $parent_id,
                             "r" => $message->getRevisionID(),
-                            "message" => $signature[0],
+                            "message" => str_replace("\r\n", "", $signature[0]),
                             "signature" => @$signature[1]
                         );
                         header("Content-Type: application/json");

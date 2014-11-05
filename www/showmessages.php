@@ -45,7 +45,7 @@ if ($auth == true) {
         $topic_id = $_GET['topic'];
         // Verify topic
         try {
-            $csrf->setPageSalt($topic_id);
+            $csrf->setPageSalt("postmsgtopic".$topic_id);
             $parser = new Parser();
             $topic = new Topic($authUser, $parser);
             $topic->loadTopic($topic_id);

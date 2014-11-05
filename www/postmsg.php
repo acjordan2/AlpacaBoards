@@ -35,10 +35,10 @@ if ($auth === true) {
 
 	$salt_string = "postmsg";
     if (isset($_REQUEST['topic'])) {
-        $salt_string .= $_REQUEST['topic'];
+        $salt_string .= "topic".$_REQUEST['topic'];
 	}
 	elseif (isset($_REQUEST['link'])) {
-		$salt_string .= $_REQUEST['link'];
+		$salt_string .= "link".$_REQUEST['link'];
     } 
     $csrf->setPageSalt($salt_string);
 
