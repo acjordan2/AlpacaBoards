@@ -89,7 +89,7 @@ if ($auth === true) {
                             "id" => $message_id,
                             "topic" => $parent_id,
                             "r" => $message->getRevisionID(),
-                            "message" => str_replace("\r\n", "", $signature[0]),
+                            "message" => trim($signature[0]),
                             "signature" => @$signature[1]
                         );
                         header("Content-Type: application/json");
