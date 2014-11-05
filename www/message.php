@@ -130,6 +130,8 @@ if ($auth === true) {
             print $e->getMessage();
             include "404.php";
         }
+    } else {
+        include "404.php";
     } 
 } else {
     include "403.php";
