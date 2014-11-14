@@ -40,7 +40,7 @@
 	</div>{if $mod_message_delete && $message_deleted == 0}
     <br />
     <br />
-    <form method="post" action="./message.php?id={$message_id}&amp;topic={$parent_id}&amp;r={$revision_no}">
+    <form method="post" action="./message.php?id={$message_id}&amp;{if $type == 2}link={else}topic={/if}{$parent_id}&amp;r={$revision_no}">
         <input type="hidden" name="token" value="{$token}" /><b>Moderation Options:</b><br />
         <select name="action">
             <option value="1">Delete</option>
