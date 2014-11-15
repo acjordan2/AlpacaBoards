@@ -65,7 +65,7 @@ if ($auth === true) {
                         && $message->getState() == 0) {
                         // Deleted by a user
                         $message->delete($action);
-                    } elseif ($action == 2
+                    } elseif ($action == 1
                         && $mod_message_delete == 1
                         && $message->getState() == 0) {
                         // Deleted by a moderator
