@@ -69,7 +69,7 @@ if ($auth === true) {
                         && $mod_message_delete == 1
                         && $message->getState() == 0) {
                         // Deleted by a moderator
-                        $message->delete($action, $authUser->getUserId(), $_POST['reason']);
+                        $message->delete(2, $authUser->getUserId(), $_POST['reason']);
                     }
                 }
 
