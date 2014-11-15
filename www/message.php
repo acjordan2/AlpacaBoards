@@ -33,9 +33,11 @@ if ($auth === true) {
         if (isset($_GET['topic'])) {
             $parent_id = intval($_GET['topic']);
             $type = 1;
+            $string = "topic";
         } elseif (isset($_GET['link'])) {
             $parent_id = intval($_GET['link']);
             $type = 2;
+            $string = "link";
         }
 
         if (isset($_GET['r'])) {
@@ -65,11 +67,15 @@ if ($auth === true) {
                         && $message->getState() == 0) {
                         // Deleted by a user
                         $message->delete($action);
+                        header("Location: ./message.php?id=".$message_id."&".$string."=".$parent_id."&r=".$revision_no);
+                        exit();
                     } elseif ($action == 1
                         && $mod_message_delete == 1
                         && $message->getState() == 0) {
                         // Deleted by a moderator
                         $message->delete(2, $authUser->getUserId(), $_POST['reason']);
+                        header("Location: ./message.php?id=".$message_id."&".$string."=".$parent_id."&r=".$revision_no);
+                        exit();
                     }
                 }
 
