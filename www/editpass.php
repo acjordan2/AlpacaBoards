@@ -78,7 +78,7 @@ if ($auth == true) {
         if (strlen($old) == 0) {
             $error = 4;
         } elseif ($error == 0) {
-            if (!$authUser->changePassword($_POST['old'], $new)) {
+            if (!$authUser->updatePassword($_POST['old'], $new)) {
                 $error = 4;
             }
         }
