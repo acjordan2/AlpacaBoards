@@ -1,8 +1,8 @@
 <?php
 /*
- * userlist.php
+ * editpass.php
  * 
- * Copyright (c) 2012 Andrew Jordan
+ * Copyright (c) 2015 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
