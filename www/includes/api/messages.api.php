@@ -34,7 +34,8 @@ switch($action) {
             "action",
             "parent_id",
             "data_type",
-            "message"
+            "message",
+            "token"
         );
         foreach ($request[$class] as $key => $value) {
             if (!in_array($key, $required_fields)) {
@@ -47,11 +48,15 @@ switch($action) {
         if (count($required_fields) > 0) {
             $output = array("error" => "invalid JSON object");
         } else {
-            include "includes/Topic.class.php";
-            include "includes/Parser.class.php";
-            $parser = new Parser();
-            $topic = new Topic($authUser, $parser, $request[$class]['parent_id']);
-            $topic->postMessage($request[$class]['message']);
+            $csrf->setPageSalt("postMessageTopic".$request[$class]['parent_id']);
+        if ($csrf->validateToken($request[$class]['token'])) {
+                include "includes/Topic.class.php";
+                include "includes/Parser.class.php";
+                $parser = new Parser();
+                $topic = new Topic($authUser, $parser, $request[$class]['parent_id']);
+                $topic->postMessage($request[$class]['message']);
+                $output = array("success");
+            }
         }
         break;
     default:
