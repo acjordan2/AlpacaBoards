@@ -194,7 +194,7 @@ Class Message
                 (user_id, mod_id, message_id, action_taken, description, date)
                 VALUES (".$this->_user_id.", $moderator_id, ".$this->_message_id.", 
                 'Message Deleted', :description, ".time().")";
-            $statement_modDelete = $this->_pdo_conn->perpare($sql_modDelete);
+            $statement_modDelete = $this->_pdo_conn->prepare($sql_modDelete);
             $statement_modDelete->bindParam("description", $reason);
             $statement_modDelete->closeCursor();
             $this->_message = $this->_site->getMessage("message_deleted_moderator");
