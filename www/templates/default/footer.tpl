@@ -7,4 +7,4 @@
     <script type="text/javascript" src="templates/default/js/jquery.lazyload.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="templates/default/js/select2.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="templates/default/js/json2.js" charset="utf-8"></script>
-    <script type="text/javascript" src="templates/default/js/jquery.base.js?3" charset="utf-8"></script>
+    <script type="text/javascript" src="templates/default/js/jquery.base.js?4" charset="utf-8"></script>
