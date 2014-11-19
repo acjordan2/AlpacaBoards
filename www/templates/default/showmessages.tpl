@@ -130,11 +130,13 @@
         <tr>
             <td>
 	   <form method="POST" action="./postmsg.php" name="quickposts" id="quickposts">
-		<input type="hidden" name="topic" value="{$topic_id}" />
-		<input type="hidden" name="token" value="{$token}" />
+        <input type="hidden" name="action" value="postMessage" />
+		<input type="hidden" name="parent_id" value="{$topic_id}" />
+        <input type="hidden" name="data_type" value="1" />
 		<b>Your Message:</b><br />
 		<textarea id="qpmessage" name="message">{$p_signature}</textarea>
 		<br />
+		<input type="hidden" name="token" value="{$token}" />
 		<input type="submit" value="Post Message" name="submit"/>
         <input type="button" id="btn_upload" value="Upload Image" />
 	   </form>

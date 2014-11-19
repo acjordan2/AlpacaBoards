@@ -26,6 +26,23 @@ insertAtCaret: function(myValue){
 }
 });
 
+$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+
 $(function() {
 		//Lazy Load Images
 		$("img").lazyload();
@@ -45,6 +62,21 @@ $(function() {
 		//AJAX for linkme.tpl
 		ajaxPost("#link_vote", "v");
 		ajaxPost("#link_fav", "f");
+
+        $("form").submit(function(e){
+            var payload = "{\"messages\":" + JSON.stringify($('form').serializeObject()) + "}";
+            
+            $.ajax({
+                type: "POST",
+                url: "./api.php",
+                data: payload,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function() { quickpost(); }
+            });
+
+            return false;
+        });
 
     MultiAjaxAutoComplete('#tags', './ajax.php?action=link_tags');
 
@@ -202,6 +234,8 @@ function checkParentTag(data) {
         dataType: "json"
     });
 }
+
+
 
 function playSound( url ){   
   document.getElementById("sound").innerHTML="<embed src='"+url+"' hidden=true autostart=true loop=false>";
