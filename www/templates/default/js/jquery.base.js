@@ -63,7 +63,7 @@ $(function() {
 		ajaxPost("#link_vote", "v");
 		ajaxPost("#link_fav", "f");
 
-        $("form").submit(function(e){
+        $("#quickpost").submit(function(e){
             var payload = "{\"messages\":" + JSON.stringify($('form').serializeObject()) + "}";
             
             $.ajax({

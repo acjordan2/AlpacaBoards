@@ -160,6 +160,15 @@ class Site {
         $this->_root_path = $root_path;
     }
 
+    public function getReaders()
+    {
+        $sql = "SELECT COUNT(user_id) FROM Users WHERE
+            last_active > ".(time() - (60*15));
+        $statement = $this->_pdo_conn->query($sql);
+        $row = $statement->fetch();
+        return $row[0];
+    }
+
     public function getMessage($id)
     {
         return "Message deleted";

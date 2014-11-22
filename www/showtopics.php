@@ -25,7 +25,6 @@
  */
 
 require "includes/init.php";
-require "includes/Board.class.php";
 require "includes/Tag.class.php";
 require "includes/Parser.class.php";
 require "includes/Topic.class.php";
@@ -44,11 +43,6 @@ function in_array_r($needle, $haystack, $strict = false)
 
 // Check authentication
 if ($auth === true) {
-    if (!is_int(@$_GET['board'])) {
-        $board_id = 42;
-    } else {
-        $board_id = $_GET['board'];
-    }
     if (!is_numeric(@$_GET['page'])
         || @$_GET['page'] == null
     ) {
@@ -57,9 +51,7 @@ if ($auth === true) {
         $current_page = intval($_GET['page']);
     }
     // Default board 42
-    $board = new Board($db, 42, $authUser->getUserID());
     $tags = new Tag($authUser->getUserID());
-    $topic_list = $board->getTopics($current_page);
     if (isset($_GET['tags'])) {
         $topic_list = $tags->getContent($_GET['tags'], 1);
         $title = $_GET['tags'];
@@ -70,10 +62,9 @@ if ($auth === true) {
         $topic_list = $topic->getTopics();
     }
     if ($current_page == 1) {
-        $sticky_list = $board->getStickiedTopics();
+        // Code for pinned topics
     }
     $display = "showtopics.tpl";
-    $page_title = $board->getTitle();
     //if (count($topic_list) == 0) {
     //    include "404.php";
     //} else {
@@ -82,13 +73,13 @@ if ($auth === true) {
             $smarty->assign("stickyList", $sticky_list);
         }
         $search = array('[', ']', "_");
+        $page_title = htmlentities(str_replace($search, " ", $title));
         // Set template variables
         $smarty->assign("username", $authUser->getUsername());
-        $smarty->assign("board_id", $board_id);
-        $smarty->assign("board_title", htmlentities(str_replace($search, " ", $title)));
-        $smarty->assign("page_count", $board->getPageCount());
+        $smarty->assign("board_title", $page_title);
+        $smarty->assign("page_count", 1);
         $smarty->assign("current_page", $current_page);
-        $smarty->assign("num_readers", $board->getReaders());
+        $smarty->assign("num_readers", $site->getReaders());
     //}
 } else {
     include "404.php";
