@@ -229,6 +229,7 @@ class Parser
             if (!preg_match($msgid_pattern, $msgid)) {
                 $node->removeAttributeNode($node->attributes->item(0));
             } else {
+                $tags = array();
                 $pattern = "/[,@]/";
                 $msgid_array = preg_split($pattern, $msgid);
                 // Check if the quote is from a link or a topic
@@ -237,6 +238,15 @@ class Parser
                         Messages.posted, Messages.deleted FROM Messages LEFT JOIN 
                         Users Using(user_id) WHERE Messages.topic_id=? 
                         AND Messages.message_id=? AND Messages.revision_no = 0";
+                
+                    $sql_checkAnon = "SELECT TopicalTags.title  FROM Tagged 
+                        LEFT JOIN TopicalTags USING(tag_id)    
+                        WHERE data_id = :topic_id
+                        AND Tagged.type = 1 AND TopicalTags.title = 'Anonymous'";
+                    $statement_checkAnon = $this->pdo_conn->prepare($sql_checkAnon);
+                    $statement_checkAnon->bindParam("topic_id", $msgid_array[1]);
+                    $statement_checkAnon->execute();
+                    $tags = $statement_checkAnon->fetch();
                 } elseif ($msgid_array[0] == "l") { // Link
                     $sql_quote = "SELECT Users.username, Users.user_id, 
                         LinkMessages.posted FROM LinkMessages LEFT JOIN 
@@ -250,6 +260,20 @@ class Parser
                 $statement = $this->pdo_conn->prepare($sql_quote);
                 $statement->execute(array($msgid_array[1], $msgid_array[2]));
                 $results = $statement->fetch();
+
+
+                if (count($tags) > 0) {
+                    $sql_getPosterCount = "SELECT DISTINCT(user_id)
+                        FROM Messages WHERE topic_id = :topic
+                        ORDER BY message_id";
+                    $statement_getPosterCount = $this->pdo_conn->prepare($sql_getPosterCount);
+                    $statement_getPosterCount->bindParam("topic", $msgid_array[1]);
+                    $statement_getPosterCount->execute();
+                    $results_anon = $statement_getPosterCount->fetchAll(PDO::FETCH_COLUMN, 0);
+                    $human = array_search($results['user_id'], $results_anon)+1;
+                    $results['username'] = "Human #".$human;
+                    $results['user_id'] = $human * -1;
+                }
 
                 // Quote header showing post information
                 $quote_header = $this->doc->createElement("div", "From: ");

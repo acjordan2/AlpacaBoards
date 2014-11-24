@@ -88,6 +88,8 @@ Class Message
      */
     private $_state;
 
+    private $_anonymous;
+
     /**
      * Create a new Message Object
      * 
@@ -104,6 +106,8 @@ Class Message
         if ($type == 1) {
             $this->_table = "Topics";
             $this->_column = "topic_id";
+
+
         } elseif ($type == 2) {
             $this->_table = "Links";
             $this->_column = "link_id";
@@ -159,6 +163,25 @@ Class Message
             $this->_posted = $results['posted'];
             $this->_parent_id = $results[$this->_column];
             $this->_revision_no = $results['revision_no'];
+
+            $sql_checkAnon = "SELECT TopicalTags.title  FROM Tagged 
+                LEFT JOIN TopicalTags USING(tag_id)    
+                WHERE data_id = ".$this->_parent_id."
+                AND Tagged.type = 1 AND TopicalTags.title = 'Anonymous'";
+                $statement_checkAnon = $this->_pdo_conn->query($sql_checkAnon);
+                if (count($statement_checkAnon->fetchAll()) > 0) {
+                    $this->_anonymous = true;
+                }
+            if ($this->_anonymous == true) {
+                $sql_getUsers = "SELECT DISTINCT(user_id)
+                    FROM Messages WHERE topic_id = ".$this->_parent_id."
+                    ORDER BY message_id";
+                $statement_getUsers = $this->_pdo_conn->query($sql_getUsers);
+                $results_getUsers = $statement_getUsers->fetchAll(PDO::FETCH_COLUMN, 0);
+                $human = array_search($this->_user_id, $results_getUsers) +1;
+                $this->_username = "Human #".$human;
+                $this->_user_id = $human * -1;
+            }
 
             // Replace message text if the message has been deleted
             if ($this->_state == 0) {

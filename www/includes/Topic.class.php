@@ -308,6 +308,8 @@ class Topic
                 $human = array_search($key['user_id'], $results_getUsers)+1;
                 $key['username'] = "Human #".$human;
                 $key['user_id'] = $human * -1;
+                $key['sha1_sum'] = null;
+                $key['filename'] = null;
             }
         }
         if (count($results) > 0) {

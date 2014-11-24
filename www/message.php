@@ -111,9 +111,13 @@ if ($auth === true) {
                         "title",
                         htmlentities($message->getTitle())
                     );
-
-                    $message_user = new User($site, $message->getUserId());
-
+                    
+                    if ($message->getUserId() > 0){
+                        $message_user = new User($site, $message->getUserId());
+                        $avatar = $message_user->getAvatar();
+                    } else {
+                        $avatar = null;
+                    }
                     $smarty->assign("parent_id", $parent_id);
                     $smarty->assign("message", $message_content);
                     $smarty->assign("revision_no", $message->getRevisionId());
@@ -122,7 +126,7 @@ if ($auth === true) {
                     $smarty->assign("m_username", $username);
                     $smarty->assign("token", $csrf->getToken());
                     $smarty->assign("message_deleted", $message->getState());
-                    $smarty->assign("m_avatar", $message_user->getAvatar());
+                    $smarty->assign("m_avatar", $avatar);
                     $smarty->assign("mod_message_delete", $mod_message_delete);
 
                     $display = "message.tpl";
