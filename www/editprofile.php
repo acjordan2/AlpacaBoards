@@ -32,25 +32,27 @@ require "includes/PHPThumbnailer/ThumbLib.inc.php";
 // Check authentication
 if ($auth == true) {
     $avatar = "";
+
+    $csrf->setPageSalt("editprofile".$authUser->getUserId());
     if (isset($_POST['go'])) {
-        $csrf->setPageSalt("editprofile".$authUser->getUserId());
+
         // Update profile information
         $public_email = $_POST['email'];
         $private_email = $_POST['pemail'];
         $im = $_POST['im'];
         $sig = $_POST['sig'];
         $quote_r = $_POST['quote'];
-            
+        
         // Validate anti-CSRF token
-        if ($csrf->validateToken(@$_REQUEST['token'])) {
-            if ($authUser->validateEmail($public_email)) {
+        if ($csrf->validateToken($_POST['token'])) {
+           if (filter_var($public_email, FILTER_VALIDATE_EMAIL)) {
                 $authUser->setEmail($public_email);
             } else {
                 $error[0] = "Email address not valid";
             }
             if (is_null($private_email)) {
                 $error[1] = "Private email cannot be left blank";
-            } elseif ($authUser->validateEmail($private_email)) {
+            } elseif (filter_var($private_email, FILTER_VALIDATE_EMAIL)) {
                 $authUser->setPrivateEmail($private_email);
             } else {
                 $error[1] = "Private email address is not valid";
@@ -65,7 +67,10 @@ if ($auth == true) {
                     $authUser->setAvatar($avatar['uploadlog_id']);
                 }
             }
-        }
+            header("Location: ./editprofile.php?m=1");
+            exit();
+        } 
+        
     }
 
     // Get avatar information
@@ -88,7 +93,7 @@ if ($auth == true) {
         "instant_messaging", 
         htmlentities($authUser->getInstantMessaging())
     );
-    $smarty->assign("signature", htmlentities($authUser->getSignature()));
+    $smarty->assign("signature", htmlentities(substr($authUser->getSignature(), 4)));
     $smarty->assign("quote", htmlentities($authUser->getQuote()));
     $smarty->assign("token", $csrf->getToken());
 

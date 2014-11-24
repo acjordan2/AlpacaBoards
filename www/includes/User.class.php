@@ -587,6 +587,7 @@ class User
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->bindParam(":email", $email);
         $statement->execute();
+        $this->__email = $email;
     }
 
     /**

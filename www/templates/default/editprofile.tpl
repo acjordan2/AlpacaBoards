@@ -30,7 +30,7 @@
 			<td>
 				{if isset($avatar)}<img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/n/{$avatar}" width="{$avatar_width}" height="{$avatar_height}" />{/if}
 				<br/>
-				<input name="picture" type="file" /> | <input type="submit" name="delete_picture" value="Delete Picture">
+				<input name="picture" type="file" /><!-- | <input type="submit" name="delete_picture" value="Delete Picture">-->
 			</td>
 		<tr>
 			<td colspan="2"><input type="submit" name="go" value="Make Changes"></td>
