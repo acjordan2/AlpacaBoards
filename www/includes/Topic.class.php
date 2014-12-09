@@ -423,6 +423,23 @@ class Topic
         }
     }
 
+    public function isAnonymous()
+    {
+        $sql = "SELECT TopicalTags.title  FROM Tagged 
+            LEFT JOIN TopicalTags USING(tag_id)
+            WHERE Tagged.data_id = :topic_id
+            AND Tagged.type = 1 AND TopicalTags.title = 'Anonymous'";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("topic_id", $this->_topic_id);
+        $statement->execute();
+        $results = $statement->fetch();
+        if ($results != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Poll database for new message, keep connection open for 60 seconds
      * or until a new message is posted, which ever comes first
@@ -432,7 +449,7 @@ class Topic
     {
         $message = null;
         for ($i=0; count($message) == 0 && $i < 60; $i++) {
-            $message = $this->getMessages(1, "newMessages:".$this->_user_id);
+            $message = $this->getMessages(1, "newMessages:".$this->_user_id, $this->isAnonymous());
             if (count($message) == 0) {
                 // No new messages found, sleep for 1 second and check again
                 sleep(1);
