@@ -104,21 +104,30 @@
 	{include file="footer.tpl"}
     <script type="text/javascript" src="templates/default/js/jquery.playSound.js" charset="utf-8"></script>
     <script type="text/javascript">
+        var topic_id = {$topic_id};
+        var base_url = "{$base_url}";
+        {literal}
         (function poll(){
-            $.ajax({ url: 
-                    "./ajax.php?action=topic_subscribe&topic_id={$topic_id}", 
-                    success: function(data){
-                        $("#u0_1").append(data);
-                        if(data.length != 0) {
-                            $("img").lazyload();
-                             $.playSound("{$base_url}/templates/default/res/bip");
-                        }
-                    }, 
-                dataType: "json", 
+            var payload = "{\"topics\":{\"action\":\"pollMessage\",\"topic_id\":"+topic_id+"}}";
+            $.ajax({
+                type: "POST",
+                url: "./api.php",
+                data: payload,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data){
+                    $("#u0_1").append(data.message);
+                    if(data.length != 0) {
+                        $("img").lazyload();
+                        $.playSound(base_url + "/templates/default/res/bip");
+                    }
+                },
                 complete: poll,
                 timeout: 6000000 
+                
             });
         })();
+        {/literal}
     </script>
 	<a id="qptoggle" href="#">
 		<span id="open">+</span>

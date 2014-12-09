@@ -27,6 +27,8 @@
 require "includes/init.php";
 
 if ($auth === true) {
+    header("Content-Type: application/json");
+
     $api_folder = "includes/api/";
     $allowed_includes = preg_grep('/^([^.])/', scandir($api_folder));
 
