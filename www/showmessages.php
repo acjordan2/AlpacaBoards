@@ -133,7 +133,8 @@ if ($auth == true) {
             $page_title = $topic->getTopicTitle();
             include "includes/deinit.php";
         } catch (Exception $e) {
-            include "404.php";
+          print $e->getMessage();  
+          include "404.php";
         }
     } else {
         include "404.php";

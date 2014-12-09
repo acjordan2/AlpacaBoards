@@ -240,9 +240,10 @@ class Parser
                         AND Messages.message_id=? AND Messages.revision_no = 0";
                 
                     $sql_checkAnon = "SELECT TopicalTags.title  FROM Tagged 
-                        LEFT JOIN TopicalTags USING(tag_id)    
-                        WHERE data_id = :topic_id
+                        LEFT JOIN TopicalTags USING(tag_id)
+                        WHERE Tagged.data_id = :topic_id
                         AND Tagged.type = 1 AND TopicalTags.title = 'Anonymous'";
+                    
                     $statement_checkAnon = $this->pdo_conn->prepare($sql_checkAnon);
                     $statement_checkAnon->bindParam("topic_id", $msgid_array[1]);
                     $statement_checkAnon->execute();
@@ -260,9 +261,7 @@ class Parser
                 $statement = $this->pdo_conn->prepare($sql_quote);
                 $statement->execute(array($msgid_array[1], $msgid_array[2]));
                 $results = $statement->fetch();
-
-
-                if (count($tags) > 0) {
+                if (count($tags) > 0 && $tags != null) {
                     $sql_getPosterCount = "SELECT DISTINCT(user_id)
                         FROM Messages WHERE topic_id = :topic
                         ORDER BY message_id";
