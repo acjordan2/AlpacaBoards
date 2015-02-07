@@ -1117,7 +1117,4 @@ class User
     {
         return $this->_permissions['title_color'];
     }
-
-
-
 }
