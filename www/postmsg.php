@@ -55,7 +55,9 @@ if ($auth === true) {
         $query_string .= "topic=".$topic_id;
         try {
             $topic = new Topic($authUser, $parser, $topic_id);
-
+            if ($topic->hasTag("Archived")) {
+                include "403.php";
+            }
             // Add a quote to the message post
             if (isset($_GET['quote']) && is_numeric($_GET['quote'])) {
                 try {

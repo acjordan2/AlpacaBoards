@@ -278,7 +278,7 @@ class Topic
         $results = $statement->fetchAll();
         $statement->closeCursor();
         
-        if ($this->isTaggedWith("Anonymous") === true) {
+        if ($this->hasTag("Anonymous") === true) {
             $sql_getUsers = "SELECT DISTINCT(user_id)
                 FROM Messages WHERE topic_id = ".$this->_topic_id."
                 ORDER BY message_id";
@@ -372,7 +372,7 @@ class Topic
      */
     public function postMessage($message, $message_id = null)
     {
-        if ($this->isTaggedWith('Archived') === false) {
+        if ($this->hasTag("Archived") === false) {
             // Message ID was not provided, post a new message
             if (is_null($message_id)) {
                 $sql = "INSERT INTO Messages ( user_id, topic_id, message, posted)
@@ -430,6 +430,9 @@ class Topic
 
     /**
      * Check if a topic is tagged with Anonymous
+     *
+     * @return boolean True if topic is anonymous
+     * @deprecated use isTaggedWith() instead
     */
     public function isAnonymous()
     {
@@ -448,7 +451,12 @@ class Topic
         }
     }
 
-    public function isTaggedWith($tag)
+    /**
+     * Check if a topic has been tagged with a specified tag
+     * @param $tag Tag to check
+     * @return boolean True if toppic has tag
+    */
+    public function hasTag($tag)
     {
         $sql = "SELECT TopicalTags.title  FROM Tagged 
             LEFT JOIN TopicalTags USING(tag_id)

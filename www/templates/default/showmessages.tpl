@@ -21,15 +21,16 @@
 		</span>
 		<!--<a href="./boardlist.php">Board List</a> | -->
       	<a href="./showtopics.php">Topic List</a> | 
-		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}">Post New Message</a>
+		{if $archived == false}
+        <a href="./postmsg.php?topic={$topic_id}">Post New Message</a>
 		<!--| <a href="//boards.endoftheinter.net/showmessages.php?topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
 		{if $action != NULL} 
 			| <a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
 				{$action[0].name}
 			</a>
-		{/if}
-        {if $user_id == $topic_creator}| <a href="./edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
+		{/if}{/if}
+        {if $user_id == $topic_creator}{if $archived == false}|{/if} <a href="./edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
 	</div>
 {literal}
 	<script type="text/javascript">
@@ -101,7 +102,7 @@
 	</div>
 	<br />
 	<br />
-	{include file="footer.tpl"}
+	{include file="footer.tpl"}{if $archived == false}
     <script type="text/javascript" src="templates/default/js/jquery.playSound.js" charset="utf-8"></script>
     <script type="text/javascript">
         var topic_id = {$topic_id};
@@ -153,7 +154,8 @@
         <td>
             <div id="uploadFrame" style="display:none;"><iframe id="upload" src= "" width="700" height="200px" frameBorder="0"></iframe></div>
         </td>
-    </div>
+        </table>
+    </div>{/if}
 </div>
 </body>
 </html>
