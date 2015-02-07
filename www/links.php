@@ -108,7 +108,8 @@ if ($auth === true) {
         }
     } else {
         if (isset($_GET['tags'])) {
-            $link_list = $links->getLinkListByTag($_GET['tags']);
+            //$link_list = $links->getLinkListByTag($_GET['tags']);
+            $link_list = $tag->getContent($_GET['tags'], 2);
         } else {
             $link_list = $links->getLinks(1);
         }
