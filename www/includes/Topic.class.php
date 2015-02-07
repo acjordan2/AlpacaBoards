@@ -278,7 +278,7 @@ class Topic
         $results = $statement->fetchAll();
         $statement->closeCursor();
         
-        if ($anonymous == true) {
+        if ($this->isTaggedWith("Anonymous") === true) {
             $sql_getUsers = "SELECT DISTINCT(user_id)
                 FROM Messages WHERE topic_id = ".$this->_topic_id."
                 ORDER BY message_id";
@@ -372,57 +372,65 @@ class Topic
      */
     public function postMessage($message, $message_id = null)
     {
-        // Message ID was not provided, post a new message
-        if (is_null($message_id)) {
-            $sql = "INSERT INTO Messages ( user_id, topic_id, message, posted)
-                VALUES (:user_id, :topic_id, :message, ".time().")";
-            $data = array(
-                "user_id" => $this->_user_id,
-                "topic_id" => $this->_topic_id,
-                "message" => $message
-            );
-            $statement = $this->_pdo_conn->prepare($sql);
-            if ($statement->execute($data)) {
-                $this->_parser->map($message, $this->_user_id, $this->_topic_id);
-                $statement->closeCursor();
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            // Message ID was provided, edit exiting message
-            $sql = "SELECT MAX(revision_no) as revision_no FROM Messages
-                WHERE Messages.message_id = :message_id AND Messages.user_id = :user_id";
-            $data = array(
-                "message_id" => $message_id,
-                "user_id" => $this->_user_id
-            );
-            $statement = $this->_pdo_conn->prepare($sql);
-            $statement->execute($data);
-            $row = $statement->fetch();
-            $statement->closeCursor();
-            if ($statement->rowCount() == 1) {
-                // Provided message ID exists
-                $revision_number = $row[0] + 1;
-                $sql2 = "INSERT INTO Messages (message_id, user_id, topic_id, message, 
-                    revision_no, posted) 
-                    VALUES(:message_id, :user_id, :topic_id, :message, 
-                    $revision_number, ".time().")";
-                $data2 = array(
-                    "message_id" => $message_id,
+        if ($this->isTaggedWith('Archived') === false) {
+            // Message ID was not provided, post a new message
+            if (is_null($message_id)) {
+                $sql = "INSERT INTO Messages ( user_id, topic_id, message, posted)
+                    VALUES (:user_id, :topic_id, :message, ".time().")";
+                $data = array(
                     "user_id" => $this->_user_id,
                     "topic_id" => $this->_topic_id,
                     "message" => $message
                 );
-                $statement2 = $this->_pdo_conn->prepare($sql2);
-                return $statement2->execute($data2);
+                $statement = $this->_pdo_conn->prepare($sql);
+                if ($statement->execute($data)) {
+                    $this->_parser->map($message, $this->_user_id, $this->_topic_id);
+                    $statement->closeCursor();
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                // Provided message ID does not exist
-                return false;
+                // Message ID was provided, edit exiting message
+                $sql = "SELECT MAX(revision_no) as revision_no FROM Messages
+                    WHERE Messages.message_id = :message_id AND Messages.user_id = :user_id";
+                $data = array(
+                    "message_id" => $message_id,
+                    "user_id" => $this->_user_id
+                );
+                $statement = $this->_pdo_conn->prepare($sql);
+                $statement->execute($data);
+                $row = $statement->fetch();
+                $statement->closeCursor();
+                if ($statement->rowCount() == 1) {
+                    // Provided message ID exists
+                    $revision_number = $row[0] + 1;
+                    $sql2 = "INSERT INTO Messages (message_id, user_id, topic_id, message, 
+                        revision_no, posted) 
+                        VALUES(:message_id, :user_id, :topic_id, :message, 
+                    $revision_number, ".time().")";
+                    $data2 = array(
+                        "message_id" => $message_id,
+                        "user_id" => $this->_user_id,
+                        "topic_id" => $this->_topic_id,
+                        "message" => $message
+                    );
+                    $statement2 = $this->_pdo_conn->prepare($sql2);
+                    return $statement2->execute($data2);
+                } else {
+                    // Provided message ID does not exist
+                    return false;
+                }
             }
+        } else {
+            // Topic is archived or locked
+            return false;
         }
     }
 
+    /**
+     * Check if a topic is tagged with Anonymous
+    */
     public function isAnonymous()
     {
         $sql = "SELECT TopicalTags.title  FROM Tagged 
@@ -438,6 +446,25 @@ class Topic
         } else {
             return false;
         }
+    }
+
+    public function isTaggedWith($tag)
+    {
+        $sql = "SELECT TopicalTags.title  FROM Tagged 
+            LEFT JOIN TopicalTags USING(tag_id)
+            WHERE Tagged.data_id = :topic_id
+            AND Tagged.type = 1 AND TopicalTags.title = :tag";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("topic_id", $this->_topic_id);
+        $statement->bindParam("tag", $tag);
+        $statement->execute();
+        $results = $statement->fetch();
+        if ($results != null) {
+            return true;
+        } else {
+            return false;
+        }
+           
     }
 
     /**
