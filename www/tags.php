@@ -31,7 +31,15 @@ if ($auth === true) {
     $tag = new Tag($authUser->getUserID());
     $mod_tag_edit = $authUser->checkPermissions("tag_edit");
     $mod_tag_create = $authUser->checkPermissions("tag_create");
+    
+    if (isset($_GET['tag'])) {
+        $salt = $_GET['tag'];
+    } else {
+        $salt = "createTag";
+    }
 
+    $csrf->setPageSalt($salt);
+    
     $smarty->assign("mod_tag_create", $mod_tag_create);
     $smarty->assign("token", $csrf->getToken());
     if (isset($_GET['tag']) && !is_null($_GET['tag'])) {

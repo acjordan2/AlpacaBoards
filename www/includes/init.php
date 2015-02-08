@@ -93,9 +93,16 @@ $smarty->assign("base_url", $base_url);
 $smarty->assign("base_image_url", BASE_IMAGE_URL);
 $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
+if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
+    $session_salt = $_COOKIE[AUTH_KEY1].$_COOKIE[AUTH_KEY2];
+} else {
+    $session_salt = null;
+}
+
 $options = array(
     "domain" => $site->getDomain(),
-    "ssl" => USE_SSL
+    "ssl" => USE_SSL,
+    "session_salt" => $session_salt
 );
 $csrf = new CSRFGuard($site->getSiteKey(), $options);
 
