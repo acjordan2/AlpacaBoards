@@ -26,7 +26,7 @@
 		<!--| <a href="//boards.endoftheinter.net/showmessages.php?topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
 		{if $action != NULL} 
-			| <a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
+			| <a href="./showmessages.php?topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
 				{$action[0].name}
 			</a>
 		{/if}{/if}
@@ -54,9 +54,9 @@
      		<b>From:</b> <a href="./profile.php?user={$table.user_id}">{$table.username}</a> | 
     		<b>Posted:</b> {$table.posted|date_format:$dateformat} | 
     		{if isset($filter)}
-    			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}">Unfilter</a>
+    			<a href="./showmessages.php?topic={$topic_id}">Unfilter</a>
     		{else}
-    			<a href="./showmessages.php?board={$board_id}&amp;topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
+    			<a href="./showmessages.php?topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
     		{/if}
     		| <a href="./message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail
     		{if $table.deleted == 0}{if $table.revision_id > 1} 
@@ -65,7 +65,7 @@
     			({$table.revision_id} edit)
     		{/if}{/if}
     		</a> |
-    		<a href="./postmsg.php?board={$board_id}&amp;topic={$topic_id}&amp;quote={$table.message_id}" 
+    		<a href="./postmsg.php?topic={$topic_id}&amp;quote={$table.message_id}" 
     			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
     	</div>
     	<table class="message-body">
