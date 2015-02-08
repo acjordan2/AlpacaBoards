@@ -50,16 +50,17 @@ if ($auth === true) {
     } else {
         $current_page = intval($_GET['page']);
     }
-    // Default board 42
+
     $tags = new Tag($authUser->getUserID());
     if (isset($_GET['tags'])) {
-        $topic_list = $tags->getContent($_GET['tags'], 1);
+        $topic_list = $tags->getContent($_GET['tags'], 1, $current_page);
         $title = $_GET['tags'];
     } else {
         $title = "Everything";
         $parser = new Parser();
         $topic = new Topic($authUser, $parser);
-        $topic_list = $topic->getTopics();
+        $topic_list = $topic->getTopics($current_page);
+        $page_count = $topic->getTopicPageCount();
     }
     if ($current_page == 1) {
         // Code for pinned topics
@@ -77,7 +78,7 @@ if ($auth === true) {
         // Set template variables
         $smarty->assign("username", $authUser->getUsername());
         $smarty->assign("board_title", $page_title);
-        $smarty->assign("page_count", 1);
+        $smarty->assign("page_count", $page_count);
         $smarty->assign("current_page", $current_page);
         $smarty->assign("num_readers", $site->getReaders());
     //}

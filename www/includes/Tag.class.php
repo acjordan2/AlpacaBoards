@@ -172,10 +172,15 @@ class Tag
      * Get content by tag
      * @param  string  $filter Tag filters in the format [tag1][tag2]
      * @param  integer $type   1 for topics, 2 for links
-     * @return array           Content that meats the tagging filters
+     * @return array           Content that meets the tagging filters
      */
-    public function getContent($filter, $type)
+    public function getContent($filter, $type, $page = 1)
     {
+        if(!is_int($page)) {
+            $page = 1;
+        }
+
+        $offset = ($page - 1) * $this->_results_per_page;
         preg_match_all("/\[.*?\]/", $filter, $matches);
         if (count($matches[0]) != 0 || true) {
             $sql_getTagID = "SELECT TopicalTags.tag_id FROM TopicalTags WHERE (";
@@ -246,7 +251,7 @@ class Tag
                         }
                     }
                     $sql_getContent .= ") AND Tagged.type = 1 AND Messages.revision_no = 0 GROUP BY topic_id 
-                        DESC LIMIT 50 OFFSET 0";
+                        DESC LIMIT $this->_results_per_page  OFFSET $offset";
 
                     $statement_getContent = $this->_pdo_conn->prepare($sql_getContent);
                     $statement_getContent->execute($data_getContent);

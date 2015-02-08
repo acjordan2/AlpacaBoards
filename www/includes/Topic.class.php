@@ -215,6 +215,15 @@ class Topic
         return $topic_data;
     }
 
+    public function getTopicPageCount()
+    {
+        $sql = "SELECT COUNT(topic_id) as count FROM Topics";
+        $statement = $this->_pdo_conn->query($sql);
+        $results = $statement->fetch();
+        $page_count = ceil($results['count']/50);
+        return $page_count;
+    }
+
 
     /**
      * Get topic messages
