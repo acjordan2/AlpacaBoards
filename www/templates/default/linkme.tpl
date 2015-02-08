@@ -9,7 +9,7 @@
             {$i = 0}
             {if $p_count > 0}
             <span style="font-size:12px;">
-                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.Title|replace:' ':'_'}]">{$parent.title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
+                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.title|replace:' ':'_'}]">{$parent.title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
             </span>{/if}{/foreach}
         </div>
     </h2>{/if}
@@ -25,7 +25,7 @@
 	<b>Rank:</b> <span id="rank">{$rank|string_format:"%.0f"}</span><br />
 	<b>Share:</b> <a href="./ss.php?l={$short_code}">{$domain}/ss.php?l={$short_code}</a><br /><br />
 	<b>Categories:</b> {foreach from=$tags key=header item=tag}{$tag.title}, {/foreach}
-	<form action="./linkme.php?l={$link_link_id}" method="POST" id="link_fav">
+	<form action="./linkme.php?l={$link_id}" method="POST" id="link_fav">
 		<b>Options:</b>
 		{if isset($link_favorite)}<button name="f" id="f" value="0">Remove from Favorites</button>
 		{else}<button name="f" id="f" value="1">Add to Favorites</button>{/if}
