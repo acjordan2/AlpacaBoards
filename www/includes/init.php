@@ -30,7 +30,7 @@ $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
 
 $root_path = get_root_path();
-$base_url = get_base_url($root_path);
+$base_url = urlencode(get_base_url($root_path));
 
 require_once("Config.ini.php");
 require_once("ConnectionFactory.class.php");
