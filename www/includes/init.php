@@ -65,7 +65,7 @@ $db = ConnectionFactory::getInstance()->getConnection();
 $site = new Site();
 $sitekey = base64_decode($site->getSiteKey());
 $sitename = htmlentities($site->getSiteName());
-$base_url = $site->getDomain();
+$base_url = "://".$site->getDomain();
 
 define("SITENAME", $sitename);
 define("BASEURL", $site->getDomain());
