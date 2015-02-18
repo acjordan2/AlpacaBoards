@@ -30,7 +30,7 @@ $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
 
 $root_path = get_root_path();
-$base_url = urlencode(get_base_url($root_path));
+//$base_url = urlencode(get_base_url($root_path));
 
 require_once("Config.ini.php");
 require_once("ConnectionFactory.class.php");
@@ -65,6 +65,7 @@ $db = ConnectionFactory::getInstance()->getConnection();
 $site = new Site();
 $sitekey = base64_decode($site->getSiteKey());
 $sitename = htmlentities($site->getSiteName());
+$base_url = $site->getDomain();
 
 define("SITENAME", $sitename);
 define("BASEURL", $site->getDomain());
