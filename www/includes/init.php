@@ -67,7 +67,7 @@ $sitekey = base64_decode($site->getSiteKey());
 $sitename = htmlentities($site->getSiteName());
 
 define("SITENAME", $sitename);
-define("BASEURL", $base_url);
+define("BASEURL", $site->getDomain());
 define("ROOTPATH", $root_path);
 
 if ($site->getDomain() != null) {
