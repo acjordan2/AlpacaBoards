@@ -261,6 +261,7 @@ class User
                 // Password hashes match
                 if (password_needs_rehash($user_info['password'], $this->_hash_algo, $this->_hash_options)) {
                     // Rehash password using updated settings
+                    $this->_username = $username;
                     $this->updatePassword($password);
                 }
 
