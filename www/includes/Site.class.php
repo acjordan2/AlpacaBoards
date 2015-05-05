@@ -40,6 +40,8 @@ class Site {
 
     private $_root_path;
 
+    private $_base_url;
+
     public function __construct()
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
@@ -54,6 +56,7 @@ class Site {
         $this->_invites = $results['invites'];
         $this->_domain = $results['domain'];
         $this->setRootPath();
+        $this->setBaseUrl();
     }
 
     /**
@@ -160,6 +163,36 @@ class Site {
         $this->_root_path = $root_path;
     }
 
+    public function setBaseUrl()
+    {
+        $time = explode(' ', microtime());
+        $start = $time[1] + $time[0];
+
+        $tempPath1 = explode('/', str_replace('\\', '/', dirname($_SERVER['SCRIPT_FILENAME'])));
+        $tempPath2 = explode('/', substr($this->_root_path, 0, -1));
+        $tempPath3 = explode('/', str_replace('\\', '/', dirname($_SERVER['PHP_SELF'])));
+
+        for ($i = count($tempPath2); $i < count($tempPath1); $i++) {
+            array_pop($tempPath3);
+        }
+
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+            $protocol = "https://";
+        } else {
+            $protocol = "http://";
+        }
+
+        if (verify_domain($_SERVER['HTTP_HOST'])) {
+            $urladdr = $protocol.urlencode(strip_tags($_SERVER['HTTP_HOST'].implode('/', $tempPath3)));
+            if (!($urladdr{strlen($urladdr) - 1}== '/')) {
+                $urladdr .= "/";
+            }
+        } else {
+            $urladdr = $tempPath3;
+        }
+        $this->_base_url = str_replace("%2F", "/", $urladdr);
+    }
+
     public function getReaders()
     {
         $sql = "SELECT COUNT(user_id) FROM Users WHERE
@@ -177,6 +210,11 @@ class Site {
     public function getRootPath()
     {
         return $this->_root_path;
+    }
+
+    public function getBaseUrl()
+    {
+        return $this->_base_url;
     }
 
     public function getSiteName()

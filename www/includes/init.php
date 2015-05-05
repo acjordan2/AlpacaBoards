@@ -65,15 +65,12 @@ $db = ConnectionFactory::getInstance()->getConnection();
 $site = new Site();
 $sitekey = base64_decode($site->getSiteKey());
 $sitename = htmlentities($site->getSiteName());
-if (USE_SSL) {
-    $base_url = "https://";
-} else {
-    $base_url = "http://";
-}
+$root_path = $site->getRootPath();
 
-$base_url .= $site->getDomain();
+
+$base_url = $site->getBaseUrl();
 define("SITENAME", $sitename);
-define("BASEURL", $site->getDomain());
+define("BASEURL", $site->getDomain().$site->getBaseUrl());
 define("ROOTPATH", $root_path);
 
 if ($site->getDomain() != null) {
