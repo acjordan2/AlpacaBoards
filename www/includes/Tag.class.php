@@ -329,6 +329,90 @@ class Tag
         }
     }
 
+    public function getPageCount($filter, $type) {
+        preg_match_all("/\[.*?\]/", $filter, $matches);
+        if (count($matches[0]) != 0 || true) {
+            $sql_getTagID = "SELECT TopicalTags.tag_id FROM TopicalTags WHERE (";
+
+            $tag_id_data = array();
+            for ($i=0; $i < count($matches[0]); $i++) {
+                if ($i > 0) {
+                    $sql_getTagID .= " OR ";
+                }
+                $title = str_replace(array("[", "]"), "", $matches[0][$i]);
+                $tag_id_data['title'.$i] = str_replace("_", " ", $title);
+                $sql_getTagID .= " title = :title".$i;
+            }
+            $sql_getTagID .= ")";
+
+            $statement_getTagID = $this->_pdo_conn->prepare($sql_getTagID);
+            $statement_getTagID->execute($tag_id_data);
+            $tag_ids = $statement_getTagID->fetchAll();
+
+            $sql_getNodes = "SELECT n.tag_id FROM TopicalTags as t
+                LEFT JOIN  TopicalTagParentRelationship as r 
+                    ON t.tag_id=r.parent_id
+                LEFT JOIN TopicalTags as n 
+                    ON r.child_id = n.tag_id
+                WHERE t.tag_id = :tag_id";
+
+            if (count($tag_ids) > 0) {
+                $tag_array_tmp = array();
+                foreach ($tag_ids as $tag) {
+                    $tag_array_tmp[] = $tag['tag_id'];
+                }
+
+                for ($i=0; $i < count($tag_array_tmp); $i++) {
+                    $data_getNodes = array(
+                        "tag_id" => $tag_array_tmp[$i]
+                    );
+                    $statement = $this->_pdo_conn->prepare($sql_getNodes);
+                    $statement->execute($data_getNodes);
+                    $tmp_results = $statement->fetchAll();
+                    for ($j=0; $j < count($tmp_results); $j++) {
+                        $parent_id = $tmp_results[$j]['tag_id'];
+                        $parent_array[] = $parent_id;
+                        if (!in_array($parent_id, $tag_array_tmp) && $parent_id != "") {
+                            $tag_array_tmp[] = $parent_id;
+                        }
+                    }
+                }
+                $data_getContent = array();
+                if ($type == 1) {
+                    // topics
+                    $sql_getContent = "SELECT Topics.title, Topics.topic_id, Topics.user_id, 
+                        Users.username, MAX(Messages.posted) AS posted 
+                        FROM Topics 
+                        LEFT JOIN Users 
+                            USING(user_id) 
+                        LEFT JOIN Messages 
+                            USING(topic_id)
+                        LEFT JOIN Tagged on Tagged.data_id = Topics.topic_id
+                        WHERE (";
+                    $data_getContent = array();
+                    for ($i=0; $i < count($tag_array_tmp); $i++) {
+                        if (!in_array($tag_array_tmp[$i], $data_getContent)) {
+                            if ($i > 0) {
+                                $sql_getContent .= " OR ";
+                            }
+                            $sql_getContent .= " Tagged.tag_id = :tag_id".$i;
+                            $data_getContent["tag_id".$i] = $tag_array_tmp[$i];
+                        }
+                    }
+                    $sql_getContent .= ") AND Tagged.type = 1 AND Messages.revision_no = 0 GROUP BY topic_id";
+
+                    $statement_getContent = $this->_pdo_conn->prepare($sql_getContent);
+                    $statement_getContent->execute($data_getContent);
+                    $page_count = ceil($statement_getContent->rowCount()/$this->_results_per_page);
+                    $statement_getContent->closeCursor();
+
+                }
+            }
+        }
+        return $page_count;
+
+    }
+
     /**
      * Get child tags of a provided tag ID
      * @param  integer $tag_id ID of tag

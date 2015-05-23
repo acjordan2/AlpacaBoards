@@ -53,8 +53,15 @@ if ($auth === true) {
 
     $tags = new Tag($authUser->getUserID());
     if (isset($_GET['tags'])) {
+        $results_per_page = 50;
         $topic_list = $tags->getContent($_GET['tags'], 1, $current_page);
+        $page_count = $tags->getPageCount($_GET['tags'], 1);
         $title = $_GET['tags'];
+        $tag_url = str_replace(
+            array("%5B", "%5D"), array("[", "]"),
+            urlencode($_GET['tags'])
+        );
+        $smarty->assign("tag_url", $tag_url);
     } else {
         $title = "Everything";
         $parser = new Parser();

@@ -9,11 +9,11 @@
     </script>
     {/literal}
     <div class="infobar">
-        {if $current_page > 1} <span><a href="./showtopics.php?page=1">First Page</a> |</span>{/if}
-        {if $current_page > 2}<span><a href="./showtopics.php?page={$current_page - 1}">Prev Page</a> |</span>{/if}
+        {if $current_page > 1} <span><a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page=1">First Page</a> |</span>{/if}
+        {if $current_page > 2}<span><a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$current_page - 1}">Prev Page</a> |</span>{/if}
         Page {$current_page} of <span>{$page_count}</span> 
-        {if $current_page < $page_count - 1}<span>| <a href="./showtopics.php?page={$current_page + 1}">Next Page</a></span> {/if}
-        {if $current_page < $page_count}<span>| <a href="./showtopics.php?page={$page_count}">Last Page</a></span>{/if}
+        {if $current_page < $page_count - 1}<span>| <a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$current_page + 1}">Next Page</a></span> {/if}
+        {if $current_page < $page_count}<span>| <a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$page_count}">Last Page</a></span>{/if}
     </div>
 
     <table class="grid">
@@ -77,7 +77,7 @@
                   {if $i == $current_page}{$i}
                 {if $i<$page_count}|{/if}
                 {else}
-                    <a href="./showtopics.php?page={$i}">{$i}</a> 
+                    <a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$i}">{$i}</a> 
                 {if $i < $page_count}| {/if}
             {/if}
             {assign var="i" value=$i+1}
