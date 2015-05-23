@@ -113,7 +113,13 @@ if ($auth == true) {
                 $anonymous = false;
             }
 
-            $messages = $topic->getMessages($current_page, @$_GET['u'], $anonymous);
+            if (isset($_GET['u']) && is_numeric($_GET['u'])) {
+                $filter = "user:".$_GET['u'];
+            } else {
+                $filter = null;
+            }
+
+            $messages = $topic->getMessages($current_page, $filter, $anonymous);
             if (isset($_GET['u']) && is_numeric($_GET['u'])) {
                 $smarty->assign("filter", true);
             }
