@@ -1,7 +1,7 @@
 {include file="header.tpl"}
 	<h1>Stats for {$p_username}</h1>
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
 		<a href="http://wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
 	<table class="grid">

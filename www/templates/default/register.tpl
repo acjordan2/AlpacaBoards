@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>{$sitename} - Register</title>
-        <link rel="stylesheet" type="text/css" href="./css.php" />
+        <link rel="stylesheet" type="text/css" href="{$base_url}/css.php" />
         <script type="text/javascript">
             function checkField(){
                 
@@ -42,7 +42,7 @@
             </form>
         </div>
         <div class="options">
-            <a href="./index.php">{$sm_labels.login}</a> | <a href="./register.php">{$sm_labels.sign_up}</a> 
+            <a href="{$base_url}/index.php">{$sm_labels.login}</a> | <a href="{$base_url}/register.php">{$sm_labels.sign_up}</a> 
         </div>
     </body>
 </html>

@@ -4,33 +4,33 @@
     <h2>
         <div>
             {foreach from=$topic_tags key=header item=tag}
-            <a href="./links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a>
+            <a href="{$base_url}/links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a>
             {$p_count = $tag.parents|@count}
             {$i = 0}
             {if $p_count > 0}
             <span style="font-size:12px;">
-                ({foreach from=$tag.parents key=header item=parent}<a href="./links.php?tags=[{$parent.title|replace:' ':'_'}]">{$parent.title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
+                ({foreach from=$tag.parents key=header item=parent}<a href="{$base_url}/links.php?tags=[{$parent.title|replace:' ':'_'}]">{$parent.title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
             </span>{/if}{/foreach}
         </div>
     </h2>{/if}
 	{if isset($status_message) && $status_message != NULL}<br /><h3 style="text-align:center"><em>{$status_message}</em></h3><br />{/if}
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
 		<span id="userbar_pms" style="display:none">
-			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
+			<a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>
-		<!--<a href="./boardlist.php">Board List</a> | -->
-      	<a href="./showtopics.php">Topic List</a> | 
+		<!--<a href="{$base_url}/boardlist.php">Board List</a> | -->
+      	<a href="{$base_url}/showtopics.php">Topic List</a> | 
 		{if $archived == false}
-        <a href="./postmsg.php?topic={$topic_id}">Post New Message</a>
+        <a href="{$base_url}/postmsg.php?topic={$topic_id}">Post New Message</a>
 		<!--| <a href="//boards.endoftheinter.net/showmessages.php?topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
 		{if $action != NULL} 
-			| <a href="./showmessages.php?topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
+			| <a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;sticky=1&amp;token={$token}" onclick="confirm('Are you sure you want to pin this topic?');">
 				{$action[0].name}
 			</a>
 		{/if}{/if}
-        {if $user_id == $topic_creator}{if $archived == false}|{/if} <a href="./edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
+        {if $user_id == $topic_creator}{if $archived == false}|{/if} <a href="{$base_url}/edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
 	</div>
 {literal}
 	<script type="text/javascript">
@@ -40,32 +40,32 @@
 	</script>
 {/literal}
 	<div class="infobar" id="u0_2">
-		{if $current_page > 1} <span><a href="./showmessages.php?topic={$topic_id}&amp;page=1">First Page</a> |</span>{/if}
-		{if $current_page > 2}<span><a href="./showmessages.php?topic={$topic_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
+		{if $current_page > 1} <span><a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;page=1">First Page</a> |</span>{/if}
+		{if $current_page > 2}<span><a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;page={$current_page - 1}">Prev Page</a> |</span>{/if}
 		Page {$current_page} of <span>{$page_count}</span> 
-		{if $current_page < $page_count - 1}<span>| <a href="./showmessages.php?topic={$topic_id}&amp;page={$current_page + 1}">Next Page</a></span> {/if}
-		{if $current_page < $page_count}<span>| <a href="./showmessages.php?topic={$topic_id}&amp;page={$page_count}">Last Page</a></span>{/if}
+		{if $current_page < $page_count - 1}<span>| <a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;page={$current_page + 1}">Next Page</a></span> {/if}
+		{if $current_page < $page_count}<span>| <a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;page={$page_count}">Last Page</a></span>{/if}
 	</div>
 	<div id="u0_1">
 {$i=5}
 {foreach from=$messages key=header item=table}
 	<div class="message-container" id="m{$table.message_id}">
 		<div class="message-top">
-     		<b>From:</b> <a href="./profile.php?user={$table.user_id}">{$table.username}</a> | 
+     		<b>From:</b> <a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a> | 
     		<b>Posted:</b> {$table.posted|date_format:$dateformat} | 
     		{if isset($filter)}
-    			<a href="./showmessages.php?topic={$topic_id}">Unfilter</a>
+    			<a href="{$base_url}/showmessages.php?topic={$topic_id}">Unfilter</a>
     		{else}
-    			<a href="./showmessages.php?topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
+    			<a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;u={$table.user_id}">Filter</a>
     		{/if}
-    		| <a href="./message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail
+    		| <a href="{$base_url}/message.php?id={$table.message_id}&amp;topic={$topic_id}&amp;r={$table.revision_id}">Message Detail
     		{if $table.deleted == 0}{if $table.revision_id > 1} 
     			({$table.revision_id} edits)
     		{elseif $table.revision_id == 1} 
     			({$table.revision_id} edit)
     		{/if}{/if}
     		</a> |
-    		<a href="./postmsg.php?topic={$topic_id}&amp;quote={$table.message_id}" 
+    		<a href="{$base_url}/postmsg.php?topic={$topic_id}&amp;quote={$table.message_id}" 
     			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
     	</div>
     	<table class="message-body">
@@ -75,7 +75,7 @@
     			</td>
     			<td class="userpic">
     				<div class="userpic-holder">
-    					{if $table.sha1_sum != NULL}<a href="./imagemap.php?hash={$table.sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}" width="{$table.thumb_width}" height="{$table.thumb_height}" /></a>{/if}
+    					{if $table.sha1_sum != NULL}<a href="{$base_url}/imagemap.php?hash={$table.sha1_sum}"><img src="{$base_url}/templates/default/images/grey.gif" data-original="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}" width="{$table.thumb_width}" height="{$table.thumb_height}" /></a>{/if}
                         {if $table.level == 1}<center style="padding: 4px 2px;"><b style="color:{$table.title_color}">{$table.title}</b></center>{/if}
     				</div>
     			</td>
@@ -91,7 +91,7 @@
 		{if $k == $current_page}{$k} 
 			{if $k<$page_count}|{/if}
 			{else}
-				<a href="./showmessages.php?topic={$topic_id}&amp;page={$k}">{$k}</a> 
+				<a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;page={$k}">{$k}</a> 
 				{if $k < $page_count}| {/if}
 		{/if}
 		{assign var="k" value=$k+1}
@@ -103,7 +103,7 @@
 	<br />
 	<br />
 	{include file="footer.tpl"}{if $archived == false}
-    <script type="text/javascript" src="templates/default/js/jquery.playSound.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{$base_url}/templates/default/js/jquery.playSound.js" charset="utf-8"></script>
     <script type="text/javascript">
         var topic_id = {$topic_id};
         var base_url = "{$base_url}";
@@ -112,7 +112,7 @@
             var payload = "{\"topics\":{\"action\":\"pollMessage\",\"topic_id\":"+topic_id+"}}";
             $.ajax({
                 type: "POST",
-                url: "./api.php",
+                url: "{$base_url}/api.php",
                 data: payload,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -139,7 +139,7 @@
     <table>
         <tr>
             <td>
-	   <form method="POST" action="./postmsg.php" name="quickposts" id="quickposts">
+	   <form method="POST" action="{$base_url}/postmsg.php" name="quickposts" id="quickposts">
         <input type="hidden" name="action" value="postMessage" />
 		<input type="hidden" name="parent_id" value="{$topic_id}" />
         <input type="hidden" name="data_type" value="1" />

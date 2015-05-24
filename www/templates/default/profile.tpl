@@ -1,9 +1,9 @@
 {include file="header.tpl"}
 	<h1>User Information Page</h1>
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
 		<span id="userbar_pms" style="display:none">
-			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
+			<a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
@@ -37,15 +37,15 @@
 			<td>{$p_karma}</td>
 		</tr>
 		<tr>
-			<td><a href="./karmalist.php?user={$p_user_id}&amp;type=2">Good Karma</a></td>
+			<td><a href="{$base_url}/karmalist.php?user={$p_user_id}&amp;type=2">Good Karma</a></td>
 			<td>{$good_karma}</td>
 		</tr>
 		<tr>
-			<td><a href="./karmalist.php?user={$p_user_id}&amp;type=1">Bad Karma</a></td>
+			<td><a href="{$base_url}/karmalist.php?user={$p_user_id}&amp;type=1">Bad Karma</a></td>
 			<td>{$bad_karma}</td>
 		</tr>
 		<tr>
-			<td><a href="./links.php?mode=user&amp;userid={$p_user_id}&amp;type=3">Contribution Karma</a></td>
+			<td><a href="{$base_url}/links.php?mode=user&amp;userid={$p_user_id}&amp;type=3">Contribution Karma</a></td>
 			<td>{$contribution_karma}</td>
 		</tr>
 {if $user_id == $p_user_id}
@@ -81,7 +81,7 @@
 		<tr>
         	<td>Picture</td>
         	<td>
-				{if isset($avatar)}<a href="./imagemap.php?hash={$sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/n/{$avatar}" width="{$avatar_width}" height="{$avatar_height}" /></a>{/if}
+				{if isset($avatar)}<a href="{$base_url}/imagemap.php?hash={$sha1_sum}"><img src="./templates/default/images/grey.gif" data-original="{$base_image_url}/n/{$avatar}" width="{$avatar_width}" height="{$avatar_height}" /></a>{/if}
 			</td>
 		</tr>
 		<tr>
@@ -89,47 +89,47 @@
 		</tr>
 {if $user_id == $p_user_id}
 		<tr>
-			<td colspan="2"><a href="./editprofile.php">Edit My Profile</a></td>
+			<td colspan="2"><a href="{$base_url}/editprofile.php">Edit My Profile</a></td>
 		</tr>
 <!--
 		<tr>
-			<td colspan="2"><a href="./editdisplay.php">Edit My Site Display Options</a></td>
+			<td colspan="2"><a href="{$base_url}/editdisplay.php">Edit My Site Display Options</a></td>
 		</tr>
 	-->
 		<tr>
-			<td colspan="2"><a href="./editpass.php">Edit My Password</a></td>
+			<td colspan="2"><a href="{$base_url}/editpass.php">Edit My Password</a></td>
 		</tr>      
 		<tr>
-			<td colspan="2"><a href="./history.php">View My Posted Messages</a></td>
+			<td colspan="2"><a href="{$base_url}/history.php">View My Posted Messages</a></td>
 	 	</tr>     
 <!--
 		<tr>
-			<td colspan="2"><a href="./links.php?mode=user&amp;userid={$p_user_id}">View Links I've Added</a></td>
+			<td colspan="2"><a href="{$base_url}/links.php?mode=user&amp;userid={$p_user_id}">View Links I've Added</a></td>
 		</tr>
 		<tr>
-			<td colspan="2"><a href="./links.php?mode=comments">View My LUElink Comment History</a></td>
+			<td colspan="2"><a href="{$base_url}/links.php?mode=comments">View My LUElink Comment History</a></td>
 		</tr>
 		<tr>
-			<td colspan="2"><a href="./mytokens.php?user={$p_user_id}">View My Available Tokens</a></td>
+			<td colspan="2"><a href="{$base_url}/mytokens.php?user={$p_user_id}">View My Available Tokens</a></td>
 		</tr>
 -->
 		<tr>
-			<td colspan="2"><a href="./shop.php">Enter The Token Shop</a></td>
+			<td colspan="2"><a href="{$base_url}/shop.php">Enter The Token Shop</a></td>
 		</tr>      
 		<tr>
-			<td colspan="2"><a href="./inventory.php">View My Inventory</a></td>
+			<td colspan="2"><a href="{$base_url}/inventory.php">View My Inventory</a></td>
 		</tr>
         {if $invite_status != 0}
 		<tr>
-			<td colspan="2"><a href="./invite.php">Invite a User</a></td>
+			<td colspan="2"><a href="{$base_url}/invite.php">Invite a User</a></td>
 		</tr>
         {/if}
 	<!--
 		<tr>
-			<td colspan="2"><a href="./showfavorites.php">View My Tagged Topics</a></td>
+			<td colspan="2"><a href="{$base_url}/showfavorites.php">View My Tagged Topics</a></td>
 		</tr>
 		<tr>
-			<td colspan="2"><a href="./inbox.php">Check My Private Messages</a></td>
+			<td colspan="2"><a href="{$base_url}/inbox.php">Check My Private Messages</a></td>
 		</tr>
 		<tr>
 			<td colspan="2">View My Wiki Pages: 
@@ -139,11 +139,11 @@
 		</tr>
     -->
 		<tr>
-			<td colspan="2"><a href="./imagemap.php">View My Image Map Entry</a></td>
+			<td colspan="2"><a href="{$base_url}/imagemap.php">View My Image Map Entry</a></td>
 		</tr>
 {/if}
 		<tr>
-			<td colspan="2"><a href="./loser.php?user={$p_user_id}">View {if $user_id == $p_user_id}My{else}{$p_username}'s{/if} Stats</a></td>
+			<td colspan="2"><a href="{$base_url}/loser.php?user={$p_user_id}">View {if $user_id == $p_user_id}My{else}{$p_username}'s{/if} Stats</a></td>
 		</tr>
 {if $access_level > 0}
 		<tr>
@@ -152,14 +152,14 @@
 		{if $mod_user_ban == 1}
 		<tr>
 			<td colspan="2">
-				<a href="./profile.php?user={$p_user_id}&amp;mod_action=user_ban">Ban User</a>
+				<a href="{$base_url}/profile.php?user={$p_user_id}&amp;mod_action=user_ban">Ban User</a>
 			</d>
 		</tr>
 		{/if}
 		{if $mod_site_options == 1}
 		<tr>
 			<td colspan="2">
-				<a href="./siteoptions.php">Site Options</a>
+				<a href="{$base_url}/siteoptions.php">Site Options</a>
 			</d>
 		</tr>
 		{/if}

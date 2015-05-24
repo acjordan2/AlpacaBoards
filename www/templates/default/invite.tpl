@@ -2,7 +2,7 @@
 	<h1>Send Invite</h1>
 {if $message != NULL}<h2><em>{$message}</em></h2><br />{/if}
 {if $invite_status == true}
-	<form action="invite.php" method="post" autocomplete="off">
+	<form action="{$base_url}/invite.php" method="post" autocomplete="off">
 		<input type="hidden" name="token" value="{$token}" />
 		<table class="grid">
 			<tr>

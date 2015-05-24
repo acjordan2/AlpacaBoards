@@ -190,7 +190,10 @@ class Site {
         } else {
             $urladdr = $tempPath3;
         }
-        $this->_base_url = str_replace("%2F", "/", $urladdr);
+        $base_url = str_replace("%2F", "/", $urladdr);
+        // Remove trailing slash
+        $base_url = rtrim($base_url, "/");
+        $this->_base_url = $base_url;
     }
 
     public function getReaders()

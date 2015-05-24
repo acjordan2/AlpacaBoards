@@ -42,6 +42,13 @@ if ($auth === true) {
     $uri = $_SERVER['REQUEST_URI'];
     $string = preg_replace('/[^[:print:]]/', '', $uri);
     $_SESSION['redirect'] = $string;
-    header("Location: ./?r=".urlencode($string));
+ 
+    
+    if($script_name == "index.php") {
+        $base_url = array_filter(explode("index.php", $base_url));
+        $base_url = substr($base_url[0], -1);
+    }
+ 
+    header("Location: ".$base_url."/?r=".urlencode($string));
     exit();
 }

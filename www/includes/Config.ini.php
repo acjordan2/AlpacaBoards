@@ -26,7 +26,6 @@
 
 ##Sitewide Settings
 //define("DOMAIN", ""); // Override default settings
-define("BASE_IMAGE_URL", "./usercontent/i");
 
 ##Search Settings
 define("SEARCHD_PATH", "/usr/bin/searchd");

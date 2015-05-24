@@ -26,6 +26,28 @@
 
 require_once("functions.php");
 
+// Get requested resource from the URI, remove base bath and URL params
+$request_uri = array_pop(explode("/", array_shift(explode("?", $_SERVER['REQUEST_URI']))));
+$script_name = array_pop(explode("/", $_SERVER["SCRIPT_FILENAME"]));
+
+if ($script_name == "index.php") {
+    $request_uri = array_filter(explode("index.php",array_shift(explode("?", $_SERVER['REQUEST_URI']))));
+
+    if (sizeof($request_uri) == 1 ) {
+        $request_uri = "index.php";
+    }
+}
+
+if (($script_name != $request_uri && !defined('SOMETHING_SCREWEY'))) {
+
+    // Something screwey happened
+    define("SOMETHING_SCREWEY", true);
+    include "init.php";
+    $smarty->assign("base_url", "//".$site->getDomain().rtrim(array_shift(explode($script_name, $_SERVER['REQUEST_URI'])), "/"));
+    include("403.php");
+
+}
+
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
 
@@ -72,6 +94,8 @@ $base_url = $site->getBaseUrl();
 define("SITENAME", $sitename);
 define("BASEURL", $site->getDomain().$site->getBaseUrl());
 define("ROOTPATH", $root_path);
+define("BASE_IMAGE_URL", "./usercontent/i");
+
 
 if ($site->getDomain() != null) {
     define("DOMAIN", $site->getDomain());

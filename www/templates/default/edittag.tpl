@@ -11,7 +11,7 @@
     }
   }
 </script>{/if}
-<form action="tags.php" method="post" enctype="multipart/form-data">{if isset($create_tag)}
+<form action="{$base_url}/tags.php" method="post" enctype="multipart/form-data">{if isset($create_tag)}
     <input type="hidden" name="create" value="1" />
     <fieldset>
        <legend>Name</legend>

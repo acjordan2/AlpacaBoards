@@ -9,11 +9,11 @@
     </script>
     {/literal}
     <div class="infobar">
-        {if $current_page > 1} <span><a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page=1">First Page</a> |</span>{/if}
-        {if $current_page > 2}<span><a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$current_page - 1}">Prev Page</a> |</span>{/if}
+        {if $current_page > 1} <span><a href="{$base_url}/showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page=1">First Page</a> |</span>{/if}
+        {if $current_page > 2}<span><a href="{$base_url}/showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$current_page - 1}">Prev Page</a> |</span>{/if}
         Page {$current_page} of <span>{$page_count}</span> 
-        {if $current_page < $page_count - 1}<span>| <a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$current_page + 1}">Next Page</a></span> {/if}
-        {if $current_page < $page_count}<span>| <a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$page_count}">Last Page</a></span>{/if}
+        {if $current_page < $page_count - 1}<span>| <a href="{$base_url}/showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$current_page + 1}">Next Page</a></span> {/if}
+        {if $current_page < $page_count}<span>| <a href="{$base_url}/showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$page_count}">Last Page</a></span>{/if}
     </div>
 
     <table class="grid">
@@ -27,17 +27,17 @@
 {foreach from=$stickyList key=header item=table}
         <tr>
             <td>
-                <a href="./showmessages.php?topic={$table.topic_id}">
+                <a href="{$base_url}/showmessages.php?topic={$table.topic_id}">
                     <b><div class="sticky">{$table.title}</div></b>
                 </a>
             </td>
                 <td>
-                <a href="./profile.php?user={$table.user_id}">{$table.username}</a>
+                <a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a>
             </td>
             <td>
                 {$table.number_of_posts}
                 {if $table.history > 0} 
-                (<a href="./showmessages.php?topic={$table.topic_id}{if $table.page > 0}&amp;page={$table.page}{/if}#m{$table.last_message}">+{$table.history}</a>)
+                (<a href="{$base_url}/showmessages.php?topic={$table.topic_id}{if $table.page > 0}&amp;page={$table.page}{/if}#m{$table.last_message}">+{$table.history}</a>)
                 {/if}
             </td>
             <td>
@@ -50,19 +50,19 @@
         <tr>
             <td>
             <div class="fl">
-                <a href="./showmessages.php?topic={$table.topic_id}">{$table.title}</a>
+                <a href="{$base_url}/showmessages.php?topic={$table.topic_id}">{$table.title}</a>
             </div>
             <div class="fr">
-                        {foreach from=$table.tags item=tags}<a href="./showtopics.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
+                        {foreach from=$table.tags item=tags}<a href="{$base_url}/showtopics.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
                     </div>
             </td>
                 <td>
-                <a href="./profile.php?user={$table.user_id}">{$table.username}</a>
+                <a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a>
             </td>
             <td>
                 {$table.number_of_posts}
                 {if $table.history > 0} 
-                (<a href="./showmessages.php?topic={$table.topic_id}{if $table.page > 1}&amp;page={$table.page}{/if}#m{$table.last_message}">+{$table.history}</a>)
+                (<a href="{$base_url}/showmessages.php?topic={$table.topic_id}{if $table.page > 1}&amp;page={$table.page}{/if}#m{$table.last_message}">+{$table.history}</a>)
                 {/if}
             </td>
             <td>
@@ -77,7 +77,7 @@
                   {if $i == $current_page}{$i}
                 {if $i<$page_count}|{/if}
                 {else}
-                    <a href="./showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$i}">{$i}</a> 
+                    <a href="{$base_url}/showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page={$i}">{$i}</a> 
                 {if $i < $page_count}| {/if}
             {/if}
             {assign var="i" value=$i+1}

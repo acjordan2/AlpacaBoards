@@ -3,7 +3,7 @@
     <head>
         <title>{$sitename} - {$page_title}</title>
         <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-        <link rel="stylesheet" type="text/css" href="./css.php" />
+        <link rel="stylesheet" type="text/css" href="{$base_url}/css.php" />
     </head>
     <body onload="document.getElementsByTagName('input')[0].focus();">
         <div class="login">
@@ -22,7 +22,7 @@
             </form>
         </div>
         <div class="options">
-             <a href="./register.php">{$sm_labels.sign_up}</a> | <a href="./passwordReset.php">{$sm_labels.forgot_password}</a>
+             <a href="{$base_url}/register.php">{$sm_labels.sign_up}</a> | <a href="{$base_url}/passwordReset.php">{$sm_labels.forgot_password}</a>
         </div>
     </body>
 </html>

@@ -6,9 +6,9 @@
 	</form>
 	<br />
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
 		<span id="userbar_pms" style="display:none">
-			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
+			<a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
@@ -20,11 +20,11 @@
 	</script>
 {/literal}
 	<div class="infobar">
-		{if $current_page > 1} <span><a href="./userlist.php?page=1">First Page</a> |</span>{/if}
-		{if $current_page > 2}<span><a href="./userlist.php?page={$current_page - 1}">Prev Page</a> |</span>{/if}
+		{if $current_page > 1} <span><a href="{$base_url}/userlist.php?page=1">First Page</a> |</span>{/if}
+		{if $current_page > 2}<span><a href="{$base_url}/userlist.php?page={$current_page - 1}">Prev Page</a> |</span>{/if}
 		Page {$current_page} of <span>{$page_count}</span> 
-		{if $current_page < $page_count - 1}<span>| <a href="./userlist.php?page={$current_page + 1}">Next Page</a></span> {/if}
-		{if $current_page < $page_count}<span>| <a href="./userlist.php?page={$page_count}">Last Page</a></span>{/if}
+		{if $current_page < $page_count - 1}<span>| <a href="{$base_url}/userlist.php?page={$current_page + 1}">Next Page</a></span> {/if}
+		{if $current_page < $page_count}<span>| <a href="{$base_url}/userlist.php?page={$page_count}">Last Page</a></span>{/if}
 	</div>
 	<table class="grid">
 	<tr>
@@ -35,7 +35,7 @@
 	</tr>
 {foreach from=$userlist key=header item=table}
 	<tr>
-		<td><a href="./profile.php?user={$table.user_id}">{$table.username}</a></td>
+		<td><a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a></td>
 		<td>{$table.account_created|date_format:$dateformat}</td>
         	<td>{$table.last_active|date_format:$dateformat}</td>
         	<td>{$table.karma}</td>
@@ -43,7 +43,7 @@
 {/foreach}
 	</table>
 	<div class="infobar">Page: {assign var="i" value=1}{while $i <= $page_count}
-		{if $i == $current_page}{$i} {if $i<$page_count}|{/if}{else}<a href="./userlist.php?page={$i}">{$i}</a> {if $i < $page_count}| {/if}{/if}{assign var="i" value=$i+1}{/while}
+		{if $i == $current_page}{$i} {if $i<$page_count}|{/if}{else}<a href="{$base_url}/userlist.php?page={$i}">{$i}</a> {if $i < $page_count}| {/if}{/if}{assign var="i" value=$i+1}{/while}
 	</div>
 	<br />
 	<br />

@@ -1,6 +1,6 @@
 {include file="header.tpl"}
 <h1>Edit Profile</h1><br />
-<form action="editprofile.php" method="post" enctype="multipart/form-data">
+<form action="{$base_url}/editprofile.php" method="post" enctype="multipart/form-data">
 	<table class="grid">
 		<tr>
 			<th colspan="2">Change User Settings for {$username}</th>

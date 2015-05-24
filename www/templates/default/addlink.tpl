@@ -1,7 +1,7 @@
 {include file="header.tpl"}
 	<h1>Add teh link!</h1>
 	<br />
-	<form action="./addlink.php{if isset($link_edit)}?edit={$link_id}{/if}" method="POST" id="add">
+	<form action="{$base_url}/addlink.php{if isset($link_edit)}?edit={$link_id}{/if}" method="POST" id="add">
 		<input type="hidden" name="token" value="{$token}">
 		{if isset($error)}
 			<span style="color: #ff0000;">

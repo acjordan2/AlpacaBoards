@@ -6,11 +6,11 @@
     </form>
     <br />
     <div class="userbar">
-        <a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+        <a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
         <span id="userbar_pms" style="display:none">
-            <a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
+            <a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
         </span>
-        {if ($mod_tag_create)}<a href="./tags.php?create">Create Tag</a> |{/if}
+        {if ($mod_tag_create)}<a href="{$base_url}/tags.php?create">Create Tag</a> |{/if}
         <a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
     </div>
 {literal}
@@ -21,11 +21,11 @@
     </script>
 {/literal}
     <div class="infobar">
-        {if $current_page > 1} <span><a href="./tags.php?page=1">First Page</a> |</span>{/if}
-        {if $current_page > 2}<span><a href="./tags.php?page={$current_page - 1}">Prev Page</a> |</span>{/if}
+        {if $current_page > 1} <span><a href="{$base_url}/tags.php?page=1">First Page</a> |</span>{/if}
+        {if $current_page > 2}<span><a href="{$base_url}/tags.php?page={$current_page - 1}">Prev Page</a> |</span>{/if}
         Page {$current_page} of <span>{$page_count}</span> 
-        {if $current_page < $page_count - 1}<span>| <a href="./tags.php?page={$current_page + 1}">Next Page</a></span> {/if}
-        {if $current_page < $page_count}<span>| <a href="./tags.php?page={$page_count}">Last Page</a></span>{/if}
+        {if $current_page < $page_count - 1}<span>| <a href="{$base_url}/tags.php?page={$current_page + 1}">Next Page</a></span> {/if}
+        {if $current_page < $page_count}<span>| <a href="{$base_url}/tags.php?page={$page_count}">Last Page</a></span>{/if}
     </div>
     <table class="grid">
     <tr>
@@ -36,11 +36,11 @@
     </tr>
 {foreach from=$taglist key=header item=table}
     <tr>
-        <td><a href="./tags.php?tag=[{$table.title|replace:" ":"_"}]" id="{$table.title}">{$table.title}</a></td>
+        <td><a href="{$base_url}/tags.php?tag=[{$table.title|replace:" ":"_"}]" id="{$table.title}">{$table.title}</a></td>
         <td>
             <div>
                 {foreach from=$table.parents key=header item=tag}
-                <a href="./tags.php#{$tag.title}">{$tag.title}</a>&nbsp;
+                <a href="{$base_url}/tags.php#{$tag.title}">{$tag.title}</a>&nbsp;
                 {$p_count = $table.parents|@count}
                 {/foreach}
             </div>
@@ -53,7 +53,7 @@
 {/foreach}
     </table>
     <div class="infobar">Page: {assign var="i" value=1}{while $i <= $page_count}
-        {if $i == $current_page}{$i} {if $i<$page_count}|{/if}{else}<a href="./tags.php?page={$i}">{$i}</a> {if $i < $page_count}| {/if}{/if}{assign var="i" value=$i+1}{/while}
+        {if $i == $current_page}{$i} {if $i<$page_count}|{/if}{else}<a href="{$base_url}/tags.php?page={$i}">{$i}</a> {if $i < $page_count}| {/if}{/if}{assign var="i" value=$i+1}{/while}
     </div>
     <br />
     <br />

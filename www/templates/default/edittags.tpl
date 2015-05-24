@@ -1,6 +1,6 @@
 {include file="header.tpl"}
 	<h1>Change Topic Tags</h1>
-    <h2><a href="./showmessages.php?topic={$topic}">
+    <h2><a href="{$base_url}/showmessages.php?topic={$topic}">
             {$topic_title}
         </a>
     </h2>

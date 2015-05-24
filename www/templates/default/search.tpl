@@ -1,7 +1,7 @@
 {include file="header.tpl"}
 	<h1>Search Links</h1>
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>:
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>:
 			<span id="userbar_pms" style="display:none">
 				<a href="https://links.endoftheinter.net/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 			</span>
@@ -20,7 +20,7 @@
 	</span>
 	</div>
 	<br />
-	<form action="./links.php" method="get">
+	<form action="{$base_url}/links.php" method="get">
 		<input id="mode" type="hidden" value="search" name="mode"/>
 		<input id="q" style="font-size:24px" type="text" name="q" />
 		<input style="font-size:24px" type="submit" value="Submit" />

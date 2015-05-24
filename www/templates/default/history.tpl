@@ -1,12 +1,12 @@
 {include file="header.tpl"}
 	<h1>Message History</h1>
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>: 
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>: 
 		<span id="userbar_pms" style="display:none">
-			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
+			<a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span> 
-		<a href="./history.php?b">Sort By Topic's Last Post</a> | 
-		<a href="./history.php?archived">Archived Topics</a> | 
+		<a href="{$base_url}/history.php?b">Sort By Topic's Last Post</a> | 
+		<a href="{$base_url}/history.php?archived">Archived Topics</a> | 
 		<a href="#" onclick="$('search_bar').style.display = ($('search_bar').style.display == 'none') ? 'block' : 'none'; return false;"> Search</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
@@ -28,10 +28,10 @@
 	<div class="infobar">
 		Page 1 of <span>1</span> 
 		<span style="display:none">| 
-			<a href="./history.php?page=2">Next Page</a>
+			<a href="{$base_url}/history.php?page=2">Next Page</a>
 		</span> 
 		<span style="display:none">| 
-		<a href="./history.php?page=1">Last Page</a></span>
+		<a href="{$base_url}/history.php?page=1">Last Page</a></span>
 	</div>
 	<table class="grid">
 	<tr>
@@ -47,13 +47,13 @@
 			{$table.board_title}
         	</td>
         	<td>
-			<a href="./showmessages.php?board={$board_id}&amp;topic={$table.topic_id}">{$table.title}</a>
+			<a href="{$base_url}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}">{$table.title}</a>
 		</td>
         	<td>
 			{$table.number_of_posts}
 			<!--
 			{if $table.history > 0} 
-				(<a href="./showmessages.php?board={$board_id}&amp;topic={$table.topic_id}#m{$table.last_message}">+{$table.history}</a>)
+				(<a href="{$base_url}/showmessages.php?board={$board_id}&amp;topic={$table.topic_id}#m{$table.last_message}">+{$table.history}</a>)
 			{/if}
 			-->
 		</td>

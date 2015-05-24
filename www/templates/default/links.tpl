@@ -2,11 +2,11 @@
 	<h1>Links</h1>
 
 	<div class="userbar">
-		<a href="./profile.php?user={$user_id}">{$username} ({$karma})</a>:
+		<a href="{$base_url}/profile.php?user={$user_id}">{$username} ({$karma})</a>:
 		<span id="userbar_pms" style="display:none">
-			<a href="./inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a>
+			<a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a>
 		|</span> 
-		<a href="./links.php?mode=user&amp;userid=18026&amp;type=3#"onclick="return toggle_spoiler(document.getElementById('links_cat_filt'))">Edit category filters</a> | 
+		<a href="{$base_url}/links.php?mode=user&amp;userid=18026&amp;type=3#"onclick="return toggle_spoiler(document.getElementById('links_cat_filt'))">Edit category filters</a> | 
 		<a href="https://wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
 
@@ -23,31 +23,31 @@
 		<tbody>
 			<tr>
 				<th>
-					<a href="./links.php?mode=user&amp;userid=&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=2&amp;sortd=1">Title</a>
+					<a href="{$base_url}/links.php?mode=user&amp;userid=&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=2&amp;sortd=1">Title</a>
 				</th>
 				<th>
-					<a href="./links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=1&amp;sortd=1">Added By:</a>
+					<a href="{$base_url}/links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=1&amp;sortd=1">Added By:</a>
 				</th>
 				<th>
-					<a href="./links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=1&amp;sortd=1">Date</a>
+					<a href="{$base_url}/links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=1&amp;sortd=1">Date</a>
 				</th>
 				<th>
-					<a href="./links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=4&amp;sortd=2">Rating</a>
+					<a href="{$base_url}/links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=4&amp;sortd=2">Rating</a>
 				</th>
 				<th>
-					<a href="./links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=6&amp;sortd=2">Rank</a>
+					<a href="{$base_url}/links.php?mode=user&amp;userid=18026&amp;type=3&amp;category=0&amp;exclude=0&amp;sort=6&amp;sortd=2">Rank</a>
 				</th>
         		</tr>
 {foreach from=$links key=header item=table}
 			<tr class="r0">
 				<td>
-					<div class="fl"><a href="./linkme.php?l={$table.link_id}">{$table.title}</a></div>
+					<div class="fl"><a href="{$base_url}/linkme.php?l={$table.link_id}">{$table.title}</a></div>
                     <div class="fr">
-                        {foreach from=$table.tags item=tags}<a href="./links.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
+                        {foreach from=$table.tags item=tags}<a href="{$base_url}/links.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
                     </div>
 				</td>	
 				<td>
-					<a href="./profile.php?user={$table.user_id}">{$table.username}</a>
+					<a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a>
 				</td>
 			  	<td>
 					{$table.created|date_format:$dateformat}

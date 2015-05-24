@@ -3,7 +3,7 @@
 {if isset($m)}
 	<h2><em>Link Reported</em></h2>
 {else}
-	<form action="./linkreport.php?l={$link_id}" method="post">
+	<form action="{$base_url}/linkreport.php?l={$link_id}" method="post">
 		<span style="color: #ff0000">
 			<b>The rules:</b> Don't be an ass hat. I will ban
 		</span>
@@ -13,7 +13,7 @@
 		<em>Error: {$error_message}</em>
 {/if}
 		<b>Current Link:</b> 
-		<a href="linkme.php?l={$link_id}" target="_blank">{$link_title}</a><br />
+		<a href="{$base_url}/linkme.php?l={$link_id}" target="_blank">{$link_title}</a><br />
 		(Click to open a new window with the current messages)
 		<br />
 		<br />
