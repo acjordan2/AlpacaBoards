@@ -108,12 +108,13 @@ class Link
         }
     }
 
-    private function __updateHistory()
+    private function _updateHistory()
     {
         $sql = "INSERT INTO LinkHistory (link_id, user_id, date)
             VALUES (".$this->_link_id.", ".$this->_user_id.", ".time().") 
             ON DUPLICATE KEY UPDATE date=".time();
         $statement = $this->_pdo_conn->query($sql);
+        $statement->execute();
         $statement->closeCursor();
     }
 
@@ -220,7 +221,9 @@ class Link
         }
         if (count($results) > 0) {
             $last_message = end($results);
-            //$this->_updateHistory($last_message['message_id'], $page);
+            $this->_updateHistory($last_message['message_id'], $page);
+        } else {
+            $this->_updateHistory();
         }
         return $results;
     }
