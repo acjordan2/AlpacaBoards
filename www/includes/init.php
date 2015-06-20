@@ -27,8 +27,9 @@
 require_once("functions.php");
 
 // Get requested resource from the URI, remove base bath and URL params
-$request_uri = array_pop(explode("/", array_shift(explode("?", $_SERVER['REQUEST_URI']))));
 $script_name = array_pop(explode("/", $_SERVER["SCRIPT_FILENAME"]));
+$request_uri = array_filter(explode($script_name, array_shift(explode("?", $_SERVER['REQUEST_URI']))));
+
 
 if ($script_name == "index.php") {
     $request_uri = array_filter(explode("index.php",array_shift(explode("?", $_SERVER['REQUEST_URI']))));
@@ -37,8 +38,7 @@ if ($script_name == "index.php") {
         $request_uri = "index.php";
     }
 }
-
-if (($script_name != $request_uri && !defined('SOMETHING_SCREWEY'))) {
+if ((sizeof($request_uri) > 1 && !defined('SOMETHING_SCREWEY'))) {
 
     // Something screwey happened
     define("SOMETHING_SCREWEY", true);

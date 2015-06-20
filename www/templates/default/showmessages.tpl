@@ -112,7 +112,7 @@
             var payload = "{\"topics\":{\"action\":\"pollMessage\",\"topic_id\":"+topic_id+"}}";
             $.ajax({
                 type: "POST",
-                url: "{$base_url}/api.php",
+                url: base_url + "/api.php",
                 data: payload,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
