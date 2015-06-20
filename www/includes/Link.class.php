@@ -390,7 +390,7 @@ class Link
         $sql = "SELECT COUNT(LinkHistory.link_id) as count FROM LinkHistory
             WHERE LinkHistory.link_id = :link_id";
         $statement = $this->_pdo_conn->prepare($sql);
-        $statement->bindParam("link_id", $link_id);
+        $statement->bindParam("link_id", $this->_link_id);
         $statement->execute();
         $row = $statement->fetch();
         return $row['count'];
