@@ -300,7 +300,7 @@ class Topic
             if (!is_null($key['avatar'])) {
                 $key['filename'] = urlencode($key['filename']).".jpg";
             }
-            if ($key['level'] == 1) {
+            if ($key['level'] == 1 && $anonymous == false) {
                 $user = new User(null, $key['user_id']);
                 $key['title'] = $user->getAccessTitle();
                 $key['title_color'] = $user->getTitleColor();
@@ -319,6 +319,7 @@ class Topic
                 $key['user_id'] = $human * -1;
                 $key['sha1_sum'] = null;
                 $key['filename'] = null;
+                $key['level'] = 0;
             }
         }
         if (count($results) > 0) {
