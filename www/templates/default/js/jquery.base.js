@@ -60,8 +60,34 @@ $(function() {
 		});
 
 		//AJAX for linkme.tpl
-		ajaxPost("#link_vote", "v");
+//		ajaxPost("#link_vote", "v");
 		ajaxPost("#link_fav", "f");
+
+        $(".vote_button").click(function() {
+            alert($(this).text());
+            alert("asdfasdf");
+            $("#value").val("10");
+        });
+
+        $("#link_vote").submit(function(e) {
+            var payload = "{\"links\":" + JSON.stringify($('form#link_vote').serializeObject()) + "}";
+ 
+            $.ajax({
+                type: "POST",
+                url: "./api.php",
+                data: payload,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                        $.each(data, function(k, v){
+                        $("#"+k).text(v);
+                    });
+                }
+            
+            });
+
+            return false;
+        });
 
         $("#quickpost").submit(function(e){
             var payload = "{\"messages\":" + JSON.stringify($('form').serializeObject()) + "}";

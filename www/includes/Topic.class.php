@@ -301,7 +301,7 @@ class Topic
                 $key['filename'] = urlencode($key['filename']).".jpg";
             }
             if ($key['level'] == 1) {
-                $user = new User($key['user_id']);
+                $user = new User(null, $key['user_id']);
                 $key['title'] = $user->getAccessTitle();
                 $key['title_color'] = $user->getTitleColor();
             }
