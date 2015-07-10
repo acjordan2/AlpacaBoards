@@ -33,15 +33,19 @@ if ($auth === true) {
     $allowed_includes = preg_grep('/^([^.])/', scandir($api_folder));
 
     $request = json_decode(file_get_contents('php://input'), true);
-    $class = key($request);
+    
+    if (sizeof($request) > 0) {
+        $class = key($request);
 
-    if(in_array($class.".api.php", $allowed_includes)) {
-        include $api_folder.$class.".api.php";
-        print json_encode($output);
+        if(in_array($class.".api.php", $allowed_includes)) {
+            include $api_folder.$class.".api.php";
+            print json_encode($output);
+        } else {
+            print json_encode(array("error" => "invalid JSON object"));
+        }
     } else {
         print json_encode(array("error" => "invalid JSON object"));
     }
-
 } else {
     include "403.php";
 }

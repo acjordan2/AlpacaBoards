@@ -70,70 +70,7 @@ if ($auth == true) {
                     default:
                         $output = "{\"error\": \"Invalid Link ID\"}";
                 }
-            } else {
-                $link = new Link($authUser, null, null, $_POST['l']);
-                
-                // Confirm provided link id is valid
-                try {
-                    // Link actions
-                    switch($action){
-                        // Link voting
-                        case "vote":
-                            if (is_numeric(@$_POST['v'])
-                                && @$_POST['v'] >= 0
-                                && @$_POST['v'] <= 10
-                                && $link->getLinkUserID() !=$authUser->getUserID()
-                            ) {
-                                // Validate CSRF token
-                                if ($csrf->validateToken(@$_REQUEST['token'])) {
-                                    $link->setVote($_POST['v']);
-                                    $output = $link->getVotes();
-                                    $output['message'] = "Vote Added!";
-                                }
-                            }
-
-                            break;
-                        // Add links to favorites
-                        case "fav":
-                            if ((@$_POST['f'] === "1" || @$_POST['f'] === "0")
-                                && $csrf->validateToken(@$_REQUEST['token'])
-                            ) {
-                                if ($_POST['f'] === "1") {
-                                    $link->addToFavorites();
-                                    $output['f'] = "Remove from Favorites";
-                                    $output['message'] = "Added to favorites!";
-                                } elseif ($_POST['f'] === "0") {
-                                    $link->removeFromFavorites();
-                                    $output['f'] = "Add to Favorites";
-                                    $output['message'] = "Removed from favorites!";
-                                }
-                            }
-                            break;
-                    }
-                } catch (Exception $e) {
-                    $output['message'] = "Error processing request";
-                }
-                break;
-            }
-        case "topic":
-            include "includes/Topic.class.php";
-            include "includes/Parser.class.php";
-            switch($action){
-                case "subscribe":
-                    //$json = json_decode(file_get_contents("php://input"), true);
-                    $parser = new Parser();
-                    $topic = new Topic($authUser, $parser);
-                    $topic->loadTopic($_GET['topic_id']);
-                    $message_data = $topic->pollMessage();
-                    if (count($message_data) > 0) {
-                        $smarty->assign("message_data", $message_data);
-                        $smarty->assign("topic_id", $topic->getTopicID());
-                        $output = $smarty->fetch("ajax/message.tpl");
-                    } else {
-                        $output = array();
-                    }
-                    break;
-            } // End switch($action) for topic
+            } 
             break;
     } // End switch($section)
 
