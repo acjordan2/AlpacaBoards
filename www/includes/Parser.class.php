@@ -188,11 +188,14 @@ class Parser
         if ($src[sizeof($src)-1] != "grey.gif") {
             $hash = $src[sizeof($src)-2];
             $size = $src[sizeof($src)-3];
-            $filename = explode(".", $src[sizeof($src)-1]);
+            $filename_array = explode(".", $src[sizeof($src)-1]);
+            $extension = array_pop($filename_array);
+            $filename = implode($filename_array, ".");
             if ($node->parentNode->nodeName == "quote") {
                 $size = 't';
                 $sql = "SELECT thumb_width, thumb_height 
                     FROM UploadedImages WHERE sha1_sum = ?";
+                $extension = "jpg";
             } else {
                 $sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
             }
@@ -221,10 +224,11 @@ class Parser
                 $img_a->setAttribute("href", $this->_site->getBaseURL()."/imagemap.php?hash=".htmlentities($hash));
 
                 $new_src = array(
-                                $this->_site->getImagePath(),
-                                $size,
-                                $hash,
-                                implode($filename, "."));
+                    $this->_site->getImagePath(),
+                    $size,
+                    $hash,
+                    $filename.".".$extension
+                );
                                 
 
                 $img = $this->doc->createElement("img");
