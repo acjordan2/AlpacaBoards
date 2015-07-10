@@ -218,7 +218,7 @@ class Parser
             } else {
 
                 $img_a = $this->doc->createElement('a');
-                $img_a->setAttribute("href", "./imagemap.php?hash=".htmlentities($hash));
+                $img_a->setAttribute("href", $this->_site->getBaseURL()."/imagemap.php?hash=".htmlentities($hash));
 
                 $new_src = array(
                                 $this->_site->getImagePath(),
@@ -231,7 +231,7 @@ class Parser
                 $img->setAttribute("width", $results[0]);
                 $img->setAttribute("height", $results[1]);
                 $img->setAttribute("data-original", implode("/", $new_src));
-                $img->setAttribute("src", "./templates/default/images/grey.gif");
+                $img->setAttribute("src", $this->_site->getBaseURL()."/templates/default/images/grey.gif");
                 $img_a->appendChild($img);
                 $img_div->appendChild($img_a);
             }

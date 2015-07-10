@@ -24,6 +24,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Rate limit for posting
+define("RATE_LIMIT", 30);
+
 class Topic
 {
     /**
@@ -65,9 +68,15 @@ class Topic
 
     /**
      * Parser for formating messages
-     * @var parser
+     * @var Parser
      */
     private $_parser;
+
+    /**
+     * Current User
+     * @var User
+     */ 
+    private $_user;
 
     /**
      * Create a new Topic object
@@ -79,6 +88,7 @@ class Topic
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
         $this->_parser = $parser;
         $this->_user_id = $user->getUserId();
+        $this->_user = $user;
         if (is_numeric($topic_id)) {
             $this->loadTopic($topic_id);
         }
@@ -383,59 +393,67 @@ class Topic
     public function postMessage($message, $message_id = null)
     {
         if ($this->hasTag("Archived") === false) {
-            // Message ID was not provided, post a new message
-            if (is_null($message_id)) {
-                $sql = "INSERT INTO Messages ( user_id, topic_id, message, posted)
-                    VALUES (:user_id, :topic_id, :message, ".time().")";
-                $data = array(
-                    "user_id" => $this->_user_id,
-                    "topic_id" => $this->_topic_id,
-                    "message" => $message
-                );
-                $statement = $this->_pdo_conn->prepare($sql);
-                if ($statement->execute($data)) {
-                    $this->_parser->map($message, $this->_user_id, $this->_topic_id);
-                    $statement->closeCursor();
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                // Message ID was provided, edit exiting message
-                $sql = "SELECT MAX(revision_no) as revision_no FROM Messages
-                    WHERE Messages.message_id = :message_id AND Messages.user_id = :user_id";
-                $data = array(
-                    "message_id" => $message_id,
-                    "user_id" => $this->_user_id
-                );
-                $statement = $this->_pdo_conn->prepare($sql);
-                $statement->execute($data);
-                $row = $statement->fetch();
-                $statement->closeCursor();
-                if ($statement->rowCount() == 1) {
-                    // Provided message ID exists
-                    $revision_number = $row[0] + 1;
-                    $sql2 = "INSERT INTO Messages (message_id, user_id, topic_id, message, 
-                        revision_no, posted) 
-                        VALUES(:message_id, :user_id, :topic_id, :message, 
-                    $revision_number, ".time().")";
-                    $data2 = array(
-                        "message_id" => $message_id,
+            $last_post = $this->_user->getLastPost();
+            if ($last_post['posted'] > time() - RATE_LIMIT){
+                $time = ($last_post['posted'] + RATE_LIMIT) - time();
+                return $time;
+            }
+            else {
+                // Message ID was not provided, post a new message
+                if (is_null($message_id)) {
+                    $sql = "INSERT INTO Messages ( user_id, topic_id, message, posted)
+                        VALUES (:user_id, :topic_id, :message, ".time().")";
+                    $data = array(
                         "user_id" => $this->_user_id,
                         "topic_id" => $this->_topic_id,
                         "message" => $message
                     );
-                    $statement2 = $this->_pdo_conn->prepare($sql2);
-                    return $statement2->execute($data2);
+                    $statement = $this->_pdo_conn->prepare($sql);
+                    if ($statement->execute($data)) {
+                        $this->_parser->map($message, $this->_user_id, $this->_topic_id);
+                        $statement->closeCursor();
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
-                    // Provided message ID does not exist
-                    return false;
+                    // Message ID was provided, edit exiting message
+                    $sql = "SELECT MAX(revision_no) as revision_no FROM Messages
+                        WHERE Messages.message_id = :message_id AND Messages.user_id = :user_id";
+                    $data = array(
+                        "message_id" => $message_id,
+                        "user_id" => $this->_user_id
+                    );
+                    $statement = $this->_pdo_conn->prepare($sql);
+                    $statement->execute($data);
+                    $row = $statement->fetch();
+                    $statement->closeCursor();
+                    if ($statement->rowCount() == 1) {
+                        // Provided message ID exists
+                        $revision_number = $row[0] + 1;
+                        $sql2 = "INSERT INTO Messages (message_id, user_id, topic_id, message, 
+                            revision_no, posted) 
+                            VALUES(:message_id, :user_id, :topic_id, :message, 
+                        $revision_number, ".time().")";
+                        $data2 = array(
+                            "message_id" => $message_id,
+                            "user_id" => $this->_user_id,
+                            "topic_id" => $this->_topic_id,
+                            "message" => $message
+                        );
+                        $statement2 = $this->_pdo_conn->prepare($sql2);
+                        return $statement2->execute($data2);
+                    } else {
+                        // Provided message ID does not exist
+                        return false;
+                    }
                 }
             }
-        } else {
+        }  else {
             // Topic is archived or locked
             return false;
         }
+        
     }
 
     /**

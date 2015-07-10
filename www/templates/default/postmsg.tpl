@@ -54,6 +54,8 @@
 		{/if}
 		<b>Your Message</b><br />
 		Enter your message text below.<br />
+        {if isset($post_again)}<em>Error: You must wait {$post_again} seconds before posting again</em><br />{/if}
+
 		<textarea cols="100" rows="20" name="message" id="message">{$message}</textarea>
         <br />
         <br />

@@ -99,10 +99,15 @@ if ($auth === true) {
                     if (isset($message_id) && $edit == true) {
                         $message_edit->editMessage($message);
                     } else {
-                        $topic->postMessage($message);
+                        $post = $topic->postMessage($message);
                     }
-                    header("Location: ./showmessages.php?topic=".$topic_id);
-                    exit();
+
+                    if ($post === true) {
+                        header("Location: ./showmessages.php?topic=".$topic_id);
+                        exit();
+                    } else {
+                        $smarty->assign("post_again", $post);
+                    }
                 }
             }
 

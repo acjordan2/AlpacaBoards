@@ -727,6 +727,20 @@ class User
     }
 
     /**
+    * Get the last message posted by the user
+    * helpful for rate limiting
+    */
+    public function getLastPost() {
+        $sql = "SELECT Messages.message_id, Messages.posted FROM
+            Messages WHERE Messages.user_id = :user_id AND revision_no = 0
+            ORDER by Messages.message_id DESC  LIMIT 1";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("user_id", $this->_user_id);
+        $statement->execute();
+        return $statement->fetch();
+    }
+
+    /**
     * Get total number of topics created by a given user
     * @return integer Number of topics
     */
