@@ -311,7 +311,7 @@ class User
                 return false;
             }
         } else {
-            // Username does match, create arbitrary hash to prevent timing attacks
+            // Username does not  match, create arbitrary hash to prevent timing attacks
             password_hash("password", $this->_hash_algo, $this->_hash_options);
             return false;
         }

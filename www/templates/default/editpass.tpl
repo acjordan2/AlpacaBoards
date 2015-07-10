@@ -3,7 +3,7 @@
 {foreach $message as $msg}
 	<h2><em>{$msg}</em></h2>
 {/foreach}<br />
-	<form action="{base_url}/editpass.php" method="post" autocomplete="off">
+	<form action="{$base_url}/editpass.php" method="post" autocomplete="off">
 		<table class="grid">
 		<tr>
 			<th colspan="2">{$sm_labels.change_password} {$username}</th>
