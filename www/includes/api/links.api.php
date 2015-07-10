@@ -77,6 +77,52 @@ switch($action) {
             }
         }
         break;
+    case "favorite":
+        $required_fields = array(
+            "action",
+            "link_id",
+            "token"    
+        );
+
+        foreach ($request[$class] as $key => $value) {
+            if (!in_array($key, $required_fields)) {
+                $output = array("error" => "invalid JSON object");
+            } else {
+                $r_key = array_search($key, $required_fields);
+                unset($required_fields[$r_key]);
+            }
+        }
+        if (count($required_fields) > 0) {
+            $output = array("error" => "invalid JSON object");
+        } else {
+            $csrf->setPageSalt("linkme".$request[$class]['link_id']);
+            if ($csrf->validateToken($request[$class]['token'])) {
+                if (is_numeric($request[$class]['link_id'])) {
+                    try {
+                        $link = new Link($authUser, null, null, $request[$class]['link_id']);
+                        if ($link->isFavorite() == true) {
+                            $link->removeFromFavorites();
+                            $output['message'] = "Removed from favorites";
+                            $output['state'] = false;
+                        } else {
+                            $link->addToFavorites();
+                            $output['message'] = "Added to favorites";
+                            $output['state'] = true;
+                        }
+                    } catch (Exception $e) {
+                        // invalid Link ID provided
+                        $output = array("error" => "invalid JSON object");
+                    }
+                } else {
+                    // Non-numeric link_id provided
+                    $output = array("error" => "invalid JSON object");
+                }
+            } else {
+                // Invalid CSRF token
+                $output = array("error" => "invalid JSON object");
+            }      
+        } 
+        break;
     default:
         $output = array("error" => "invalid JSON object");
 }

@@ -61,7 +61,7 @@ $(function() {
 
 		//AJAX for linkme.tpl
 //		ajaxPost("#link_vote", "v");
-		ajaxPost("#link_fav", "f");
+//		ajaxPost("#link_fav", "f");
 
         $(".vote_button").click(function() {
             alert($(this).text());
@@ -88,6 +88,32 @@ $(function() {
 
             return false;
         });
+
+        $("#link_fav").submit(function(e) {
+            var payload = "{\"links\":" + JSON.stringify($('form#link_fav').serializeObject()) + "}";
+ 
+            $.ajax({
+                type: "POST",
+                url: "./api.php",
+                data: payload,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                        $.each(data, function(k, v){
+                        $("#"+k).text(v);
+                        if (k == "state" && v == true) {
+                            $("#f").text("Remove from Favorites");
+                        } else {
+                            $("#f").text("Add to Favorites");
+                        }
+                    });
+                }
+            
+            });
+
+            return false;
+        });
+
 
         $("#quickpost").submit(function(e){
             var payload = "{\"messages\":" + JSON.stringify($('form').serializeObject()) + "}";

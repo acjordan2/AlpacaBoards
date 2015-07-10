@@ -29,15 +29,16 @@
 		<b>Options:</b>
 		{if isset($link_favorite)}<button name="f" id="f" value="0">Remove from Favorites</button>
 		{else}<button name="f" id="f" value="1">Add to Favorites</button>{/if}
-		<input type="hidden" name="action" value="link_fav" />
-		<input type="hidden" name="l" value="{$link_id}" />
+		<input type="hidden" name="action" value="favorite" />
+		<input type="hidden" name="link_id" value="{$link_id}" />
 		<input type="hidden" name="token" value="{$token}" /> | 
 		<a href="{$base_url}/linkreport.php?l={$link_id}">Report Link</a>
         {if $user_id == $link_user_id}| <a href="{$base_url}/addlink.php?edit={$link_id}">Edit link</a>{/if}
 	</form>
 {if $user_id != $link_user_id}
 	<form action="{$base_url}/linkme.php?l={$link_id}" method="POST" id="link_vote">
-		<b>Vote:</b>{for $i=0; $i<=10; $i++}&nbsp;<button class="vote_btn" onclick="$('#value').val({$i})" id="v" name="v" value="{$i}">{$i}</button>{/for}
+		<b>Vote:</b>{for $i=0; $i<=10; $i++}&nbsp;<button class="vote_btn" onclick="$('#value').val({$i})" id="v" name="v" value="{$i}">{$i}</button>
+{/for}
 		<input type="hidden" name="action" value="vote" />
 		<input type="hidden" name="link_id" value="{$link_id}" />
 		<input type="hidden" name="token" value="{$token}" /><br />
