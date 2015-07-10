@@ -48,6 +48,7 @@
 	</div>
 	<div id="u0_1">
 {$i=5}
+{$k = 1 + (($current_page - 1) * 50)}
 {foreach from=$messages key=header item=table}
 	<div class="message-container" id="m{$table.message_id}">
 		<div class="message-top">
@@ -66,7 +67,8 @@
     		{/if}{/if}
     		</a> |
     		<a href="{$base_url}/postmsg.php?topic={$topic_id}&amp;quote={$table.message_id}" 
-    			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a>
+    			onclick="return quickpost_quote('t,{$topic_id},{$table.message_id}@{$table.revision_id}');">Quote</a> | 
+            #{$k++}
     	</div>
     	<table class="message-body">
     		<tr>
