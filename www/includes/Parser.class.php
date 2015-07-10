@@ -38,6 +38,8 @@ class Parser
 
     private $pdo_conn;
 
+    private $_site;
+
     private static $element_count;
 
     /**
@@ -45,7 +47,7 @@ class Parser
     *
     * @param PDO $db Database connection object
     */
-    public function __construct()
+    public function __construct($site = null)
     {
         libxml_use_internal_errors(true);
         // White list of allowed tags => attributes
@@ -62,6 +64,7 @@ class Parser
                                     "spoiler" => "caption");
         $this->doc = new DomDocument();
         $this->pdo_conn = ConnectionFactory::getInstance()->getConnection();
+        $this->_site =  new Site();
     }
 
     /**
@@ -184,10 +187,10 @@ class Parser
         $src = explode("/", $node->getAttribute("src"));
         if ($src[sizeof($src)-1] != "grey.gif") {
             $hash = $src[sizeof($src)-2];
+            $size = $src[sizeof($src)-3];
+            $filename = explode(".", $src[sizeof($src)-1]);
             if ($node->parentNode->nodeName == "quote") {
-                $src[sizeof($src)-3] = 't';
-                $filename = explode(".", $src[sizeof($src)-1]);
-                $src[sizeof($src)-1] = $filename[0].".jpg";
+                $size = 't';
                 $sql = "SELECT thumb_width, thumb_height 
                     FROM UploadedImages WHERE sha1_sum = ?";
             } else {
@@ -197,16 +200,41 @@ class Parser
             $statement->execute(array($hash));
             $results = $statement->fetch();
 
-            $img_a = $this->doc->createElement('a');
-            $img_a->setAttribute("href", "./imagemap.php?hash=".htmlentities($hash));
+            if($statement->rowCount() === 0) {
+                $text = "<".$node->nodeName;
+                if ($node->hasAttributes()) {
+                    $text .= " ";
+                    foreach ($node->attributes as $attr) {
+                        $text .= $attr->nodeName."=\"".$attr->nodeValue."\"";
+                    }
+                }
+                if (!empty($node->nodeValue)) {
+                    $text .= ">".$node->nodeValue."</".$node->nodeName.">";
+                } else {
+                    $text .= " />";
+                }
+                $img_div = $this->doc->createTextNode($text);
 
-            $img = $this->doc->createElement("img");
-            $img->setAttribute("width", $results[0]);
-            $img->setAttribute("height", $results[1]);
-            $img->setAttribute("data-original", implode("/", $src));
-            $img->setAttribute("src", "./templates/default/images/grey.gif");
-            $img_a->appendChild($img);
-            $img_div->appendChild($img_a);
+            } else {
+
+                $img_a = $this->doc->createElement('a');
+                $img_a->setAttribute("href", "./imagemap.php?hash=".htmlentities($hash));
+
+                $new_src = array(
+                                $this->_site->getImagePath(),
+                                $size,
+                                $hash,
+                                implode($filename, "."));
+                                
+
+                $img = $this->doc->createElement("img");
+                $img->setAttribute("width", $results[0]);
+                $img->setAttribute("height", $results[1]);
+                $img->setAttribute("data-original", implode("/", $new_src));
+                $img->setAttribute("src", "./templates/default/images/grey.gif");
+                $img_a->appendChild($img);
+                $img_div->appendChild($img_a);
+            }
             return $img_div;
         }
     }

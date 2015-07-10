@@ -230,6 +230,16 @@ class Site {
         return $this->_domain;
     }
 
+    public function getImageDomain()
+    {
+        return $this->_domain;
+    }
+
+    public function getImagePath()
+    {
+        return $this->getBaseURL()."/usercontent/i";
+    }
+
     public function getSiteKey()
     {
         return $this->_sitekey;
