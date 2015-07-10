@@ -94,7 +94,7 @@ $base_url = $site->getBaseUrl();
 define("SITENAME", $sitename);
 define("BASEURL", $site->getDomain().$site->getBaseUrl());
 define("ROOTPATH", $root_path);
-define("BASE_IMAGE_URL", "./usercontent/i");
+define("BASE_IMAGE_URL", $site->getBaseUrl()."/usercontent/i");
 
 
 if ($site->getDomain() != null) {
