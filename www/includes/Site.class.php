@@ -175,6 +175,12 @@ class Site {
         for ($i = count($tempPath2); $i < count($tempPath1); $i++) {
             array_pop($tempPath3);
         }
+        
+        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+            && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == "https") {
+            $_SERVER['HTTPS'] = "on";
+        }
+
 
         if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
             $protocol = "https://";
