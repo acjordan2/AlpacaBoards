@@ -145,6 +145,7 @@
         <input type="hidden" name="action" value="postMessage" />
 		<input type="hidden" name="parent_id" value="{$topic_id}" />
         <input type="hidden" name="data_type" value="1" />
+        <span id="status_message"></span>
 		<b>Your Message:</b><br />
 		<textarea id="qpmessage" name="message">{$p_signature}</textarea>
 		<br />

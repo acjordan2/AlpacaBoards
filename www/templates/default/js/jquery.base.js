@@ -124,7 +124,13 @@ $(function() {
                 data: payload,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function() { quickpost(); }
+                success: function(data) { 
+                    if (data.status == "failed") {
+                        $("#status_message").text(data.message);
+                    } else {
+                        quickpost();
+                    }
+                }
             });
 
             return false;

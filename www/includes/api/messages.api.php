@@ -54,8 +54,20 @@ switch($action) {
                 include "includes/Parser.class.php";
                 $parser = new Parser();
                 $topic = new Topic($authUser, $parser, $request[$class]['parent_id']);
-                $topic->postMessage($request[$class]['message']);
-                $output = array("success");
+                $post = $topic->postMessage($request[$class]['message']);
+                if ($post === true) {
+                    $output = array("status" => "success");
+                } elseif ($post === false) {
+                    $output = array(
+                            "status" => "failed",
+                            "message" => "Topic has been archived"
+                    );
+                } else {
+                    $output = array(
+                        "status" => "failed", 
+                        "message" => "Please wait ".$post." seconds before posting again"
+                    );
+                }
             }
         }
         break;
