@@ -126,7 +126,6 @@ class Parser
                     }
                     $textNode = $this->doc->createTextNode($text);
                     $node->parentNode->replaceChild($textNode, $node);
-                    print $node->value;
                 }
             } else { // If tag is in whitelist, parse data
                 if ($node->hasAttributes()) {
