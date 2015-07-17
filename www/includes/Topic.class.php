@@ -128,37 +128,44 @@ class Topic
      */
     public function createTopic($title, $tags, $message)
     {
-        $time = time();
-        // New Topic
-        $sql_topic = "INSERT INTO Topics (user_id, title, board_id, created)
-            VALUES(:user_id, :title, 42, $time)";
+        $last_post = $this->_user->getLastPost();
+        if ($last_post['posted'] > time() - RATE_LIMIT){
+            $time = ($last_post['posted'] + RATE_LIMIT) - time();
+            return $time * -1;
+        } else {
+            
+            $time = time();
+            // New Topic
+            $sql_topic = "INSERT INTO Topics (user_id, title, board_id, created)
+                VALUES(:user_id, :title, 42, $time)";
 
-        $statement_topic = $this->_pdo_conn->prepare($sql_topic);
-        $data_topic = array("user_id" => $this->_user_id,
-                      "title" => $title);
-        $statement_topic->execute($data_topic);
-        $topic_id = $this->_pdo_conn->lastInsertId();
+            $statement_topic = $this->_pdo_conn->prepare($sql_topic);
+            $data_topic = array("user_id" => $this->_user_id,
+                          "title" => $title);
+            $statement_topic->execute($data_topic);
+            $topic_id = $this->_pdo_conn->lastInsertId();
 
-        // First message of new topic
-        $sql_message = "INSERT INTO Messages (user_id, topic_id, message, posted)
-            VALUES(:user_id, :topic_id, :message, $time)";
-        $statement_message = $this->_pdo_conn->prepare($sql_message);
-        $data_message = array("user_id" => $this->_user_id,
-                        "topic_id" => $topic_id,
-                        "message" => $message);
-        $statement_message->execute($data_message);
-        $this->_parser->map($message, $this->_user_id, $topic_id);
+            // First message of new topic
+            $sql_message = "INSERT INTO Messages (user_id, topic_id, message, posted)
+                VALUES(:user_id, :topic_id, :message, $time)";
+            $statement_message = $this->_pdo_conn->prepare($sql_message);
+            $data_message = array("user_id" => $this->_user_id,
+                            "topic_id" => $topic_id,
+                            "message" => $message);
+            $statement_message->execute($data_message);
+            $this->_parser->map($message, $this->_user_id, $topic_id);
 
-        //Topical Tags
-        $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type)
-            VALUES ($topic_id, :tag_id, 1)";
-        $statement_tags = $this->_pdo_conn->prepare($sql_tags);
-        foreach ($tags as $tag) {
-            $data_tags = array("tag_id" => $tag);
-            $statement_tags->execute($data_tags);
+            //Topical Tags
+            $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type)
+                VALUES ($topic_id, :tag_id, 1)";
+            $statement_tags = $this->_pdo_conn->prepare($sql_tags);
+            foreach ($tags as $tag) {
+                $data_tags = array("tag_id" => $tag);
+                $statement_tags->execute($data_tags);
+            }
+            
+            return $topic_id;
         }
-        
-        return $topic_id;
     }
 
     /**

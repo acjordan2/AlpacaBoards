@@ -197,10 +197,12 @@ if ($auth === true) {
 				$tags = explode(",", $_POST['tags']);
 				$topic = new Topic($authUser, $parser);
 				$topic_id = $topic->createTopic($title, $tags, $message);
-				if ($topic_id) {
+				if ($topic_id > 0) {
 					header("Location: ./showmessages.php?topic=".$topic_id);
 					exit();
-				}		
+				} else {
+                    $smarty->assign("post_again", $topic_id * -1);
+                }
 			}
 		}
 	}
