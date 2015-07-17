@@ -197,7 +197,7 @@ class Parser
             $filename_array = explode(".", $src[sizeof($src)-1]);
             $extension = array_pop($filename_array);
             $filename = implode($filename_array, ".");
-            if ($node->parentNode->nodeName == "quote") {
+            if ($node->parentNode->nodeName == "quote" || $size == 't') {
                 $size = 't';
                 $sql = "SELECT thumb_width, thumb_height 
                     FROM UploadedImages WHERE sha1_sum = ?";
@@ -228,7 +228,7 @@ class Parser
 
                 $img_a = $this->doc->createElement('a');
                 $img_a->setAttribute("href", $this->_site->getBaseURL()."/imagemap.php?hash=".htmlentities($hash));
-
+        
                 $new_src = array(
                     $this->_site->getImagePath(),
                     $size,
