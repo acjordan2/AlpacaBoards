@@ -108,8 +108,10 @@ if ($auth == true) {
             $tags = $tag->getObjectTags($_GET['topic'], 1);
 
             if (in_array_r("Anonymous", $tags)) {
+                $smarty->assign("p_signature", "");
                 $anonymous = true;
             } else {
+                $smarty->assign("p_signature", htmlentities("\n".$authUser->getSignature()));
                 $anonymous = false;
             }
 
@@ -126,7 +128,7 @@ if ($auth == true) {
             // Set template variables
             $smarty->assign("messages", $messages);
 
-            $smarty->assign("p_signature", htmlentities("\n".$authUser->getSignature()));
+
             $smarty->assign("topic_id", intval($topic_id));
             $smarty->assign(
                 "topic_title",
