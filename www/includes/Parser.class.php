@@ -88,7 +88,15 @@ class Parser
             $html = " ";
         }
 
+        $html = preg_replace_callback('/[\x{80}-\x{10FFFF}]/u', function($match) {
+            list($utf8) = $match;
+            $entity = mb_convert_encoding($utf8, 'HTML-ENTITIES', 'UTF-8');
+            return $entity;
+            }, $html);
+
         $this->doc->loadHTML($html);
+        print $html;
+        print $this->doc->saveHTML();
         // Create a recurisve iterator
         // to get all nodes in a document
         // starting with the children
@@ -120,6 +128,7 @@ class Parser
                     }
                     $textNode = $this->doc->createTextNode($text);
                     $node->parentNode->replaceChild($textNode, $node);
+                    print $node->value;
                 }
             } else { // If tag is in whitelist, parse data
                 if ($node->hasAttributes()) {
