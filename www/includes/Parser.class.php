@@ -95,8 +95,6 @@ class Parser
             }, $html);
 
         $this->doc->loadHTML($html);
-        print $html;
-        print $this->doc->saveHTML();
         // Create a recurisve iterator
         // to get all nodes in a document
         // starting with the children
