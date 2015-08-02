@@ -161,7 +161,7 @@ class GdThumb extends ThumbBase
     * @param mixed $height
     * @param mixed $color
     */
-    public function pad ($width, $height, $color=array(255, 255, 255))
+    public function pad ($width, $height, $color=array(255, 255, 255, 127))
     {
         // no resize - woohoo!
         if($width == $this->currentDimensions['width'] && $height == $this->currentDimensions['height']){
@@ -177,13 +177,17 @@ class GdThumb extends ThumbBase
         {
             $this->workingImage = imagecreate($width, $height);
         }
-        
+       
+        imagealphablending($this->workingImage, false);
+        imagesavealpha($this->workingImage, true);
+ 
         // create the fill color
-        $fillColor = imagecolorallocate(
+        $fillColor = imagecolorallocatealpha(
             $this->workingImage,
             $color[0],
             $color[1],
-            $color[2]
+            $color[2],
+            $color[3]
         );
         
         // fill our working image with the fill color
@@ -1557,14 +1561,14 @@ class GdThumb extends ThumbBase
 		if ($this->format == 'PNG' && $this->options['preserveAlpha'] === true)
 		{
 			imagealphablending($this->workingImage, false);
-			
+		    imagesavealpha($this->workdingImage, true);	
 			$colorTransparent = imagecolorallocatealpha
 			(
 				$this->workingImage, 
 				$this->options['alphaMaskColor'][0], 
 				$this->options['alphaMaskColor'][1], 
 				$this->options['alphaMaskColor'][2], 
-				0
+				127
 			);
 			
 			imagefill($this->workingImage, 0, 0, $colorTransparent);

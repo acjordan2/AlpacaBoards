@@ -23,6 +23,8 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+define("RATE_LIMIT", 30);
  
 class Link
 {
@@ -36,6 +38,8 @@ class Link
     private $_link_id;
 
     private $_user_id;
+
+    private $_user;
 
     private $_title;
 
@@ -71,6 +75,7 @@ class Link
         $this->_parser = $parser;
         $this->_tag = $tag;
         $this->_user_id = $user->getUserId();
+        $this->_user = $user;
         if (is_numeric($link_id)) {
             $this->_loadLink($link_id);
         }
@@ -231,26 +236,33 @@ class Link
     public function createLink($title, $url, $description, $tags)
     {
         $time = time();
-        $sql_link = "INSERT INTO Links (user_id, title, url, description, created)
-            VALUES (".$this->_user_id.", :title, :url, :description, $time)";
-        $statement_link = $this->_pdo_conn->prepare($sql_link);
-        $data_link = array(
-            "title" => $title,
-            "url" => $url,
-            "description" => $description
-        );
-        $statement_link->execute($data_link);
-        $link_id = $this->_pdo_conn->lastInsertId();
+        $last_link = $this->_user->getLastLink();
 
-        $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type)
-            VALUES ($link_id, :tag_id, 2)";
-        $statement_tags = $this->_pdo_conn->prepare($sql_tags);
-        foreach ($tags as $tag) {
-            $statement_tags->bindParam("tag_id", $tag);
-            $statement_link->execute();
+        if ($last_link['created'] > $time - RATE_LIMIT) {
+            $time = ($last_link['created'] + RATE_LIMIT) - time();
+            return $time * - 1;
+        } else {
+            $sql_link = "INSERT INTO Links (user_id, title, url, description, created)
+                VALUES (".$this->_user_id.", :title, :url, :description, $time)";
+            $statement_link = $this->_pdo_conn->prepare($sql_link);
+            $data_link = array(
+                "title" => $title,
+                "url" => $url,
+                "description" => $description
+            );
+            $statement_link->execute($data_link);
+            $link_id = $this->_pdo_conn->lastInsertId();
+
+            $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type)
+                VALUES ($link_id, :tag_id, 2)";
+            $statement_tags = $this->_pdo_conn->prepare($sql_tags);
+            foreach ($tags as $tag) {
+                $statement_tags->bindParam("tag_id", $tag);
+                $statement_link->execute();
+            }
+
+            return $link_id;
         }
-
-        return $link_id;
     }
 
     public function updateLink($title, $url, $description, $tags)

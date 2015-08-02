@@ -161,9 +161,11 @@ if ($auth === true) {
                 if ($csrf->validateToken($_POST['token'])) {
                     $tags = explode(",", $_POST['tags']);
                     $link_id = $links->createLink($_POST['title'], $_POST['lurl'], $_POST['description'], $_POST['tags']);
-                    if ($link_id) {
+                    if ($link_id > 0) {
                         header("Location: ./linkme.php?l=$link_id");
                         exit();
+                    } else {
+                        $smarty->assign("post_again", $link_id * -1);
                     }
                 } else {
                     $error_msg = "There was a problem processing your request. 

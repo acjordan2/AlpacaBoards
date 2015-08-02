@@ -66,6 +66,7 @@
 					$size = getimagesize($base_dir.$image_dir.$target_dir.$target_file);
 					$thumb = PhpThumbFactory::create($base_dir.$image_dir.$target_dir.$target_file);
 					$thumb->resize(150, 150);
+                    $thumb->pad(150, 150, [255, 255, 255, 127]);
 					$thumb->save($base_dir.$thumb_dir.$target_dir."/".$sha1_sum.".jpg", 'jpg');
 					$thumbsize = getimagesize($base_dir.$thumb_dir.$target_dir."/".$sha1_sum.".jpg");
 					$sql = "INSERT INTO UploadedImages(user_id, sha1_sum, width, height, thumb_width, thumb_height, created)

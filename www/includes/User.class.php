@@ -729,11 +729,26 @@ class User
     /**
     * Get the last message posted by the user
     * helpful for rate limiting
+    * @return array Message ID and post time
     */
     public function getLastPost() {
         $sql = "SELECT Messages.message_id, Messages.posted FROM
             Messages WHERE Messages.user_id = :user_id AND revision_no = 0
             ORDER by Messages.message_id DESC  LIMIT 1";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("user_id", $this->_user_id);
+        $statement->execute();
+        return $statement->fetch();
+    }
+
+    /**
+    * Get the last link created by the user
+    * @return Link ID and creation time
+    */
+    public function getLastLink() {
+        $sql = "SELECT Links.link_id, Links.created FROM Links
+            WHERE Links.user_id = :user_id ORDER BY Links.link_id
+            DESC LIMIT 1";
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->bindParam("user_id", $this->_user_id);
         $statement->execute();

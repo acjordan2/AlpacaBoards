@@ -10,6 +10,7 @@
 			<br />
 			<br />
 		{/if}
+        {if isset($post_again)}<em>Error: You must wait {$post_again} seconds before posting again</em><br />{/if}
 		<b>Link Title</b><br />
 		<input type="text" name="title" value="{if isset($title)}{$title}{/if}" maxlength="80" size="60">
 		<br />
