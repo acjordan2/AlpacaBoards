@@ -132,13 +132,13 @@ if(isset($_POST['write_db'])){
     </table>
 </form>
 <?php }elseif(!isset($import)){ ?>
-Note, this will delete any existing tables in the database and overrite the data, this cannot be undone. 
+Note: this will delete any existing tables in the specified database and overwrite the data. This cannot be undone! 
 <form action="" method="post">
-    <input type="submit" name="write_db" value="Write Database tables" />
+    <input type="submit" name="write_db" value="Write Database Tables" />
 </form>
 <?php } ?>
 <?php if(isset($import)){ ?>
-Database successfully written<br />
+Database successfully written!<br />
 <a href="./step3.php"><input type="button" value="Step 3"/></a>
 <?php } ?>
 </body>

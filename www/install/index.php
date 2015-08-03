@@ -53,7 +53,8 @@ $functions = array(
 $directories = array(
     TEMPLATE_COMPILE => "Template Directory is Writeable",
     $root_path."/includes" => "Includes Directory is Writeable",
-    $root_path."/install" => "Install Directory is Writeable"
+    $root_path."/install" => "Install Directory is Writeable",
+    $root_path."/usercontent" => "User Content Directory is Writeable"
 );
 
 #Currently Installed
@@ -73,7 +74,6 @@ $magic_quotes = get_magic_quotes_gpc();
     <title>Install</title>
 </head>
 <body>
-    <div style="text-aligh:center;">
     <table border="1">
         <tr>
             <th>Required</th>
@@ -121,7 +121,7 @@ $magic_quotes = get_magic_quotes_gpc();
             	print "Failed";
             	$failed = true;
             	if ($key == "mcrypt_create_iv"){
-            		print "</td><td>If your having trouble on Ubuntu, follow <a href=\"http://stackoverflow.com/a/19447669\" target=\"blank\">these instructions</a> after installing the extension.";
+            		print "</td><td>If you're having trouble on Ubuntu, follow <a href=\"http://stackoverflow.com/a/19447669\" target=\"blank\">these instructions</a> after installing the extension.";
 
             	}
             }
@@ -173,7 +173,10 @@ $magic_quotes = get_magic_quotes_gpc();
             } else {
             	print "Failed";
             	print "</td><td>Run <pre>sudo chmod a+w ".$key."</pre>";
-            	$failed = true;
+                $failed = true;
+                if (substr($key, -11, 11) == "usercontent"){
+                    print "</td><td>Add -R option to recursively chmod the usercontent directory.";
+                }
             }
             print "</td></tr>";
         }
