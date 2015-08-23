@@ -835,12 +835,12 @@ class User
     */
     public function getVoteAverage()
     {
-        $sql = "SELECT SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) as average
+        $sql = "SELECT (SUM(LinkVotes.vote)/COUNT(LinkVotes.vote)) as average
             FROM LinkVotes LEFT JOIN Links USING(link_id) 
-            WHERE Links.user_id=$this->_user_id GROUP BY LinkVotes.link_id";
+            WHERE Links.user_id=$this->_user_id";
         $statement = $this->_pdo_conn->query($sql);
         $row = $statement->fetchAll();
-        return @$row[0]['average'];
+        return $row[0]['average'];
     }
    
     /**
@@ -914,17 +914,25 @@ class User
         if ($user_id == null) {
             $user_id = $this->_user_id;
         }
-        $sql_getContributionKarma = "SELECT SUM(LinkVotes.vote) - (5 * COUNT(LinkVotes.vote)) AS rank
-            FROM LinkVotes LEFT JOIN Links USING (link_id) WHERE Links.user_id = :user_id";
+        $sql_getContributionKarma = "SELECT LinkVotes.link_id as linkid, 
+                SUM(LinkVotes.vote) as rating_sum,
+                (SELECT COUNT(LinkVotes.vote) FROM LinkVotes 
+                    WHERE LinkVotes.link_id = linkid) as count 
+            FROM LinkVotes LEFT JOIN Links USING (link_id) WHERE Links.user_id = :user_id GROUP BY LinkVotes.link_id";
         $statement_getContributionKarma = $this->_pdo_conn->prepare($sql_getContributionKarma);
         $statement_getContributionKarma->bindParam(":user_id", $user_id);
         $statement_getContributionKarma->execute();
-        $rank = $statement_getContributionKarma->fetch();
-        $contributionKarma = (int)(pow(abs($rank[0])/15, (1/3)));
-        if ($rank[0] < 0) {
-            $contributionKarma = $contributionKarma * -1;
+        $result = $statement_getContributionKarma->fetchAll(); 
+        $contributionKarma = 0;
+        foreach($result as $value) {
+            $rating = $value['rating_sum']/$value['count'];
+            $tmpKarma =  pow(abs((($rating) - 5)/5), (1/3)) * pow(($value['count']/3) , (1/3));
+            if (($rating - 5) < 0) {
+                $tmpKarma *= -1;
+            }
+            $contributionKarma += $tmpKarma;
         }
-        return $contributionKarma;
+        return floor($contributionKarma);
     }
 
     /**
