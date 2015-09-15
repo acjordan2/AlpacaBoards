@@ -63,7 +63,7 @@ if ($auth === false) {
                     IP address of  ".$_SERVER['REMOTE_ADDR'].". If you did not 
                     request this, please ignore.<br /><br />To reset your password
                     please click on the following link:<br />
-                    <br />https://sper.gs/passwordReset.php?token=".$reset_token."
+                    <br />".$site->getBaseUrl()."passwordReset.php?token=".$reset_token."
                     <br /><br />This link can only be used once and  will expire 
                     in 3 hours.";
             $mail->Send();
