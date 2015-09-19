@@ -35,18 +35,9 @@ define("SPHINX_PORT", 3312);
 define("SPHINX_CONFIG", "/var/www/Sper.gs/sphinx/sphinx.conf");
 
 ##Security Settings
-define("SALT_SIZE", 16);
 define("USE_SSL", false);
-define("HASH_INTERATIONS", 1000); //DO NOT CHANGE ONCE SITE GOES LIVE
 
 ##Authentication Cookie Names
 define("AUTH_KEY1", "sessionid");
 define("AUTH_KEY2", "sessionkey");
 
-##Template Engine Variables
-define("TEMPLATE_DIR", $root_path."/templates");
-define("TEMPLATE_CACHE", $root_path."/includes/smarty/cache");
-define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
-define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");
-define("DATE_FORMAT_SMARTY", "%m/%d/%Y %l:%M:%S %p");
-define("DATE_FORMAT", "n/j/Y g:i:s A");

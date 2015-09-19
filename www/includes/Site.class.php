@@ -38,7 +38,7 @@ class Site {
 
     private $_domain;
 
-    private $_root_path;
+    private static $_root_path;
 
     private $_base_url;
 
@@ -55,7 +55,6 @@ class Site {
         $this->_registration = $results['registration'];
         $this->_invites = $results['invites'];
         $this->_domain = $results['domain'];
-        $this->setRootPath();
         $this->setBaseUrl();
     }
 
@@ -152,7 +151,7 @@ class Site {
             && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name)   ); //length of each label
     }
 
-    public function setRootPath()
+    public static function setRootPath()
     {
         $root_path = "";
         $root_path_array = explode("/", dirname(__FILE__));
@@ -160,7 +159,7 @@ class Site {
             $root_path .= $root_path_array[$i]."/";
         }
         $root_path = substr($root_path, 0, strlen($root_path)-1);
-        $this->_root_path = $root_path;
+        self::$_root_path = $root_path;
     }
 
     public function setBaseUrl()
@@ -169,7 +168,7 @@ class Site {
         $start = $time[1] + $time[0];
 
         $tempPath1 = explode('/', str_replace('\\', '/', dirname($_SERVER['SCRIPT_FILENAME'])));
-        $tempPath2 = explode('/', substr($this->_root_path, 0, -1));
+        $tempPath2 = explode('/', substr(self::getRootPath(), 0, -1));
         $tempPath3 = explode('/', str_replace('\\', '/', dirname($_SERVER['PHP_SELF'])));
 
         for ($i = count($tempPath2); $i < count($tempPath1); $i++) {
@@ -216,9 +215,12 @@ class Site {
         return "Message deleted";
     }
 
-    public function getRootPath()
+    public static function getRootPath()
     {
-        return $this->_root_path;
+        if (!isset(self::$_root_path)) {
+            self::setRootPath();    
+        } 
+        return self::$_root_path;
     }
 
     public function getBaseUrl()
@@ -259,5 +261,16 @@ class Site {
     public function getInviteStatus()
     {
         return $this->_invites;
+    }
+
+    public static function getConstant($key) {
+        $constants = array(
+            "TEMPLATE_DIR" => self::getRootPath()."/templates",
+            "TEMPLATE_CACHE" => self::getRootPath()."/includes/smarty/cache",
+            "TEMPLATE_CONFIG" => self::getRootPath()."/includes/smarty/configs",
+            "TEMPLATE_COMPILE" => self::getRootPath()."/includes/smarty/templates_c"
+        );
+
+        return $constants[$key];    
     }
 }

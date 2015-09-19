@@ -1,9 +1,11 @@
 <?php
 $install = true;
 
-require_once("../includes/functions.php");
+require_once("../includes/Site.class.php");
 
-$root_path = get_root_path();
+$root_path = Site::getRootPath();
+
+define("TEMPLATE_COMPILE", Site::getConstant("TEMPLATE_COMPILE"));
 
 if (file_exists($root_path."/includes/Database.ini.php")) {
     require_once("../includes/Database.ini.php");

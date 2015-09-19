@@ -2,7 +2,7 @@
 /*
  * init.php
  * 
- * Copyright (c) 2014 Andrew Jordan
+ * Copyright (c) 2015 Andrew Jordan
  * 
  * Permission is hereby granted, free of charge, to any person obtaining 
  * a copy of this software and associated documentation files (the 
@@ -51,9 +51,6 @@ if ((sizeof($request_uri) > 1 && !defined('SOMETHING_SCREWEY'))) {
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
 
-$root_path = get_root_path();
-//$base_url = urlencode(get_base_url($root_path));
-
 require_once("Config.ini.php");
 require_once("ConnectionFactory.class.php");
 require_once("User.class.php");
@@ -75,14 +72,14 @@ header("Pragma: no-cache");
 header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
 header("X-Frame-Options: SAMEORIGIN");
 
-if (file_exists($root_path."/includes/Database.ini.php")) {
+
+if (file_exists("./includes/Database.ini.php")) {
     require_once("Database.ini.php");
+    $db = ConnectionFactory::getInstance()->getConnection();
 } elseif (!isset($install)) {
     header("Location: ./install/");
     exit();
 }
-
-$db = ConnectionFactory::getInstance()->getConnection();
 
 $site = new Site();
 $sitekey = base64_decode($site->getSiteKey());
@@ -94,7 +91,7 @@ $base_url = $site->getBaseUrl();
 define("SITENAME", $sitename);
 define("BASEURL", $site->getDomain().$site->getBaseUrl());
 define("ROOTPATH", $root_path);
-define("BASE_IMAGE_URL", $site->getBaseUrl()."/usercontent/i");
+define("BASE_IMAGE_URL", $site->getImagePath());
 
 
 if ($site->getDomain() != null) {
@@ -106,12 +103,20 @@ if ($site->getDomain() != null) {
 }
 
 
+##Template Engine Variables
+define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
+define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");
+define("DATE_FORMAT_SMARTY", "%m/%d/%Y %l:%M:%S %p");
+define("DATE_FORMAT", "n/j/Y g:i:s A");
+
+
 // Templating System Setup
 $smarty = new Smarty();
-$smarty->template_dir = TEMPLATE_DIR."/default";
-$smarty->compile_dir = TEMPLATE_COMPILE;
-$smarty->cache_dir = TEMPLATE_CACHE;
-$smarty->config_dir = TEMPLATE_CONFIG;
+
+$smarty->template_dir = Site::getConstant("TEMPLATE_DIR")."/default";
+$smarty->compile_dir = Site::getConstant("TEMPLATE_COMPILE");
+$smarty->cache_dir = Site::getConstant("TEMPLATE_CACHE");
+$smarty->config_dir = Site::getConstant("TEMPLATE_CONFIG");
 $smarty->assign("sitename", SITENAME);
 $smarty->assign("domain", $site->getDomain());
 $smarty->assign("dateformat", DATE_FORMAT_SMARTY);

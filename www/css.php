@@ -25,7 +25,7 @@
  */
 
 require "includes/init.php";
-require TEMPLATE_DIR."/default/index.php";
+require Site::getConstant("TEMPLATE_DIR")."/default/index.php";
 
 $expires = 60*60*24; // how long to cache in secs..
 header("Pragma: public");
@@ -38,13 +38,13 @@ $string = "";
 if ($auth === true) {
     foreach ($css as $file => $auth) {
         if ($auth === true) {
-            $string .= file_get_contents(TEMPLATE_DIR."/default/".$file);
+            $string .= file_get_contents(Site::getConstant("TEMPLATE_DIR")."/default/".$file);
         }
     }
 } else {
     foreach ($css as $file => $auth) {
         if ($auth === false) {
-            $string .= file_get_contents(TEMPLATE_DIR."/default/".$file);
+            $string .= file_get_contents(Site::getConstant("TEMPLATE_DIR")."/default/".$file);
         }
     }
 }
