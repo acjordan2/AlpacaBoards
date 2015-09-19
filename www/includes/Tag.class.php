@@ -487,7 +487,8 @@ class Tag
         $data = array(
             "object_id" => $object_id
         );
-        $sql = "SELECT TopicalTags.title, TopicalTags.tag_id FROM Tagged
+        $sql = "SELECT TopicalTags.title, TopicalTags.tag_id, TopicalTags.permanent, 
+            TopicalTags.Inceptive FROM Tagged
             LEFT JOIN TopicalTags USING(tag_id) WHERE data_id = :object_id
             AND (Tagged.type = 0 OR Tagged.type = $object_type)";
         $statement = $this->_pdo_conn->prepare($sql);
@@ -512,10 +513,18 @@ class Tag
     public function editTags($object_id, $object_type, $tags)
     {
         $current_tags = $this->getObjectTags($object_id, $object_type);
+
+        $permanent_tags = array();        
         $current_tag_ids = array();
 
         for ($i=0; $i<count($current_tags); $i++) {
+            if ($current_tags[$i]['permanent'] == 1) {
+                if(!in_array( $current_tags[$i]['tag_id'], $tags)) {
+                    $tags[] = $current_tags[$i]['tag_id'];
+                }
+            }
             $current_tag_ids[] = $current_tags[$i]['tag_id'];
+            
         }
 
         $tags_remove = array_values(array_diff($current_tag_ids, $tags));
