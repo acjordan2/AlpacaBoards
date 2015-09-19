@@ -58,7 +58,11 @@ if ($auth === true) {
         if (isset($_GET['domain'])) {
             $smarty->assign("message", "Please check your domain settings");
             if ($site->getDomain() == null) {
-                $domain = DOMAIN;
+                if (verify_domain($_SERVER['HTTP_HOST'])) {
+                    $domain = htmlentities(trim($_SERVER['HTTP_HOST']));
+                } else {
+                    $domain = "";
+                }
                 $needs_save = true;
                 $smarty->assign("needs_save", true);
             } else {

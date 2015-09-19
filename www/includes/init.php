@@ -93,16 +93,6 @@ define("BASEURL", $site->getDomain().$site->getBaseUrl());
 define("ROOTPATH", $root_path);
 define("BASE_IMAGE_URL", $site->getImagePath());
 
-
-if ($site->getDomain() != null) {
-    define("DOMAIN", $site->getDomain());
-} else if (verify_domain($_SERVER['HTTP_HOST'])) {
-    define("DOMAIN", htmlentities(trim($_SERVER['HTTP_HOST'])));
-} else {
-    define("DOMAIN", "");
-}
-
-
 ##Template Engine Variables
 define("TEMPLATE_CONFIG", $root_path."/includes/smarty/configs");
 define("TEMPLATE_COMPILE", $root_path."/includes/smarty/templates_c");

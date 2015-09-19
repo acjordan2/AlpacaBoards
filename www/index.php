@@ -53,7 +53,7 @@ if ($auth === false) {
     // If the suer is logged in, redirect
     // to last visted page if it exists.
     // Otherwise, redirect to main.
-    session_set_cookie_params(0, "/", DOMAIN, USE_SSL, true);
+    session_set_cookie_params(0, "/", $site->getDomain(), USE_SSL, true);
     session_name("r");
     session_start();
     if (isset($_SESSION['redirect'])) {

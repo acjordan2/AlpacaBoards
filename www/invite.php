@@ -71,7 +71,7 @@ if ($auth == true) {
 
             $mail = new PHPMailer();
             $email = $_POST['email'];
-            $mail->From = "no-reply@".DOMAIN;
+            $mail->From = "no-reply@".$site->getDomain();
             $mail->FromName = "Do Not Reply";
             $mail->AddAddress($email);
 

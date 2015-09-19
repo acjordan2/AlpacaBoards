@@ -24,9 +24,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-##Sitewide Settings
-//define("DOMAIN", ""); // Override default settings
-
 ##Search Settings
 define("SEARCHD_PATH", "/usr/bin/searchd");
 define("INDEXER_PATH", "/usr/bin/indexer");
