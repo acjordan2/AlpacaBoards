@@ -5,7 +5,8 @@ require_once("../includes/Site.class.php");
 
 $root_path = Site::getRootPath();
 
-define("TEMPLATE_COMPILE", Site::getConstant("TEMPLATE_COMPILE"));
+if(!defined("TEMPLATE_COMPILE"))
+    define("TEMPLATE_COMPILE", Site::getConstant("TEMPLATE_COMPILE"));
 
 if (file_exists($root_path."/includes/Database.ini.php")) {
     require_once("../includes/Database.ini.php");

@@ -23,8 +23,10 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-require("Install.inc.php");
+$install = true;
 require("../includes/init.php");
+
+
 
 $message = null;
 $finished = false;
@@ -54,7 +56,7 @@ if(isset($_POST['sitename'])) {
             <input type="text" name="sitename" style="width:100%;" value="<?php print SITENAME ?>" />
             <br /><br />
             Domain:<br />
-            <input type="text" name="domain" style="width:100%;" value="<?php print DOMAIN ?>"/>
+            <input type="text" name="domain" style="width:100%;" value="<?php print verify_domain($_SERVER['HTTP_HOST']) ? htmlentities(trim($_SERVER['HTTP_HOST'])) : "" ?>"/>
             <br /><br />
             Registration:<br />
             <select name="registration">

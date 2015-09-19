@@ -57,9 +57,11 @@ function import_sql(){
     try{
         $GLOBALS['db'] = new PDO(DATABASE_TYPE.":host=".DATABASE_HOST.";dbname=".DATABASE_NAME,DATABASE_USER, DATABASE_PASS);
         $sql = "";
-        $file_handle = fopen("schema.sql", "r");
+        $file_handle = fopen("schema.sql.php", "r");
         while(!feof($file_handle)){
-            $sql .= fgets($file_handle);
+            $line = fgets($file_handle);
+            if (trim($line) != "/**" && trim($line) != "**/" && trim($line) != "<?php")
+                $sql .= $line;
         }
         $sql .= "\nUPDATE SiteOptions SET sitekey = \"".base64_encode(mcrypt_create_iv(64, MCRYPT_DEV_URANDOM))."\";";
         $GLOBALS['db']->exec($sql);

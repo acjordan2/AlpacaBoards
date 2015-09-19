@@ -73,7 +73,7 @@ header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0
 header("X-Frame-Options: SAMEORIGIN");
 
 
-if (file_exists("./includes/Database.ini.php")) {
+if (file_exists(Site::getRootPath()."/includes/Database.ini.php")) {
     require_once("Database.ini.php");
     $db = ConnectionFactory::getInstance()->getConnection();
 } elseif (!isset($install)) {

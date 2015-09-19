@@ -1,21 +1,15 @@
--- phpMyAdmin SQL Dump
--- version 4.0.6deb1
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Generation Time: Jun 01, 2014 at 12:27 AM
--- Server version: 5.5.37-0ubuntu0.13.10.1
--- PHP Version: 5.5.3-1ubuntu2.3
-
+<?php
+/**
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
+**/
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
+/**
 --
 -- Database: `spergs`
 --
@@ -91,6 +85,7 @@ CREATE TABLE IF NOT EXISTS `DisciplineHistory` (
   `discipline_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL,
   `mod_id` int(11) unsigned NOT NULL,
+  `message_id` int(11) unsigned DEFAULT NULL,
   `action_taken` varchar(1024) NOT NULL,
   `description` varchar(4096) NOT NULL,
   `plea_topic` int(11) unsigned DEFAULT NULL,
@@ -101,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `DisciplineHistory` (
   KEY `user_id` (`user_id`),
   KEY `mod_id` (`mod_id`),
   KEY `plea_topic` (`plea_topic`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -146,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `InviteCodes` (
   `created` int(11) unsigned NOT NULL,
   PRIMARY KEY (`invite_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -254,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `LinkMessages` (
   PRIMARY KEY (`message_id`,`revision_no`),
   KEY `link_id` (`link_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -332,10 +327,12 @@ CREATE TABLE IF NOT EXISTS `Messages` (
   `message_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `topic_id` int(10) unsigned NOT NULL,
+  `link_id` int(11) DEFAULT NULL,
   `revision_no` int(10) unsigned NOT NULL,
   `message` varchar(8192) NOT NULL,
   `deleted` int(1) NOT NULL,
   `posted` int(10) unsigned NOT NULL,
+  `type` int(1) NOT NULL,
   PRIMARY KEY (`message_id`,`revision_no`),
   KEY `user_id` (`user_id`),
   KEY `topic_id` (`topic_id`)
@@ -356,7 +353,7 @@ CREATE TABLE IF NOT EXISTS `PasswordResetRequests` (
   `created` int(11) unsigned NOT NULL,
   PRIMARY KEY (`request_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -419,10 +416,11 @@ CREATE TABLE IF NOT EXISTS `ShopTransactions` (
 
 CREATE TABLE IF NOT EXISTS `SiteOptions` (
   `sitename` varchar(256) NOT NULL,
-  `domain` varchar(256) NOT NULL,
+  `domain` varchar(256) DEFAULT NULL,
   `sitekey` varchar(512) NOT NULL,
   `registration` int(1) NOT NULL,
-  `invites` int(1) NOT NULL
+  `invites` int(1) NOT NULL,
+  UNIQUE KEY `sitename` (`sitename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -521,6 +519,11 @@ CREATE TABLE IF NOT EXISTS `TopicalTags` (
   `title` varchar(128) NOT NULL,
   `description` varchar(256) NOT NULL,
   `type` int(1) NOT NULL,
+  `access` tinyint(1) NOT NULL,
+  `participation` int(1) NOT NULL,
+  `permanent` tinyint(1) NOT NULL,
+  `inceptive` tinyint(1) NOT NULL,
+  `special` tinyint(1) NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `created` int(11) NOT NULL,
   PRIMARY KEY (`tag_id`)
@@ -737,7 +740,6 @@ ALTER TABLE `LinkVotes`
 -- Constraints for table `Messages`
 --
 ALTER TABLE `Messages`
-  ADD CONSTRAINT `Messages_ibfk_1` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`topic_id`),
   ADD CONSTRAINT `Messages_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
 
 --
@@ -805,50 +807,15 @@ ALTER TABLE `UploadLog`
 --
 ALTER TABLE `Users`
   ADD CONSTRAINT `Users_ibfk_3` FOREIGN KEY (`avatar_id`) REFERENCES `UploadedImages` (`image_id`);
+**/
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-
-INSERT INTO `BoardCategories` (`category_id`, `title`) VALUES
-(1, 'Social Boards'),
-(2, 'Special Boards');
-
---
--- Dumping data for table `Boards`
---
-
-INSERT INTO `Boards` (`board_id`, `category_id`, `title`, `description`) VALUES
-(42, 1, 'Life, the Universe, and Everything', 'What ever.'),
-(754, 2, 'Fish Farm', 'Staff only');
-
---
--- Dumping data for table `ItemClass`
---
-
+/**
 INSERT INTO `ItemClass` (`class_id`, `type`) VALUES
 (1, 'topic');
-
---
--- Dumping data for table `LinkCategories`
---
-
-INSERT INTO `LinkCategories` (`category_id`, `name`) VALUES
-(1, 'Funny'),
-(2, 'News'),
-(3, 'Videos'),
-(4, 'Educational'),
-(5, 'Wacky'),
-(6, 'Pictures'),
-(7, 'Fighting'),
-(8, 'Trailers'),
-(9, 'Music'),
-(10, 'Adult'),
-(11, 'Sports'),
-(12, 'Gaming'),
-(13, 'Fail'),
-(14, 'Website');
 
 --
 -- Dumping data for table `ShopItems`
@@ -862,33 +829,24 @@ INSERT INTO `ShopItems` (`item_id`, `name`, `price`, `description`, `active`, `c
 -- Dumping data for table `SiteOptions`
 --
 
-INSERT INTO `SiteOptions` (`sitename`, `registration`, `invites`) VALUES
-('Sper.gs', 2, 2);
+INSERT INTO `SiteOptions` (`sitename`, `domain`, `sitekey`, `registration`, `invites`) VALUES
+('Sper.gs', '10.211.55.6', '3ohb+XDoyRaE1JPYkg8yl6rubIiVU0WKEcxUAKEajummXA+427pjiU0hf/ByIAmJGxciVdLWsuB14+7MP1o72g==', 2, 2);
 
+--
+-- Dumping data for table `StaffPermissions`
+--
 
+INSERT INTO `StaffPermissions` (`position_id`, `title`, `title_color`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`, `tag_create`, `tag_edit`) VALUES
+(1, 'Administrator', 'red', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 --
 -- Dumping data for table `StaffPositions`
 --
 
 INSERT INTO `StaffPositions` (`position_id`, `title`) VALUES
-(1, 'Administrator');
+(1, 'Adminstrator');
 
---
--- Dumping data for table `StaffPermissions`
---
-
-INSERT INTO `StaffPermissions` (`position_id`, `title`, `title_color`, `user_ban`, `user_edit`, `user_suspend`, `user_maps`, `link_reports`, `link_delete`, `link_vote`, `link_edit`, `link_view_deleted`, `topic_close`, `topic_delete_message`, `topic_message_history`, `topic_pin`, `site_options`, `tag_edit`, `tag_create`) VALUES
-(1, "Administrator", "red", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 INSERT INTO `TopicalTags` (`tag_id`, `title`, `description`, `type`, `user_id`, `created`)
 VALUES (1, 'LUE', 'Main Social Board', 1, 1, UNIX_TIMESTAMP(NOW()));
-
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-ALTER TABLE  `DisciplineHistory` ADD  `message_id` INT( 11 ) UNSIGNED NULL AFTER  `mod_id` ;
-ALTER TABLE  `Messages` ADD  `type` INT( 1 ) NOT NULL ;
-ALTER TABLE  `Messages` ADD  `link_id` INT( 11 ) NULL AFTER `topic_id` ;
+**/
