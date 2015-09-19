@@ -275,12 +275,12 @@ function checkParentTag(data) {
     var value = "";
     if ($('#tags').val().length != 0 && $('#tags').val().split(",") < 2) {
         alert($('#tags').val());
-        value = "{\"id\":" + $('#tags').val() + "}";
+        value = "{\"id\":" + $('#tags').val().split(":")[0] + "}";
     } else {
         var tags = $('#tags').val().split(",");
         for (var i=0; i < tags.length; i++) {
             if (tags[i] != "") {
-                value += ",{\"id\":" + tags[i] + "}";
+                value += ",{\"id\":" + tags[i].split(":")[0] + "}";
             }
         }
     }
@@ -296,7 +296,7 @@ function checkParentTag(data) {
         dataType: "json",
         data: "{\"tags\": {\"action\":\"checkConflicts\", \"data\":[" + value + "]}}",
         success: function (response) {
-            if(response.length != 0) {
+            if(response.length != 0 && response.error == null) {
                 alert("Error: Tag ID " + tags[tags.length - 1] + " and " + tags[tags.length - 2] + " cannot be tagged together");
             }
         },
