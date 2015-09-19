@@ -63,12 +63,13 @@
 						mkdir($base_dir.$thumb_dir.$target_dir);
 					}
 					move_uploaded_file($file["tmp_name"], $base_dir.$image_dir.$target_dir.$target_file);
-					$size = getimagesize($base_dir.$image_dir.$target_dir.$target_file);
-					$thumb = PhpThumbFactory::create($base_dir.$image_dir.$target_dir.$target_file);
+                    print $target_file;
+                    $size = getimagesize($base_dir.$image_dir.$target_dir.$target_file);
+					$thumb = new PHPThumb\GD($base_dir.$image_dir.$target_dir.$target_file, array('resizeUp' => false));
 					$thumb->resize(150, 150);
-                    $thumb->pad(150, 150, [255, 255, 255, 127]);
-					$thumb->save($base_dir.$thumb_dir.$target_dir."/".$sha1_sum.".jpg", 'jpg');
-					$thumbsize = getimagesize($base_dir.$thumb_dir.$target_dir."/".$sha1_sum.".jpg");
+                    #$thumb->pad(150, 150, [255, 255, 255, 127]);
+					$thumb->save($base_dir.$thumb_dir.$target_dir."/".$sha1_sum.".".$extension);
+					$thumbsize = getimagesize($base_dir.$thumb_dir.$target_dir."/".$sha1_sum.".".$extension);
 					$sql = "INSERT INTO UploadedImages(user_id, sha1_sum, width, height, thumb_width, thumb_height, created)
 								VALUES(".$this->user_id.", \"$sha1_sum\", ?, ?, ?, ?, ".time().")";
 					$statement = $this->pdo_conn->prepare($sql);

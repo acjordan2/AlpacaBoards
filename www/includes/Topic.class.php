@@ -263,6 +263,7 @@ class Topic
             Users.level, UploadedImages.sha1_sum,
             UploadedImages.thumb_width,
             UploadedImages.thumb_height,
+            UploadedImages.created,
             UploadLog.filename,
             Messages.message,
             MIN(Messages.posted) as posted
@@ -315,7 +316,10 @@ class Topic
 
         foreach ($results as &$key) {
             if (!is_null($key['avatar'])) {
-                $key['filename'] = urlencode($key['filename']).".jpg";
+                $key['filename'] = urlencode($key['filename']);
+                if ($key['created'] < 1442629719) {
+                    $key['filename'] .= ".jpg";
+                }
             }
             if ($key['level'] == 1 && $anonymous == false) {
                 $user = new User(null, $key['user_id']);

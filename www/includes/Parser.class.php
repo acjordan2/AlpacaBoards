@@ -199,9 +199,8 @@ class Parser
             $filename = implode($filename_array, ".");
             if ($node->parentNode->nodeName == "quote" || $size == 't') {
                 $size = 't';
-                $sql = "SELECT thumb_width, thumb_height 
+                $sql = "SELECT thumb_width, thumb_height, created
                     FROM UploadedImages WHERE sha1_sum = ?";
-                $extension = "jpg";
             } else {
                 $sql = "SELECT width, height FROM UploadedImages WHERE sha1_sum = ?";
             }
@@ -228,7 +227,14 @@ class Parser
 
                 $img_a = $this->doc->createElement('a');
                 $img_a->setAttribute("href", $this->_site->getBaseURL()."/imagemap.php?hash=".htmlentities($hash));
-        
+               
+                // Hack, images uploaded before this timestamp have jpeg thumbnails
+                // images uploaded after will use the same extension for the thumbnail
+                // as the original image 
+                if ($size == 't' && $results[2] < 1442629719) {
+                    $extension = "jpg";
+                }
+
                 $new_src = array(
                     $this->_site->getImagePath(),
                     $size,
