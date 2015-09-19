@@ -160,7 +160,7 @@ if ($auth === true) {
                 // Validate anti-CSRF token
                 if ($csrf->validateToken($_POST['token'])) {
                     $tags = explode(",", $_POST['tags']);
-                    $link_id = $links->createLink($_POST['title'], $_POST['lurl'], $_POST['description'], $_POST['tags']);
+                    $link_id = $links->createLink($_POST['title'], $_POST['lurl'], $_POST['description'], $tags);
                     if ($link_id > 0) {
                         header("Location: ./linkme.php?l=$link_id");
                         exit();

@@ -253,7 +253,8 @@ class Link
             );
             $statement_link->execute($data_link);
             $link_id = $this->_pdo_conn->lastInsertId();
-
+    
+            /*
             $sql_tags = "INSERT INTO Tagged (data_id, tag_id, type)
                 VALUES ($link_id, :tag_id, 2)";
             $statement_tags = $this->_pdo_conn->prepare($sql_tags);
@@ -261,6 +262,8 @@ class Link
                 $statement_tags->bindParam("tag_id", $tag);
                 $statement_link->execute();
             }
+            */
+            $this->_tag->editTags($link_id, 2, $tags);
 
             return $link_id;
         }
