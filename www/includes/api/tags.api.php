@@ -24,6 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+include "includes/Tag.class.php";
+
 $action = $request[$class]['action'];
 
 switch($action) {
@@ -44,7 +46,6 @@ switch($action) {
             $output = array("error" => "invalid JSON object");
         } else {
             try {
-                include "includes/Tag.class.php";
                 $tag = new Tag($authUser->getUserId());
                 $output = array(
                     "tags" => 
@@ -55,6 +56,31 @@ switch($action) {
                 $output = array("error" => "invalid JSON object");        
             }
         }
+        break;
+    case "checkConflicts":
+        $required_fields = array (
+            "data"
+        );
+        foreach ($request[$class] as $key => $value) {
+            if (!in_array($key, $required_fields)) {
+                $output = array("error" => "invalid JSON object");
+            } else {
+                $r_key = array_search($key, $required_fields);
+                unset($required_fields[$r_key]);
+            }
+        }
+        if (count($required_fields) > 0) {
+            $output = array("error" => "invalid JSON object");
+        } else {
+            $tag = new Tag($authUser->getUserId());
+            $tag_list = $request[$class]['data'];
+            $tag_array = array();
+
+            for($i=0; $i<sizeof($tag_list); $i++) {
+                $tag_array[$i] = $tag_list[$i]['id'];
+            }
+            $output =  $tag->getConflicts($tag_array);
+        } 
         break;
     default:
         $output = array("error" => "invalid JSON object");

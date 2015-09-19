@@ -272,19 +272,32 @@ function formatSelection(data) {
 };
 
 function checkParentTag(data) {
-    var value = $('#tags').val();
-    if(value) { 
-        value += ","+data;
+    var value = "";
+    if ($('#tags').val().length != 0 && $('#tags').val().split(",") < 2) {
+        alert($('#tags').val());
+        value = "{\"id\":" + $('#tags').val() + "}";
     } else {
-        value = data;
+        var tags = $('#tags').val().split(",");
+        for (var i=0; i < tags.length; i++) {
+            if (tags[i] != "") {
+                value += ",{\"id\":" + tags[i] + "}";
+            }
+        }
+    }
+    if(value) { 
+        value += ",{\"id\":" + data + "}";
+    } 
+    if (value.charAt(0) == ",") {
+        value = value.substr(1);
     }
     $.ajax({
         type: "POST",
-        url: "./ajax.php?action=link_checkParentTag",
-        data: "tags="+value,
+        url: "./api.php",
+        dataType: "json",
+        data: "{\"tags\": {\"action\":\"checkConflicts\", \"data\":[" + value + "]}}",
         success: function (response) {
             if(response.length != 0) {
-                alert("Parent/Child Relationshiop Fail. Some of your tags are redundant");
+                alert("Error: Tag ID " + tags[tags.length - 1] + " and " + tags[tags.length - 2] + " cannot be tagged together");
             }
         },
         dataType: "json"
