@@ -97,7 +97,7 @@ if ($auth === true) {
                         $message = base64_decode($message);
                     }
                     if (isset($message_id) && $edit == true) {
-                        $message_edit->editMessage($message);
+                        $post = $message_edit->editMessage($message);
                     } else {
                         $post = $topic->postMessage($message);
                     }
