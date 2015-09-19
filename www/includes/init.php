@@ -55,7 +55,7 @@ require_once("Config.ini.php");
 require_once("ConnectionFactory.class.php");
 require_once("User.class.php");
 require_once("smarty/Smarty.class.php");
-require_once("Override.inc.php");
+require_once("Autolink.inc.php");
 require_once("CSRFGuard.class.php");
 require_once("Site.class.php");
 
