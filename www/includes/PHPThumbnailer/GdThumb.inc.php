@@ -1561,7 +1561,7 @@ class GdThumb extends ThumbBase
 		if ($this->format == 'PNG' && $this->options['preserveAlpha'] === true)
 		{
 			imagealphablending($this->workingImage, false);
-		    imagesavealpha($this->workdingImage, true);	
+		    imagesavealpha($this->workingImage, true);	
 			$colorTransparent = imagecolorallocatealpha
 			(
 				$this->workingImage, 
