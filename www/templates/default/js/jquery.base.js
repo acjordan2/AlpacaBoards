@@ -232,14 +232,12 @@ function MultiAjaxAutoComplete(element, url) {
         placeholder: "Search for a tag",
         minimumInputLength: 1,
         multiple: true,
-        ajax: {
-            url: url,
+        ajax:  {
+            url: './api.php',
+            type: "POST",
             dataType: 'json',
-            data: function(term, page) {
-                return {
-                    q: term,
-                    page_limit: 10,
-                };
+            data: function(params){
+              return  "{\"tags\": {\"action\":\"getTags\", \"type\":2, \"title\":\"" + params + "\"}}"
             },
             results: function(data, page) {
                 return {

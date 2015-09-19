@@ -24,7 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-define("RATE_LIMIT", 30);
+if (!defined("RATE_LIMIT"))
+    define("RATE_LIMIT", 30);
  
 class Link
 {
