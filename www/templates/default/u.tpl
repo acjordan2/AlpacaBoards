@@ -3,5 +3,5 @@
 <form enctype="multipart/form-data" action="{$base_url}/u.php" method="post">
   <input name="file" type="file" /> <input type="submit" value="Upload File" /><input type="hidden" name="token" value="{$token}" />
 </form><br />
-{if isset($images)}{foreach from=$images key=header item=table}<div class="img"><img src="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}.jpg" /></div><input type="text" value="<img src=&quot;{$base_image_url}/n/{$table.sha1_sum}/{$table.filename}.{$table.extension}&quot; />" onfocus="this.select()" onMouseUp="return false" />{/foreach}{/if}
+{if isset($images)}{foreach from=$images key=header item=table}<div class="img"><img src="{$base_image_url}/t/{$table.sha1_sum}/{$table.filename}.{if $table.created < 1442629719}jpg{else}{$table.extension}{/if}" /></div><input type="text" value="<img src=&quot;{$base_image_url}/n/{$table.sha1_sum}/{$table.filename}.{$table.extension}&quot; />" onfocus="this.select()" onMouseUp="return false" />{/foreach}{/if}
 </body></html>

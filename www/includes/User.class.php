@@ -976,7 +976,7 @@ class User
      */
     public function getUploads()
     {
-        $sql = "SELECT UploadLog.filename, UploadedImages.sha1_sum, 
+        $sql = "SELECT UploadLog.filename, UploadedImages.sha1_sum, UploadedImages.created,
             MaxCreated FROM (SELECT UploadLog.filename, UploadLog.user_id, 
             UploadLog.image_id, UploadedImages.sha1_sum, MAX(UploadLog.created) 
             as MaxCreated FROM UploadLog LEFT JOIN UploadedImages USING(image_id) 

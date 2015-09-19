@@ -63,7 +63,6 @@
 						mkdir($base_dir.$thumb_dir.$target_dir);
 					}
 					move_uploaded_file($file["tmp_name"], $base_dir.$image_dir.$target_dir.$target_file);
-                    print $target_file;
                     $size = getimagesize($base_dir.$image_dir.$target_dir.$target_file);
 					$thumb = new PHPThumb\GD($base_dir.$image_dir.$target_dir.$target_file, array('resizeUp' => false));
 					$thumb->resize(150, 150);
