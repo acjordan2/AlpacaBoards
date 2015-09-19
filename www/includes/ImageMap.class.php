@@ -44,9 +44,9 @@ class ImageMap
             LEFT JOIN ImageMap using(image_id) WHERE sha1_sum = ?";
         $statement = $this->pdo_conn->prepare($sql);
         $statement->execute(array($hash));
+        $topic_id_array = $statement->fetchAll();
 
-        if ($statement->rowCount() != 0) {
-            $topic_id_array = $statement->fetchAll();
+        if ($statement->rowCount() != 0 && sizeof(array_filter($topic_id_array[0])) > 0) {
             $topic_id_var = "ImageMap.topic_id=".$topic_id_array[0][0];
             if (sizeof($topic_id_array) > 1) {
                 array_shift($topic_id_array);
