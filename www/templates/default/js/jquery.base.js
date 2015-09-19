@@ -136,7 +136,7 @@ $(function() {
             return false;
         });
 
-    MultiAjaxAutoComplete('#tags', './ajax.php?action=link_tags');
+    MultiAjaxAutoComplete('#tags', './api.php');
 
 
 
