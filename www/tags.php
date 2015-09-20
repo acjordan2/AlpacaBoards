@@ -26,6 +26,7 @@
 
 require "includes/init.php";
 require "includes/Tag.class.php";
+require "includes/Parser.class.php";
 
 if ($auth === true) {
     $tag = new Tag($authUser->getUserID());
@@ -49,16 +50,25 @@ if ($auth === true) {
 
         $title = str_replace($search, $replace, $_GET['tag']);
         $taginfo = $tag->getTagInfoByTitle($title);
+
         if (count($taginfo) > 1) {
             $taginfo['parents'] = $tag->getParents($taginfo['tag_id']);
             $taginfo['children'] = $tag->getChildren($taginfo['tag_id']);
+            $p = new Parser($site);
+            $taginfo['p_description'] = $p->parse($taginfo['description']);
+            $taginfo['r_description'] = htmlentities($taginfo['description']);
             $smarty->assign("taginfo", $taginfo);
 
            
             $smarty->assign("mod_tag_edit", $mod_tag_edit);
 
-            if ($mod_tag_edit && isset($_GET['edit'])) {
+            if ($mod_tag_edit && isset($_REQUEST['edit'])) {
                 $page_title = "Edit Tag: ".$taginfo['title'];
+                $smarty->assign("tag_edit", true);
+                if (isset($_POST['save'])) {
+                    $tag->setDescription($taginfo['tag_id'], $_POST['description']);
+                }
+                $taginfo['description'] = htmlentities($taginfo['description']);
                 $display = "edittag.tpl";
             } else {
                 $page_title = "Tag Info: ".$taginfo['title'];

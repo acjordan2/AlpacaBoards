@@ -582,4 +582,12 @@ class Tag
         $results = $statement->fetch();
         return $results[0];
     }
+
+    public function setDescription($tag_id, $description) {
+        $sql = "UPDATE TopicalTags SET description = :description WHERE tag_id = :tag_id";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("description", $description);
+        $statement->bindParam("tag_id", $tag_id);
+        $statement->execute();
+    }
 }

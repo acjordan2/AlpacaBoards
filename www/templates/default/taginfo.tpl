@@ -22,7 +22,7 @@
     {if $mod_tag_edit}<b>Options:</b> <a href="{$base_url}/tags.php?tag=[{$taginfo.title|replace:" ":"_"}]&amp;edit">Edit</a>{/if}
 	<br />
     <br />
-	<b>Description:</b> {$taginfo.description}
+	<b>Description:</b> {$taginfo.p_description}
 	<br />
     <br />
 	{include file="footer.tpl"}

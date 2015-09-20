@@ -11,15 +11,17 @@
     }
   }
 </script>{/if}
-<form action="{$base_url}/tags.php" method="post" enctype="multipart/form-data">{if isset($create_tag)}
+<form action="{$base_url}/tags.php{if isset($tag_edit)}?tag=[{$taginfo.title}]&edit{/if}" method="post" enctype="multipart/form-data">{if isset($create_tag)}
     <input type="hidden" name="create" value="1" />
     <fieldset>
        <legend>Name</legend>
        <input type="text" name="title" />
     </fieldset>{else}
+
+    <input type="hidden" name="edit" value="1"/>
     <fieldset>
         <legend>Description</legend>
-        <textarea style="width:100%">{$taginfo.description}</textarea>
+        <textarea name="description" style="width:100%">{$taginfo.r_description}</textarea>
     </fieldset>
     <fieldset>
         <legend>Access</legend>
@@ -79,7 +81,7 @@
     <input type="hidden" name="token" value="{$token}" />
     <input type="submit" name="save" value="save" />
 </form>
-<script>disable();</script>
+<script>//disable();</script>
 <br />
 <br />
 {include file="footer.tpl"}
