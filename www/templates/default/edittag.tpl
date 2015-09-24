@@ -47,7 +47,7 @@
     </fieldset>
     <fieldset>
         <legend>Restrictions</legend>
-        <input type="checkbox" name="permanent" /> 
+        <input type="checkbox" name="permanent" {if $taginfo.permanent == 1}checked{/if}/> 
         Permanent <i>(Once added, this tag cannot be removed)</i>
         <br />
         <input type="checkbox" name="inceptive" />
@@ -78,6 +78,7 @@
         <legend>Administrators</legend>
         <input type="text" name="administrators" style="width:100%" /><br />
     </fieldset>{/if}
+
     <input type="hidden" name="token" value="{$token}" />
     <input type="submit" name="save" value="save" />
 </form>

@@ -66,7 +66,13 @@ if ($auth === true) {
                 $page_title = "Edit Tag: ".$taginfo['title'];
                 $smarty->assign("tag_edit", true);
                 if (isset($_POST['save'])) {
-                    $tag->setDescription($taginfo['tag_id'], $_POST['description']);
+                    if ($csrf->validateToken($_POST['token'])) {
+                        $tag->setDescription($taginfo['tag_id'], $_POST['description']);
+                        $permanent = $_POST['permanent'] == 'on' ? 1 : 0;
+                        $tag->setPermanent($taginfo['tag_id'], $permanent);
+                        header("Location: ./tags.php?tag=[".str_replace(" ", "_", $taginfo['title'])."]&edit");
+                        exit();
+                    }
                 }
                 $taginfo['description'] = htmlentities($taginfo['description']);
                 $display = "edittag.tpl";
@@ -96,6 +102,7 @@ if ($auth === true) {
                 if ($csrf->validateToken($_POST['token'])) {
                     $status = $tag->createTag($_POST['title']);
                     header("Location: ./tags.php?create&status=".$status);
+                    exit();
                 }
             }
             $taginfo = array("title" => "");

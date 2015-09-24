@@ -159,7 +159,8 @@ class Tag
     {
         $data_getTagInfo = array("title" => $tag_title);
         $sql_getTagInfo = "SELECT TopicalTags.tag_id, TopicalTags.title, 
-            TopicalTags.description, TopicalTags.user_id, TopicalTags.created, Users.username
+            TopicalTags.description, TopicalTags.permanent, TopicalTags.user_id,
+            TopicalTags.created, Users.username
             FROM TopicalTags LEFT JOIN Users using(User_id) WHERE title = :title";
         $statement = $this->_pdo_conn->prepare($sql_getTagInfo);
         $statement->execute($data_getTagInfo);
@@ -589,5 +590,18 @@ class Tag
         $statement->bindParam("description", $description);
         $statement->bindParam("tag_id", $tag_id);
         $statement->execute();
+    }
+
+    public function setPermanent($tag_id, $permanent) {
+        if ($permanent == 0 || $permanent == 1) {
+            $sql = "UPDATE TopicalTags SET permanent = :permanent WHERE tag_id = :tag_id";
+            $statement = $this->_pdo_conn->prepare($sql);
+            $statement->bindParam("permanent", $permanent);
+            $statement->bindParam("tag_id", $tag_id);
+            $statement->execute();
+            return true;
+        } else {
+            return false;
+        }
     }
 }
