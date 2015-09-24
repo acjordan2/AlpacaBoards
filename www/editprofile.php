@@ -27,7 +27,8 @@
 require "includes/init.php";
 require "includes/Upload.class.php";
 require "includes/Parser.class.php";
-require "includes/PHPThumbnailer/ThumbLib.inc.php";
+require "includes/PHPThumb/PHPThumb.php";
+require "includes/PHPThumb/GD.php";
 
 // Check authentication
 if ($auth == true) {
