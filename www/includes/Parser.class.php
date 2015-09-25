@@ -87,6 +87,14 @@ class Parser
         if ($html == null) {
             $html = " ";
         }
+        
+        $tag_pattern = "/\<\/?[A-z]+(.*?)\>/";
+        preg_match_all($tag_pattern, $html, $matches);
+
+        $html = htmlentities($html);
+        foreach($matches[0] as $tag) {
+            $html = str_replace(htmlentities($tag), $tag, $html);
+        }
 
         $html = preg_replace_callback('/[\x{80}-\x{10FFFF}]/u', function($match) {
             list($utf8) = $match;
