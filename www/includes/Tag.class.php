@@ -155,11 +155,21 @@ class Tag
         return $results;
     }
 
+    public function getTagInfoById($tag_id) {
+        $sql = "SELECT TopicalTags.tag_id, TopicalTags.title, TopicalTags.type,
+            TopicalTags.access, TopicalTags.participation, TopicalTags.permanent,
+            TopicalTags.inceptive, TopicalTags.special FROM TopicalTags WHERE tag_id = :tag_id";
+        $statement = $this->_pdo_conn->prepare($sql);
+        $statement->bindParam("tag_id", $tag_id);
+        $statement->execute();
+        return $statement->fetch();
+    }
+
     public function getTagInfoByTitle($tag_title)
     {
         $data_getTagInfo = array("title" => $tag_title);
         $sql_getTagInfo = "SELECT TopicalTags.tag_id, TopicalTags.title, 
-            TopicalTags.description, TopicalTags.permanent, TopicalTags.user_id,
+            TopicalTags.description, TopicalTags.permanent, TopicalTags.inceptive, TopicalTags.user_id,
             TopicalTags.created, Users.username
             FROM TopicalTags LEFT JOIN Users using(User_id) WHERE title = :title";
         $statement = $this->_pdo_conn->prepare($sql_getTagInfo);
@@ -489,7 +499,7 @@ class Tag
             "object_id" => $object_id
         );
         $sql = "SELECT TopicalTags.title, TopicalTags.tag_id, TopicalTags.permanent, 
-            TopicalTags.Inceptive FROM Tagged
+            TopicalTags.inceptive FROM Tagged
             LEFT JOIN TopicalTags USING(tag_id) WHERE data_id = :object_id
             AND (Tagged.type = 0 OR Tagged.type = $object_type)";
         $statement = $this->_pdo_conn->prepare($sql);
@@ -519,7 +529,7 @@ class Tag
         $current_tag_ids = array();
 
         for ($i=0; $i<count($current_tags); $i++) {
-            if ($current_tags[$i]['permanent'] == 1) {
+            if ($current_tags[$i]['permanent'] == 1 || $current_tags[$i]['inceptive'] == 1) {
                 if(!in_array( $current_tags[$i]['tag_id'], $tags)) {
                     $tags[] = $current_tags[$i]['tag_id'];
                 }
@@ -530,6 +540,14 @@ class Tag
 
         $tags_remove = array_values(array_diff($current_tag_ids, $tags));
         $tags_add = array_diff($tags, $current_tag_ids);
+    
+        foreach($tags_add as $inceptive_check) {
+            $tmp_tag = $this->getTagInfoById($inceptive_check);
+            if ($tmp_tag['inceptive'] == 1) {
+                $key = array_search($tmp_tag['tag_id'], $tags_add);
+                unset($tags_add[$key]);
+            }
+        }
 
         $tag_list = $this->getTags("[type:0|".$object_type);
 
@@ -603,5 +621,19 @@ class Tag
         } else {
             return false;
         }
+    }
+
+    public function setInceptive($tag_id, $inceptive) {
+        if ($inceptive == 0 || $inceptive == 1) {
+            $sql = "UPDATE TopicalTags SET inceptive  = :inceptive WHERE tag_id = :tag_id";
+            $statement = $this->_pdo_conn->prepare($sql);
+            $statement->bindParam("inceptive", $inceptive);
+            $statement->bindParam("tag_id", $tag_id);
+            $statement->execute();
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

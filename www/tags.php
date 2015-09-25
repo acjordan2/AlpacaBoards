@@ -70,6 +70,8 @@ if ($auth === true) {
                         $tag->setDescription($taginfo['tag_id'], $_POST['description']);
                         $permanent = $_POST['permanent'] == 'on' ? 1 : 0;
                         $tag->setPermanent($taginfo['tag_id'], $permanent);
+                        $inceptive = $_POST['inceptive'] == 'on' ? 1 : 0;
+                        $tag->setInceptive($taginfo['tag_id'], $inceptive);
                         header("Location: ./tags.php?tag=[".str_replace(" ", "_", $taginfo['title'])."]&edit");
                         exit();
                     }

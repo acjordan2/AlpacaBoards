@@ -50,7 +50,7 @@
         <input type="checkbox" name="permanent" {if $taginfo.permanent == 1}checked{/if}/> 
         Permanent <i>(Once added, this tag cannot be removed)</i>
         <br />
-        <input type="checkbox" name="inceptive" />
+        <input type="checkbox" name="inceptive" {if $taginfo.inceptive == 1}checked{/if}/>
         Inceptive <i>(This tag must added to a topic at the time of topic creation)</i>
         <br />
         <i>Note: Tag moderators can bypass the above restrictions.</i>
