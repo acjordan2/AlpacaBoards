@@ -42,6 +42,8 @@ class Site {
 
     private $_base_url;
 
+    private $_use_short_handler = true;
+
     public function __construct()
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
@@ -174,17 +176,21 @@ class Site {
         for ($i = count($tempPath2); $i < count($tempPath1); $i++) {
             array_pop($tempPath3);
         }
-        
-        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-            && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == "https") {
-            $_SERVER['HTTPS'] = "on";
-        }
 
-
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
-            $protocol = "https://";
+        if ($this->_use_short_handler == true) {
+            $protocol = "//";
         } else {
-            $protocol = "http://";
+            if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == "https") {
+                $_SERVER['HTTPS'] = "on";
+            }
+
+
+            if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+                $protocol = "https://";
+            } else {
+                $protocol = "http://";
+            }
         }
 
         if (verify_domain($_SERVER['HTTP_HOST'])) {

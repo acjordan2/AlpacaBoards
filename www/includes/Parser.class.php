@@ -425,12 +425,12 @@ class Parser
         $closed_span->appendChild($onClose_span);
         $closed_span->appendChild($onOpen_span);
 
-        $script = $this->doc->createElement(
-            "script",
-            "$(document).ready(function(){llmlSpoiler($(\"#s0_".$count."\"));});"
-        );
-        $script->setAttribute("type", "text/javascript");
-        $onClose_span->appendChild($script);
+        //$script = $this->doc->createElement(
+        //    "script",
+        //    "$(document).ready(function(){llmlSpoiler($(\"#s0_".$count."\"));});"
+        //);
+        //$script->setAttribute("type", "text/javascript");
+        //$onClose_span->appendChild($script);
 
         return $closed_span;
     }

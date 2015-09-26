@@ -4,7 +4,7 @@
 {literal}
     <script type="text/javascript">
         //<![CDATA[
-        onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
+        //onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
         //]]>
     </script>
     {/literal}

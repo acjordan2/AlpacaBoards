@@ -59,14 +59,17 @@ $(function() {
      			 $("#upload").attr("src", "./u.php");
 		});
 
-		//AJAX for linkme.tpl
-//		ajaxPost("#link_vote", "v");
-//		ajaxPost("#link_fav", "f");
-
         $(".vote_button").click(function() {
             alert($(this).text());
             alert("asdfasdf");
             $("#value").val("10");
+        });
+
+        $('span.spoiler_closed').each(function(){}).on('click', function(e) {
+            $(this).toggleClass("spoiler_closed", "spoiler_opened");
+            $(this).toggleClass("spoiler_opened", "spoiler_closed");
+            $("img").lazyload();
+            return false;
         });
 
         $("#link_vote").submit(function(e) {
@@ -179,14 +182,6 @@ function quickpost_quote(message_id){
 	return false;
 }
 
-function llmlSpoiler(id){
-		$(id).click(function (){
-			$(id).toggleClass("spoiler_opened", "spoiler_closed");
-			$(id).toggleClass("spoiler_closed", "spoiler_opened");
-			$("img").lazyload();
-			return false;
-	});
-}
 
 function ajaxPost(aForm, submitName){
 	var request;

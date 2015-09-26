@@ -33,11 +33,11 @@
         {if $user_id == $topic_creator}{if $archived == false}|{/if} <a href="{$base_url}/edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
 	</div>
 {literal}
-	<script type="text/javascript">
+	<!--<script type="text/javascript">
 		//<![CDATA[
 		//onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
 		//]]>
-	</script>
+	</script>-->
 {/literal}
 	<div class="infobar" id="u0_2">
 		{if $current_page > 1} <span><a href="{$base_url}/showmessages.php?topic={$topic_id}&amp;page=1">First Page</a> |</span>{/if}

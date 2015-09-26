@@ -1,6 +1,6 @@
 <?php
 /*
- * index.php
+ * css.php
  * 
  * Copyright (c) 2014 Andrew Jordan
  * 
@@ -24,16 +24,29 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-$css = array(
-    "css/login.css" => false,
-    "css/nblue.css" => true,
-    "css/select2.css" => true
-);
+require "includes/init.php";
+require Site::getConstant("TEMPLATE_DIR")."/default/index.php";
 
-$js = array(
-    "js/min/jquery.min.js" => true,
-    "js/min/jquery.lazyload.min.js" => true,
-    "js/min/select2.min.js" => true,
-    "js/json2.js" => true,
-    "js/jquery.base.js" => true
-);
+$expires = 60*60*24; // how long to cache in secs..
+header("Pragma: public");
+header("Cache-Control: maxage=".$expires);
+header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+header("Content-Type: text/javascript");
+
+$string = "";
+
+if ($auth === true) {
+    foreach ($js as $file => $auth) {
+        if ($auth === true) {
+            $string .= file_get_contents(Site::getConstant("TEMPLATE_DIR")."/default/".$file);
+        }
+    }
+} else {
+    foreach ($js as $file => $auth) {
+        if ($auth === false) {
+            $string .= file_get_contents(Site::getConstant("TEMPLATE_DIR")."/default/".$file);
+        }
+    }
+}
+
+print $string;
