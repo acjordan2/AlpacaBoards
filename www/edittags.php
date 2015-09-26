@@ -55,10 +55,15 @@ if ($auth === true) {
                 }
             
                 $current_tags = $tag->getObjectTags($topic_id, 1);
+                if (sizeof(array_filter($current_tags[0])) == 0) {
+                    $current_tags = array();
+                }
+
                 $taglist = array();
                 foreach($current_tags as $c_tag) {
                     $taglist[] = $c_tag['tag_id'].":".$c_tag['title'];
                 }
+
                 $smarty->assign("token", $csrf->getToken()); 
                 $smarty->assign("topic", $topic_id);
                 $smarty->assign("topic_title", $topic->getTopicTitle());
