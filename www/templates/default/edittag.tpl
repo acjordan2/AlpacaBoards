@@ -58,17 +58,17 @@
     <fieldset>
         <legend>Interactions</legend>
         Parents <i>(While browsing tags listed here, [{$taginfo.title}] will also appear. <b>Related tags cannot be tagged together</b>)</i><br />
-        <input type="text" name="parents" style="width:100%" />
+        <input type="text" id="tags" name="parents" style="width:100%" />
         <br />
 
         Children <i>(While browsing by [{$taginfo.title}], these tags will also appear. <b>Related tags cannot be tagged together</b>)</i>
-        <input type="text" name="children" style="width:100%" /><br />
+        <input type="text" id="tags" name="children" style="width:100%" /><br />
 
         Mutually exclusive <i>(The below tags are not allowed on the same topic together with [{$taginfo.title}])</i><br />
-        <input type="text" name="exclusive" style="width:100%" /><br />
+        <input type="text" id="tags" name="exclusive" style="width:100%" /><br />
 
         Dependent <i>(The below tags must be present in order to tag a topic with [{$taginfo.title}])</i><br />
-        <input type="text" name="dependant" style="width:100%" /><br />
+        <input type="text" id="tags" name="dependant" style="width:100%" /><br />
     </fieldset>
     <fieldset>
         <legend>Moderators</legend>

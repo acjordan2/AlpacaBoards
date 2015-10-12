@@ -35,5 +35,6 @@ $js = array(
     "js/min/jquery.lazyload.min.js" => true,
     "js/min/select2.min.js" => true,
     "js/json2.js" => true,
-    "js/jquery.base.js" => true
+    "js/jquery.base.js" => true,
+    "js/jquery.playsound.js" => true
 );

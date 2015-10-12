@@ -105,33 +105,6 @@
 	<br />
 	<br />
 	{include file="footer.tpl"}{if $archived == false}
-    <script type="text/javascript" src="{$base_url}/templates/default/js/jquery.playSound.js" charset="utf-8"></script>
-    <script type="text/javascript">
-        var topic_id = {$topic_id};
-        var base_url = "{$base_url}";
-        {literal}
-        (function poll(){
-            var payload = "{\"topics\":{\"action\":\"pollMessage\",\"topic_id\":"+topic_id+"}}";
-            $.ajax({
-                type: "POST",
-                url: base_url + "/api.php",
-                data: payload,
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(data){
-                    $("#u0_1").append(data.message);
-                    if(data.length != 0) {
-                        $("img").lazyload();
-                        $.playSound(base_url + "/templates/default/res/bip");
-                    }
-                },
-                complete: poll,
-                timeout: 6000000 
-                
-            });
-        })();
-        {/literal}
-    </script>
 	<a id="qptoggle" href="#">
 		<span id="open">+</span>
 		<span id="close" style="display:none">-</span>
@@ -142,9 +115,9 @@
         <tr>
             <td>
 	   <form method="POST" action="{$base_url}/postmsg.php" name="quickposts" id="quickposts">
-        <input type="hidden" name="action" value="postMessage" />
-		<input type="hidden" name="parent_id" value="{$topic_id}" />
-        <input type="hidden" name="data_type" value="1" />
+        <input type="hidden" id="action" name="action" value="postMessage" />
+		<input type="hidden" id="parent_id" name="parent_id" value="{$topic_id}" />
+        <input type="hidden" id="data_type" name="data_type" value="1" />
         <span id="status_message"></span>
 		<b>Your Message:</b><br />
 		<textarea id="qpmessage" name="message">{$p_signature}</textarea>
