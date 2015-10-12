@@ -71,9 +71,9 @@ header("Last-Modified: $ls");
 header("Pragma: no-cache");
 header("Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
 header("X-Frame-Options: SAMEORIGIN");
-header("Content-Security-Policy: \"default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'\"");
-header("X-Content-Security-Policy: \"default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'\"");
-header("X-WebKit-CSP: \"default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'\"");
+header("Content-Security-Policy: \"default-src 'none'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; frame-src 'self'; font-src 'self'; connect-src 'self'\"");
+header("X-Content-Security-Policy: \"default-src 'none'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; frame-src 'self'; font-src 'self'; connect-src 'self'\"");
+header("X-WebKit-CSP: \"default-src 'none'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; frame-src 'self'; font-src 'self'; connect-src 'self'\"");
 
 if (file_exists(Site::getRootPath()."/includes/Database.ini.php")) {
     require_once("Database.ini.php");
