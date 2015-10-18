@@ -52,7 +52,7 @@
 {foreach from=$messages key=header item=table}
 	<div class="message-container" id="m{$table.message_id}">
 		<div class="message-top">
-     		<b>From:</b> <a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a> | 
+     		<b>From:</b> <a{if $table.user_id > 0} href="{$base_url}/profile.php?user={$table.user_id}"{/if}>{$table.username}</a> | 
     		<b>Posted:</b> {$table.posted|date_format:$dateformat} | 
     		{if isset($filter)}
     			<a href="{$base_url}/showmessages.php?topic={$topic_id}">Unfilter</a>

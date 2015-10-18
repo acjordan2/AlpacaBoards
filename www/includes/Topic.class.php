@@ -224,9 +224,11 @@ class Topic
             $topic_data[$i]['last_message'] = $history_count[0]['last_message'];
             $tag = new Tag($this->_user_id);
             $topic_data[$i]['tags'] = $tag->getObjectTags($topic_data[$i]['topic_id'], 1);
-            if (in_array_r("Anonymous", $topic_data[$i]['tags'])) {
-                $topic_data[$i]['username'] = "Human";
-                $topic_data[$i]['user_id'] = -1;
+            foreach ($topic_data[$i]['tags'] as $item) {
+                if ($item['title'] == "Anonymous") {
+                    $topic_data[$i]['username'] = "Human";
+                    $topic_data[$i]['user_id'] = -1;
+                }
             }
         }
         return $topic_data;
@@ -306,13 +308,15 @@ class Topic
         $statement->closeCursor();
         
         if ($this->hasTag("Anonymous") === true) {
+            $anonymous = true;
             $sql_getUsers = "SELECT DISTINCT(user_id)
                 FROM Messages WHERE topic_id = ".$this->_topic_id."
                 ORDER BY message_id";
             $statement_getUsers = $this->_pdo_conn->query($sql_getUsers);
             $results_getUsers = $statement_getUsers->fetchAll(PDO::FETCH_COLUMN, 0);
+        } else {
+            $anonymous = false;
         }
-
 
         foreach ($results as &$key) {
             if (!is_null($key['avatar'])) {

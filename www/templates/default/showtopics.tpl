@@ -32,7 +32,7 @@
                 </a>
             </td>
                 <td>
-                <a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a>
+                <a {if ($table.user_id > 0)}href="{$base_url}/profile.php?user={$table.user_id}"{/if}>{$table.username}</a>
             </td>
             <td>
                 {$table.number_of_posts}
@@ -57,7 +57,7 @@
                     </div>
             </td>
                 <td>
-                <a href="{$base_url}/profile.php?user={$table.user_id}">{$table.username}</a>
+                <a{if ($table.user_id) > 0} href="{$base_url}/profile.php?user={$table.user_id}"{/if}>{$table.username}</a>
             </td>
             <td>
                 {$table.number_of_posts}

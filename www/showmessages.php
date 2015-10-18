@@ -28,19 +28,7 @@ require "includes/Topic.class.php";
 require "includes/Parser.class.php";
 require "includes/Tag.class.php";
 
-function in_array_r($needle, $haystack, $strict = false)
-{
-    foreach ($haystack as $item) {
-        if (($strict ? $item === $needle : $item == $needle)
-            ||(is_array($item)
-            && in_array_r($needle, $item, $strict))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-if ($auth == true) {
+if ($auth === true) {
     if (is_numeric($_GET['topic'])) {
         $topic_id = $_GET['topic'];
         // Verify topic
@@ -107,12 +95,10 @@ if ($auth == true) {
             $tag = new Tag($authUser->getUserId());
             $tags = $tag->getObjectTags($_GET['topic'], 1);
 
-            if (in_array_r("Anonymous", $tags)) {
+            if ($topic->hasTag("Anonymous")) {
                 $smarty->assign("p_signature", "");
-                $anonymous = true;
             } else {
                 $smarty->assign("p_signature", htmlentities("\n".$authUser->getSignature()));
-                $anonymous = false;
             }
 
             if (isset($_GET['u']) && is_numeric($_GET['u'])) {
@@ -121,7 +107,7 @@ if ($auth == true) {
                 $filter = null;
             }
 
-            $messages = $topic->getMessages($current_page, $filter, $anonymous);
+            $messages = $topic->getMessages($current_page, $filter);
             if (isset($_GET['u']) && is_numeric($_GET['u'])) {
                 $smarty->assign("filter", true);
             }
