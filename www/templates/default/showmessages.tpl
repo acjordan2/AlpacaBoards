@@ -4,12 +4,12 @@
     <h2>
         <div>
             {foreach from=$topic_tags key=header item=tag}
-            <a href="{$base_url}/links.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a>
+            <a href="{$base_url}/showtopics.php?tags=[{$tag.title|replace:' ':'_'}]">{$tag.title}</a>
             {$p_count = $tag.parents|@count}
             {$i = 0}
             {if $p_count > 0}
             <span style="font-size:12px;">
-                ({foreach from=$tag.parents key=header item=parent}<a href="{$base_url}/links.php?tags=[{$parent.title|replace:' ':'_'}]">{$parent.title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
+                ({foreach from=$tag.parents key=header item=parent}<a href="{$base_url}/showtopics.php?tags=[{$parent.title|replace:' ':'_'}]">{$parent.title}</a>{if $i<$p_count-1 AND $p_count>1}, {/if}{$i = $i +1}{/foreach})
             </span>{/if}{/foreach}
         </div>
     </h2>{/if}

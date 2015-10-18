@@ -59,14 +59,28 @@ if ($auth === true) {
     }
     if ($current_page == 1) {
         // Code for pinned topics
+        $pinned_topics = array();
+
+        // Keep the orginal array size since the array
+        // will shrink as we remove pinned topics
+        $count = sizeof($topic_list);
+        for($i=0; $i<$count; $i++) {
+            for($k=0; $k<sizeof($topic_list[$i]['tags']); $k++) {
+                if ($topic_list[$i]['tags'][$k]['title'] == "Pinned") {
+                    array_push($pinned_topics, $topic_list[$i]);
+                    unset($topic_list[$i]);
+                    break;
+                }
+            }
+        }
     }
     $display = "showtopics.tpl";
     //if (count($topic_list) == 0) {
     //    include "404.php";
     //} else {
         $smarty->assign("topicList", $topic_list);
-        if (isset($sticky_list)) {
-            $smarty->assign("stickyList", $sticky_list);
+        if (isset($pinned_topics)) {
+            $smarty->assign("stickyList", $pinned_topics);
         }
         $search = array('[', ']', "_");
         $page_title = htmlentities(str_replace($search, " ", $title));

@@ -27,9 +27,12 @@
 {foreach from=$stickyList key=header item=table}
         <tr>
             <td>
-                <a href="{$base_url}/showmessages.php?topic={$table.topic_id}">
-                    <b><div class="sticky">{$table.title}</div></b>
-                </a>
+            <div class="fl">
+                <div class="sticky"><b><a href="{$base_url}/showmessages.php?topic={$table.topic_id}">{$table.title}</a></b></div>
+            </div>
+            <div class="fr">
+                        {foreach from=$table.tags item=tags}<a href="{$base_url}/showtopics.php?tags=[{$tags.title|replace:' ':'_'}]">{$tags.title}</a> {/foreach}
+                    </div>
             </td>
                 <td>
                 <a {if ($table.user_id > 0)}href="{$base_url}/profile.php?user={$table.user_id}"{/if}>{$table.username}</a>
