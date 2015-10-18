@@ -282,8 +282,18 @@ class Topic
             $filter_data = explode(":", $filter);
             switch ($filter_data[0]) {
                 case 'user':
+                    if ($filter_data[1] < 0) {
+                        $sql_getUserId = "SELECT user_id From Messages 
+                            WHERE topic_id = :topic_id GROUP BY user_id ORDER BY message_id ASC";
+                        $statement_getUserId = $this->_pdo_conn->prepare($sql_getUserId);
+                        $statement_getUserId->bindParam("topic_id", $this->_topic_id);
+                        $statement_getUserId->execute();
+                        $results_getUserId = $statement_getUserId->fetchAll();
+                        $data['user_id'] = $results_getUserId[abs($filter_data[1])-1]['user_id'];
+                    } else {
+                        $data['user_id'] = $filter_data[1];
+                    }
                     $sql .= " AND Messages.user_id = :user_id ";
-                    $data['user_id'] = $filter_data[1];
                     break;
     
                 case 'newMessages':
