@@ -5,13 +5,13 @@
         <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
         <link rel="stylesheet" type="text/css" href="{$base_url}/css.php" />
     </head>
-    <body onload="document.getElementsByTagName('input')[0].focus();">
+    <body>
         <div class="login">
             <div class="message">{if $message != NULL}{$message}{/if}</div>
             <form action="" method="POST" autocomplete="off">          
                 <label>
                     <span>{$sm_labels.username}: </span>
-                    <input class="text" type="text" name="username" value="{$username}">
+                    <input class="text" type="text" name="username" value="{$username}" autofocus>
                 </label>
                  <label>
                     <span>{$sm_labels.password}: </span>
