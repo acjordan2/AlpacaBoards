@@ -195,6 +195,11 @@ if ($auth === true) {
 				$smarty->assign("error_message", "Title must be between 5 and 80 characters");
 			} else {
 				$tags = explode(",", $_POST['tags']);
+                // Only admins can tag for the time being
+                $tag_info = $tag->getTagInfoByTitle("Pinned");
+                if ($authUser->getAccessLevel() != 1) {
+                    unset($tags[array_search($tag_info['tag_id'], $tags)]);
+                }
 				$topic = new Topic($authUser, $parser);
 				$topic_id = $topic->createTopic($title, $tags, $message);
 				if ($topic_id > 0) {
