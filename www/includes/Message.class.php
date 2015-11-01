@@ -252,7 +252,7 @@ Class Message
     {
         if ($quote == true) {
             $message = explode("\n---", $this->_message);
-
+        
             if (count($message > 1)) {
                 array_pop($message);
                 $message = trim(implode("---", $message));

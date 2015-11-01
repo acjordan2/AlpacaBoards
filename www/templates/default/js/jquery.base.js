@@ -138,6 +138,11 @@ $(function() {
 
             return false;
         });
+        
+        $(".qp_quote").on('click', function(e) {
+            quickpost_quote($(this).attr('id'));
+            return false;
+        });
 
     MultiAjaxAutoComplete('#tags', './api.php');
 
