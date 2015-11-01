@@ -72,6 +72,11 @@ $(function() {
             return false;
         });
 
+        $(".vote_btn").on("click", function(e) {
+            $('#value').val($(this).attr('id').substr(1));
+            $('form#link_vote').submit();
+        });
+
         $("#link_vote").submit(function(e) {
             var payload = "{\"links\":" + JSON.stringify($('form#link_vote').serializeObject()) + "}";
  

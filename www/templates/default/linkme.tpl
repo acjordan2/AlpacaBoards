@@ -37,7 +37,7 @@
 	</form>
 {if $user_id != $link_user_id}
 	<form action="{$base_url}/linkme.php?l={$link_id}" method="POST" id="link_vote">
-		<b>Vote:</b>{for $i=0; $i<=10; $i++}&nbsp;<button class="vote_btn" onclick="$('#value').val({$i})" id="v" name="v" value="{$i}">{$i}</button>
+		<b>Vote:</b>{for $i=0; $i<=10; $i++}&nbsp;<button type="submit" class="vote_btn" id="v{$i}" name="v" value="{$i}">{$i}</button>
 {/for}
 		<input type="hidden" name="action" value="vote" />
 		<input type="hidden" name="link_id" value="{$link_id}" />
