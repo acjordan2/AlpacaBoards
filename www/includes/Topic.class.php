@@ -300,10 +300,18 @@ class Topic
                             $results_getUserId = $statement_getUserId->fetchAll();
                             if (abs($filter_data[1]) <= sizeof($results_getUserId)) {
                                 $data['user_id'] = $results_getUserId[abs($filter_data[1])-1]['user_id'];
+                            } else {
+                                return array();
                             }
+                        } else {
+                            return array();
                         }
                     } else {
-                        $data['user_id'] = $filter_data[1];
+                        if ($filter_data[1] > 0) {
+                            $data['user_id'] = $filter_data[1];
+                        } else {
+                            return array();
+                        }
                     }
                     $sql .= " AND Messages.user_id = :user_id ";
                     break;
