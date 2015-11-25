@@ -78,6 +78,13 @@ class Topic
      */ 
     private $_user;
 
+
+    /**
+    * Flag to indicate if topic is anonymous or not
+    * @var Boolean
+    */
+    private $_anonymous;
+
     /**
      * Create a new Topic object
      * @param integer $topic_id Topic ID
@@ -114,6 +121,7 @@ class Topic
             $this->_topic_id = $results['topic_id'];
             $this->_topic_title = $results['title'];
             $this->_topic_creator = $results['user_id'];
+            $this->_anonymous = $this->hasTag("Anonymous");
         } else {
             throw new Exception('Topic does not exist');
         }
@@ -282,14 +290,18 @@ class Topic
             $filter_data = explode(":", $filter);
             switch ($filter_data[0]) {
                 case 'user':
-                    if ($filter_data[1] < 0) {
-                        $sql_getUserId = "SELECT user_id From Messages 
-                            WHERE topic_id = :topic_id GROUP BY user_id ORDER BY message_id ASC";
-                        $statement_getUserId = $this->_pdo_conn->prepare($sql_getUserId);
-                        $statement_getUserId->bindParam("topic_id", $this->_topic_id);
-                        $statement_getUserId->execute();
-                        $results_getUserId = $statement_getUserId->fetchAll();
-                        $data['user_id'] = $results_getUserId[abs($filter_data[1])-1]['user_id'];
+                    if ($this->_anonymous === true) {
+                        if ($filter_data[1] < 0) {
+                            $sql_getUserId = "SELECT user_id From Messages 
+                                WHERE topic_id = :topic_id GROUP BY user_id ORDER BY message_id ASC";
+                            $statement_getUserId = $this->_pdo_conn->prepare($sql_getUserId);
+                            $statement_getUserId->bindParam("topic_id", $this->_topic_id);
+                            $statement_getUserId->execute();
+                            $results_getUserId = $statement_getUserId->fetchAll();
+                            if (abs($filter_data[1]) <= sizeof($results_getUserId)) {
+                                $data['user_id'] = $results_getUserId[abs($filter_data[1])-1]['user_id'];
+                            }
+                        }
                     } else {
                         $data['user_id'] = $filter_data[1];
                     }
