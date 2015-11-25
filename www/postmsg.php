@@ -228,7 +228,7 @@ if ($auth === true) {
     if (isset($_POST['message'])) {
         $message = $_POST['message'];
     } elseif ($edit == false) {
-        $message .= $authUser->getSignature();
+        $message .= "\r\n".$authUser->getSignature();
     }
 
     $smarty->assign("query_string", $query_string);
