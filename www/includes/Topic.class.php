@@ -97,7 +97,7 @@ class Topic
         $this->_user_id = $user->getUserId();
         $this->_user = $user;
         if (is_numeric($topic_id)) {
-            $this->loadTopic($topic_id);
+            $this->_loadTopic($topic_id);
         }
     }
 
@@ -107,7 +107,7 @@ class Topic
      * @throws exception If the provided topic ID does not exist
      * @return void
      */
-    public function loadTopic($topic_id)
+    private function _loadTopic($topic_id)
     {
         $sql = "SELECT topic_id, title, user_id FROM Topics WHERE topic_id = :topic_id";
         $data = array(

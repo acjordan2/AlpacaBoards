@@ -35,8 +35,7 @@ if ($auth === true) {
         try {
             $csrf->setPageSalt("postMessageTopic".$topic_id);
             $parser = new Parser();
-            $topic = new Topic($authUser, $parser);
-            $topic->loadTopic($topic_id);
+            $topic = new Topic($authUser, $parser, $topic_id);
             $isArchived = $topic->hasTag("Archived");
             if (!is_numeric(@$_GET['page']) || @$_GET['page'] == null) {
                 $current_page = 1;
