@@ -60,8 +60,7 @@ class CSRFGuard
      * @return void
      */
     public function __construct($site_key = null, $options = null)
-    {
-        
+    { 
         $this->_site_key = $site_key;
         $default_options = array(
             "namespace" => "csrf",
@@ -88,10 +87,9 @@ class CSRFGuard
         // Get CSRF token from cookie, if it does not exist
         // create a new token
         if (isset($_COOKIE[$this->_options['namespace']])) {
-            $this->_csrf_token = $_COOKIE[$this->_options['namespace']];
-            $time = array_shift(explode("_", $this->_csrf_token));
-            if ((time() - $this->_options['global_timespan']) > $time
-                && $this->_options['enfore_timespan'] === true) {
+            $this->_csrf_token = json_decode($this->websafeDecode($_COOKIE[$this->_options['namespace']]), true);
+            if ($this->_options['enfore_timespan'] === true && 
+                (time() - $this->_options['global_timespan']) > $this->_csrf_token['ts']) {
                 $this->resetToken();
             }
         } else {
@@ -131,26 +129,20 @@ class CSRFGuard
      * 
      * @return string The value of the CSRF token
      */
-    public function getToken()
+    public function getToken($token_salt = null)
     {
-        if (!is_null($this->_options['global_timespan']) && $this->_options['global_timespan'] > 0) {
-            $temp = explode("_", $this->_csrf_token);
-            $time_string = array_shift($temp)."_";
-            $token_with_hmac = $this->websafeDecode(implode("_", $temp));
-        } else {
-            $time_string = null;
-            $token_with_hmac = $this->websafeDecode($this->_csrf_token);
+        if (!is_null($this->_options['global_timespan']) && $this->_options['global_timespan'] < 1) {
+            $this->_csrf_token['ts'] = null;
         }
-        $token = explode("|", $token_with_hmac);
 
         // Make sure cookie has not been modified
-        $hmac_cookie = hash_hmac("sha1", $time_string.$token[0], $this->_site_key, true);
-        if ($hmac_cookie == $token[1]) {
+        $hmac = hash_hmac("sha256", $this->_csrf_token['ts'].$this->websafeDecode($this->_csrf_token['t']), $this->_site_key, true);
+        if ($hmac == $this->websafeDecode($this->_csrf_token['h'])) {
             // Generate CSRF token based on random data in cookie and the salt
             // and HMAC'd with the sites private key
             $hash = hash_hmac(
                 "sha256",
-                $time_string.$token[0].$this->_options['session_salt'].$this->_page_salt,
+                $this->_csrf_token['ts'].$this->websafeDecode($this->_csrf_token['t']).$this->_options['session_salt'].$this->_page_salt,
                 $this->_site_key,
                 true
             );
@@ -170,19 +162,23 @@ class CSRFGuard
     public function resetToken()
     {
         if (!is_null($this->_options['global_timespan']) && $this->_options['global_timespan'] > 0) {
-            $time_string = time()."_";
+            $time_string = time();
         } else {
             $time_string = null;
         }
         // Generate random data for CSRF token
         $r = mcrypt_create_iv(26, MCRYPT_DEV_URANDOM);
-        $hmac = hash_hmac("sha1", $time_string.$r, $this->_site_key, true);
+        $hmac = hash_hmac("sha256", $time_string.$r, $this->_site_key, true);
+        
         // Append HMAC to random data, encode in websafe base64
         // and store in a cookie
-        $this->_csrf_token = $time_string.$this->websafeEncode($r."|".$hmac);
+        $this->_csrf_token['t'] = $this->websafeEncode($r);
+        $this->_csrf_token['ts'] = time();
+        $this->_csrf_token['h'] = $this->websafeEncode($hmac);
+        
         setcookie(
             $name = $this->_options['namespace'],
-            $value = $this->_csrf_token,
+            $value = $this->websafeEncode(json_encode($this->_csrf_token)),
             $expire = $this->_options['global_timespan'] + time(),
             $path = $this->_options['path'],
             $domain = $this->_options['domain'],
@@ -198,7 +194,7 @@ class CSRFGuard
      * 
      * @return boolean         True if the token is valid
      */
-    public function validateToken($request)
+    public function validateToken($request, $token_salt = null)
     {
         if ($this->getToken() === $request) {
             return true;
