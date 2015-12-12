@@ -142,7 +142,7 @@ class CSRFGuard
             // and HMAC'd with the sites private key
             $hash = hash_hmac(
                 "sha256",
-                $this->_csrf_token['ts'].$this->websafeDecode($this->_csrf_token['t']).$this->_options['session_salt'].$this->_page_salt,
+                $this->_csrf_token['ts'].$this->websafeDecode($this->_csrf_token['t']).$this->_options['session_salt'].$token_salt.$this->_page_salt,
                 $this->_site_key,
                 true
             );
@@ -196,7 +196,7 @@ class CSRFGuard
      */
     public function validateToken($request, $token_salt = null)
     {
-        if ($this->getToken() === $request) {
+        if ($this->getToken($token_salt) === $request) {
             return true;
         }
     }

@@ -134,16 +134,7 @@ $authUser = new User($site);
 
 $auth = false;
 
-if (isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])) {
-    if ($csrf->validateToken($_POST['token'])) {
-        $auth = $authUser->authenticateWithCredentials($_POST['username'], $_POST['password']);
-        if ($auth == true) {
-            $csrf->resetToken();
-        }
-    } else {
-        $auth = false;
-    }
-} elseif (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
+if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
     $auth = $authUser->authenticateWithCookie();
 }
 if ($auth == true) {

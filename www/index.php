@@ -39,46 +39,58 @@ if ($auth === false) {
         $message = $GLOBALS['locale_messages']['account']['created'];
     }
 
-    // If an incorrect username or password was
-    // provided, show error message
-    if (isset($_POST['username']) || isset($_POST['password'])) {
-        $message = $GLOBALS['locale_messages']['login']['error'].
-                   " <a href=\"./passwordReset.php\">Forgot password</a>?";
+    if (isset($_POST['token']) && isset($_POST['username']) && isset($_POST['password'])) {
+        
+        if ($csrf->validateToken($_POST['token'], "login")) {
+            $auth = $authUser->authenticateWithCredentials($_POST['username'], $_POST['password']);
+            if ($auth === true) {
+                $csrf->resetToken();
+                // If the user is logged in, redirect
+                // to last visted page if it exists.
+                // Otherwise, redirect to main.
+                session_set_cookie_params(0, "/", $site->getDomain(), USE_SSL, true);
+                session_name("r");
+                session_start();
+                if (isset($_SESSION['redirect'])) {
+                    $r = $_SESSION['redirect'];
+                    if (ini_get("session.use_cookies")) {
+                        $params = session_get_cookie_params();
+                        setcookie(
+                            session_name(),
+                            '',
+                            time() - 42000,
+                            $params["path"],
+                            $params["domain"],
+                            $params["secure"],
+                            $params["httponly"]
+                        );
+                    }
+                    session_destroy();
+                    if ($r == urldecode($_GET['r'])) {
+                        header("Location: ".$r);
+                    } else {
+                        header("Location: ./main.php");
+                    }
+                    exit();
+                } else {
+                    header("Location: ./main.php");
+                }
+            } else {
+                // If an incorrect username or password was
+                // provided, show error message
+                $message = $GLOBALS['locale_messages']['login']['error'].
+                    "<br /><a href=\"./passwordReset.php\">Forgot password</a>?";
+            }
+        } else {
+            $message = "There was an error processing your request, please try again";
+        }
     }
+
     $smarty->assign("username", htmlentities(@$_POST['username']));
     $smarty->assign("message", $message);
-    $smarty->assign("token", $csrf->getToken());
+    $smarty->assign("token", $csrf->getToken("login"));
     include "includes/deinit.php";
 } else {
-    // If the suer is logged in, redirect
-    // to last visted page if it exists.
-    // Otherwise, redirect to main.
-    session_set_cookie_params(0, "/", $site->getDomain(), USE_SSL, true);
-    session_name("r");
-    session_start();
-    if (isset($_SESSION['redirect'])) {
-        $r = $_SESSION['redirect'];
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
-        session_destroy();
-        if ($r == urldecode($_GET['r'])) {
-            header("Location: ".$r);
-        } else {
-            header("Location: ./main.php");
-        }
-        exit();
-    } else {
-        header("Location: ./main.php");
-        exit();
-    }
+    header("Location: ./main.php");
+    exit();
 }
