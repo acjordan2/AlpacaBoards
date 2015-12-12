@@ -131,7 +131,7 @@ if ($site->getRegistrationStatus() == 0) {
     }
 }
 $smarty->assign("registration_status", $site->getRegistrationStatus());
-$smarty->assign("token", $csrf->getToken();
+$smarty->assign("token", $csrf->getToken());
 // Set template page
 $display = "register.tpl";
 $page_title = "Register";
