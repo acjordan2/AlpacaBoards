@@ -137,9 +137,33 @@ class Link
             SUM(LinkVotes.vote)/COUNT(LinkVotes.vote) AS rating, 
             Links.created 
             FROM Links LEFT JOIN Users USING(user_id) 
-            LEFT JOIN LinkVotes USING(link_id) 
-            GROUP BY link_id ORDER BY link_id DESC LIMIT ".$this->_results_per_page.
+            LEFT JOIN LinkVotes USING(link_id) ";
+
+        if ($filter != null) {
+            preg_match_all("/\[.*?\]/", $filter, $matches);
+            foreach ($matches[0] as $tag_filter) {
+                $tag_filter = str_replace(array('[', ']'), "", $tag_filter);
+                $filter_array = explode(":", $tag_filter);
+                $filter_flag = false;
+                $filter_sql = " WHERE";
+                switch($filter_array[0]) {
+                    case 'id':
+                        if($filter_flag) {
+                            $filter_sql .= " AND";
+                        } else {
+                            $filter_flag = true;
+                        } 
+                        $filter_sql .= " link_id = :link_id";
+                        $data['link_id'] = $filter_array[1];
+                }
+            }
+            $sql .= $filter_sql;
+        }
+
+
+        $sql .= " GROUP BY link_id ORDER BY link_id DESC LIMIT ".$this->_results_per_page.
             " OFFSET :offset";
+
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->execute($data);
         $results = $statement->fetchAll();
