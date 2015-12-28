@@ -24,17 +24,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-##Search Settings
-define("SEARCHD_PATH", "/usr/bin/searchd");
-define("INDEXER_PATH", "/usr/bin/indexer");
-define("SPHINX_HOST", "localhost");
-define("SPHINX_PORT", 3312);
-define("SPHINX_CONFIG", "/var/www/Sper.gs/sphinx/sphinx.conf");
-
-##Security Settings
-define("USE_SSL", false);
-
 ##Authentication Cookie Names
 define("AUTH_KEY1", "sessionid");
 define("AUTH_KEY2", "sessionkey");
-

@@ -46,6 +46,11 @@ class Site {
 
     private $_use_ssl;
 
+    private static $_constants = array (
+        "AUTH_KEY1" => "sessionid",
+        "AUTH_KEY2" => "sessionkey",
+    );
+
     public function __construct()
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
@@ -224,9 +229,13 @@ class Site {
         return $row[0];
     }
 
-    public function getMessage($id)
+    public function getMessage($key)
     {
-        return "Message deleted";
+        $array = array(
+            "message_deleted" => "[This message was deleted at the request of the original poster]",
+            "message_deleted_moderator" => "[This message was deleted by a moderator]"
+        );
+        return $array[$key];
     }
 
     public static function getRootPath()
@@ -278,13 +287,14 @@ class Site {
     }
 
     public static function getConstant($key) {
-        $constants = array(
+        $const = array(
             "TEMPLATE_DIR" => self::getRootPath()."/templates",
             "TEMPLATE_CACHE" => self::getRootPath()."/includes/smarty/cache",
             "TEMPLATE_CONFIG" => self::getRootPath()."/includes/smarty/configs",
             "TEMPLATE_COMPILE" => self::getRootPath()."/includes/smarty/templates_c"
         );
 
-        return $constants[$key];    
+        $array = array_merge($const, self::$_constants);
+        return $array[$key];    
     }
 }

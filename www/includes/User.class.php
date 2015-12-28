@@ -204,8 +204,8 @@ class User
 
         $statement_authenticate = $this->_pdo_conn->prepare($sql_authenticate);
         $data_authenticate = array(
-            "session_key1" => $_COOKIE[AUTH_KEY1],
-            "session_key2" => $_COOKIE[AUTH_KEY2],
+            "session_key1" => $_COOKIE[Site::getConstant("AUTH_KEY1")],
+            "session_key2" => $_COOKIE[Site::getConstant("AUTH_KEY2")],
             "useragent" => $_SERVER['HTTP_USER_AGENT']
         );
 
@@ -219,7 +219,7 @@ class User
         } else {
             // Cookies are invalid, remove them
             setcookie(
-                $name = AUTH_KEY1,
+                $name = Site::getConstant("AUTH_KEY1"),
                 $value = "",
                 $expire = -1,
                 $path = "/",
@@ -228,7 +228,7 @@ class User
                 $httponly = true
             );
             setcookie(
-                $name = AUTH_KEY2,
+                $name = Site::getConstant("AUTH_KEY2"),
                 $value = "",
                 $expire = -1,
                 $path = "/",
@@ -274,7 +274,7 @@ class User
                 $session_key2 = strtr($session_key2, '+/=', '-_,');
 
                 setcookie(
-                    $name = AUTH_KEY1,
+                    $name = Site::getConstant("AUTH_KEY1"),
                     $value = $session_key1,
                     $expire = 0,
                     $path = "/",
@@ -283,7 +283,7 @@ class User
                     $httponly = true
                 );
                 setcookie(
-                    $name = AUTH_KEY2,
+                    $name = Site::getConstant("AUTH_KEY2"),
                     $value = $session_key2,
                     $expire = 0,
                     $path = "/",
@@ -364,10 +364,10 @@ class User
     private function _updateActivity($session_key1 = null, $session_key2 = null)
     {
         if (is_null($session_key1)) {
-            $session_key1 = $_COOKIE[AUTH_KEY1];
+            $session_key1 = $_COOKIE[Site::getConstant("AUTH_KEY1")];
         }
         if (is_null($session_key2)) {
-            $session_key2 = $_COOKIE[AUTH_KEY2];
+            $session_key2 = $_COOKIE[Site::getConstant("AUTH_KEY2")];
         }
 
         // Update user activtiy
@@ -430,20 +430,20 @@ class User
      */
     public function logout()
     {
-        if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
+        if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")]) && isset($_COOKIE[Site::getConstant("AUTH_KEY2")])) {
             // Remove session keys from the database
             $sql_logout = "UPDATE Sessions SET session_key1=NULL, session_key2=NULL 
                 WHERE session_key1=:session_key1 AND session_key2=:session_key2";
             $statement_logout = $this->_pdo_conn->prepare($sql_logout);
             $data_session = array(
-                "session_key1" => $_COOKIE[AUTH_KEY1],
-                "session_key2" => $_COOKIE[AUTH_KEY2]
+                "session_key1" => $_COOKIE[Site::getConstant("AUTH_KEY1")],
+                "session_key2" => $_COOKIE[Site::getConstant("AUTH_KEY2")]
             );
             $statement_logout->execute($data_session);
 
             // Delete session cookies
             setcookie(
-                $name = AUTH_KEY1,
+                $name = Site::getConstant("AUTH_KEY1"),
                 $value = '',
                 $expire = 1,
                 $path = "/",
@@ -452,7 +452,7 @@ class User
                 $httponly = true
             );
             setcookie(
-                $name = AUTH_KEY2,
+                $name = Site::getConstant("AUTH_KEY2"),
                 $value = '',
                 $expire = 1,
                 $path = "/",
