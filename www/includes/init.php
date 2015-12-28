@@ -125,7 +125,7 @@ if (isset($_COOKIE[AUTH_KEY1]) && isset($_COOKIE[AUTH_KEY2])) {
 
 $options = array(
     "domain" => $site->getDomain(),
-    "ssl" => USE_SSL,
+    "ssl" => $site->isSSL(),
     "session_salt" => $session_salt
 );
 $csrf = new CSRFGuard($site->getSiteKey(), $options);

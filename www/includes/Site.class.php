@@ -44,6 +44,8 @@ class Site {
 
     private $_use_short_handler = true;
 
+    private $_use_ssl;
+
     public function __construct()
     {
         $this->_pdo_conn = ConnectionFactory::getInstance()->getConnection();
@@ -188,6 +190,7 @@ class Site {
 
             if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
                 $protocol = "https://";
+                $this->_use_ssl = true;
             } else {
                 $protocol = "http://";
             }
@@ -205,6 +208,11 @@ class Site {
         // Remove trailing slash
         $base_url = rtrim($base_url, "/");
         $this->_base_url = $base_url;
+    }
+
+    public function isSSL()
+    {
+        return $this->_use_ssl;
     }
 
     public function getReaders()

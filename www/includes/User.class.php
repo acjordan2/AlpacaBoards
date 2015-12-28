@@ -224,7 +224,7 @@ class User
                 $expire = -1,
                 $path = "/",
                 $domain = $this->_site->getDomain(),
-                $secure = USE_SSL,
+                $secure = $this->_site->isSSL(),
                 $httponly = true
             );
             setcookie(
@@ -233,7 +233,7 @@ class User
                 $expire = -1,
                 $path = "/",
                 $domain = $this->_site->getDomain(),
-                $secure = USE_SSL,
+                $secure = $this->_site->isSSL(),
                 $httponly = true
             );
             return false;
@@ -279,7 +279,7 @@ class User
                     $expire = 0,
                     $path = "/",
                     $domain = $this->_site->getDomain(),
-                    $secure = USE_SSL,
+                    $secure = $this->_site->isSSL(),
                     $httponly = true
                 );
                 setcookie(
@@ -288,7 +288,7 @@ class User
                     $expire = 0,
                     $path = "/",
                     $domain = $this->_site->getDomain(),
-                    $secure = USE_SSL,
+                    $secure = $this->_site->isSSL(),
                     $httponly = true
                 );
                 
@@ -448,7 +448,7 @@ class User
                 $expire = 1,
                 $path = "/",
                 $domain = $this->_site->getDomain(),
-                $secure = USE_SSL,
+                $secure = $this->_site->isSSL(),
                 $httponly = true
             );
             setcookie(
@@ -457,7 +457,7 @@ class User
                 $expire = 1,
                 $path = "/",
                 $domain = $this->_site->getDomain(),
-                $secure = USE_SSL,
+                $secure = $this->_site->isSSL(),
                 $httponly = true
             );
         }
@@ -471,7 +471,7 @@ class User
                 $expire = 1,
                 $path = "/",
                 $domain = $this->_site->getDomain(),
-                $secure = USE_SSL,
+                $secure = $this->_site->isSSL(),
                 $httponly = true
             );
         }
@@ -483,7 +483,7 @@ class User
                 $expire = 1,
                 $path = "/",
                 $domain = $this->_site->getDomain(),
-                $secure = USE_SSL,
+                $secure = $this->_site->isSSL(),
                 $httponly = true
             );
         }
