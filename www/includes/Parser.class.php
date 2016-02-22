@@ -339,12 +339,19 @@ class Parser
             
                 // Date of original quote
                 $quote_time = $this->doc->createTextNode(
-                    " | Posted: ".date(DATE_FORMAT, $results['posted'])
+                    " | Posted: ".date(DATE_FORMAT, $results['posted'])." | "
                 );
-                 
+
+                $quote_details = $this->doc->createElement("a", "Details");
+                $quote_details->setAttribute(
+                    "href",
+                    "./message.php?id=".$msgid_array[2]."&topic=".$msgid_array[1]."&r=0"
+                );
+                
                 // Append header child nodes to the parent node
                 $quote_header->appendChild($quote_author);
                 $quote_header->appendChild($quote_time);
+                $quote_header->appendChild($quote_details);
             }
         }
         // Create parent div container for quote
@@ -369,6 +376,7 @@ class Parser
             // Not sure why I can't enumerate the children
             $quote_body->appendChild($node->cloneNode(true));
         }
+
         return $quote_body;
     }
 
