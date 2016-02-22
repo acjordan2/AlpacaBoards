@@ -418,6 +418,7 @@ div.img div * {
   margin-left: 0px;
   padding-left: 6px;
   border-left: 2px solid #6896D5;
+  margin-bottom: 20px;
 }
 .message .message-top {
   background-color: transparent;
