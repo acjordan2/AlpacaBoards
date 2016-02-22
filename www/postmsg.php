@@ -198,7 +198,10 @@ if ($auth === true) {
                 // Only admins can tag for the time being
                 $tag_info = $tag->getTagInfoByTitle("Pinned");
                 if ($authUser->getAccessLevel() != 1) {
-                    unset($tags[array_search($tag_info['tag_id'], $tags)]);
+                    $pinned_tag = array_search($tag_info['tag_id'], $tags);
+                    if ($pinned_tag != null) {
+                        unset($tags[$pinned_tag]);
+                    }
                 }
 				$topic = new Topic($authUser, $parser);
 				$topic_id = $topic->createTopic($title, $tags, $message);
