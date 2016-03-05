@@ -20,9 +20,9 @@
 			<a href="{$base_url}/inbox.php">Private Messages (<span id="userbar_pms_count">0</span>)</a> |
 		</span>
 		<!--<a href="{$base_url}/boardlist.php">Board List</a> | -->
-      	<a href="{$base_url}/showtopics.php">Topic List</a> | 
+      	<a href="{$base_url}/showtopics.php">Topic List</a>  
 		{if $archived == false}
-        <a href="{$base_url}/postmsg.php?topic={$topic_id}">Post New Message</a>
+        | <a href="{$base_url}/postmsg.php?topic={$topic_id}">Post New Message</a>
 		<!--| <a href="//boards.endoftheinter.net/showmessages.php?topic=7758474&amp;h=76f03" onclick="return !tagTopic(this, 7758474, true)">Tag</a> | 
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>-->
 		{if $action != NULL} <!--
@@ -30,7 +30,7 @@
 				{$action[0].name}
 			</a> -->
 		{/if}{/if}
-        {if $user_id == $topic_creator}{if $archived == false}|{/if} <a href="{$base_url}/edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
+        {if $user_id == $topic_creator}{if $archived == false}|{/if} | <a href="{$base_url}/edittags.php?topic={$topic_id}">Edit Tags</a>{/if}
 	</div>
 {literal}
 	<!--<script type="text/javascript">
