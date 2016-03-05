@@ -56,7 +56,7 @@ class ImageMap
             }
            
             $sql_getImageMap = "SELECT Distinct(UploadedImages.sha1_sum), UploadedImages.thumb_height, 
-                UploadedImages.thumb_width, Topics.title, ImageMap.topic_id, UploadLog.filename FROM Topics LEFT JOIN 
+                UploadedImages.thumb_width, UploadedImages.created, Topics.title, ImageMap.topic_id, UploadLog.filename FROM Topics LEFT JOIN 
                 ImageMap USING(topic_id) LEFT JOIN UploadedImages using(image_id) LEFT JOIN UploadLog 
                 using(image_id) WHERE ($topic_id_var) AND ImageMap.image_id != ".$topic_id_array[0][1].
                 " ORDER BY ImageMap.map_id DESC";
@@ -68,6 +68,10 @@ class ImageMap
                 $results[$key]['title'] = htmlentities($results[$key]['title']);
                 $results[$key]['filename'] = htmlentities($results[$key]['filename']);
                 $results[$key]['filename_url'] = urlencode($results[$key]['filename']);
+                $results[$key]['thumbnail'] = $results[$key]['filename_url'];
+                if ($results[$key]['created'] <= 1442629719) {
+                    $results[$key]['thumbnail'] .= ".jpg";
+                }
             }
             return $results;
         } else {
@@ -87,7 +91,7 @@ class ImageMap
     public function getImageMapForUser($user_id)
     {
         $sql_getImageMap = "SELECT DISTINCT(ImageMap.image_id), UploadedImages.sha1_sum, UploadedImages.thumb_height, 
-                UploadedImages.thumb_width, Topics.title, ImageMap.topic_id, UploadLog.filename, MAX(ImageMap.image_id) FROM Topics LEFT JOIN 
+                UploadedImages.thumb_width, UploadedImages.created, Topics.title, ImageMap.topic_id, UploadLog.filename, MAX(ImageMap.image_id) FROM Topics LEFT JOIN 
                 ImageMap USING(topic_id) LEFT JOIN UploadedImages using(image_id) LEFT JOIN UploadLog 
                 using(image_id) WHERE ImageMap.user_id = $user_id GROUP BY ImageMap.image_id ORDER BY ImageMap.map_id DESC";
          $statement = $this->pdo_conn->query($sql_getImageMap);
@@ -97,6 +101,11 @@ class ImageMap
             $results[$key]['title'] = htmlentities($results[$key]['title']);
             $results[$key]['filename'] = htmlentities($results[$key]['filename']);
             $results[$key]['filename_url'] = urlencode($results[$key]['filename']);
+            $results[$key]['thumbnail'] = $results[$key]['filename_url'];
+            if ($results[$key]['created'] <= 1442629719) {
+                $results[$key]['thumbnail'] .= ".jpg";
+            }
+
         }
         return $results;
     }
