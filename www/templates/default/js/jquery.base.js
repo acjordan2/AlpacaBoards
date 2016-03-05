@@ -210,7 +210,7 @@ function quickpost_quote(message_id){
 
 		message_body = message_split[0];
 		sig = message_split[message_split.length-1];
-		$("#qpmessage").insertAtCaret("<quote msgid=\""+quote_data[0]+","+quote_data[1]+","+quote_data[2]+"\">"+result['message']+"</quote>");
+		$("#qpmessage").insertAtCaret("<quote msgid=\""+quote_data[0]+","+quote_data[1]+","+quote_data[2]+"\">"+result['message']+"</quote>\n");
 	}});
 	return false;
 }
