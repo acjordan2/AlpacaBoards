@@ -90,6 +90,7 @@ Class Message
 
     private $_anonymous;
 
+    private $_type;
     /**
      * Create a new Message Object
      * 
@@ -106,8 +107,6 @@ Class Message
         if ($type == 1) {
             $this->_table = "Topics";
             $this->_column = "topic_id";
-
-
         } elseif ($type == 2) {
             $this->_table = "Links";
             $this->_column = "link_id";
@@ -138,7 +137,7 @@ Class Message
             $revision_sql = "";
         }
 
-        $sql = "SELECT Messages.$this->_column, Messages.message_id, Messages.revision_no, Messages.user_id, 
+        $sql = "SELECT Messages.link_id, Messages.topic_id,  Messages.message_id, Messages.revision_no, Messages.user_id, 
             Messages.message, Messages.deleted, Messages.type, Users.username, $this->_table.title, 
             (SELECT Messages.posted FROM Messages WHERE Messages.message_id = :message_id_post
                 AND Messages.revision_no = 0) as posted
@@ -161,7 +160,9 @@ Class Message
             $this->_title = $results['title'];
             $this->_state = $results['deleted'];
             $this->_posted = $results['posted'];
-            $this->_parent_id = $results[$this->_column];
+
+            $this->_parent_id = $results['topic_id'] > $results['link_id'] ? $results['topic_id'] : $results['link_id'];
+            $this->_type = $results['topic_id'] > $results['link_id'] ? 't' : 'l';
             $this->_revision_no = $results['revision_no'];
 
             $sql_checkAnon = "SELECT TopicalTags.title  FROM Tagged 
@@ -260,7 +261,7 @@ Class Message
                 $message = $this->_message;
             }
 
-            $quote = "<quote msgid=t,".$this->_parent_id.","
+            $quote = "<quote msgid=".$this->_type.",".$this->_parent_id.","
                 .$this->_message_id."@".$this->_revision_no.">";
             $quote .= $message;
             $quote .= "</quote>";

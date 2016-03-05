@@ -302,10 +302,10 @@ class Parser
                     $tags = $statement_checkAnon->fetch();
                 } elseif ($msgid_array[0] == "l") { // Link
                     $sql_quote = "SELECT Users.username, Users.user_id, 
-                        LinkMessages.posted FROM LinkMessages LEFT JOIN 
-                        Users Using(user_id) WHERE LinkMessages.link_id=? 
-                        AND LinkMessages.message_id=? AND 
-                        LinkMessages.revision_no = 0";
+                        Messages.posted, Messages.deleted FROM Messages LEFT JOIN 
+                        Users Using(user_id) WHERE Messages.link_id=? 
+                        AND Messages.message_id=? AND 
+                        Messages.revision_no = 0";
                 }
 
                 // Get data about quote such as post date
@@ -313,6 +313,7 @@ class Parser
                 $statement = $this->pdo_conn->prepare($sql_quote);
                 $statement->execute(array($msgid_array[1], $msgid_array[2]));
                 $results = $statement->fetch();
+
                 if (count($tags) > 0 && $tags != null) {
                     $sql_getPosterCount = "SELECT DISTINCT(user_id)
                         FROM Messages WHERE topic_id = :topic
@@ -342,10 +343,16 @@ class Parser
                     " | Posted: ".date(DATE_FORMAT, $results['posted'])." | "
                 );
 
+                if ($msgid_array[0] == "t") {
+                    $parent_param = "topic=".$msgid_array[1];
+                } elseif ($msgid_array[0] == 'l') {
+                    $parent_param = "link=".$msgid_array[1];
+                }
+
                 $quote_details = $this->doc->createElement("a", "Details");
                 $quote_details->setAttribute(
                     "href",
-                    "./message.php?id=".$msgid_array[2]."&topic=".$msgid_array[1]."&r=0"
+                    "./message.php?id=".$msgid_array[2]."&".$parent_param."&r=".$msgid_array[3]
                 );
                 
                 // Append header child nodes to the parent node
