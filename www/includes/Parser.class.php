@@ -239,7 +239,7 @@ class Parser
                 // Hack, images uploaded before this timestamp have jpeg thumbnails
                 // images uploaded after will use the same extension for the thumbnail
                 // as the original image 
-                if ($size == 't' && $results[2] < 1442629719) {
+                if ($size == 't' && $results[2] <= 1442629719) {
                     $extension = "jpg";
                 }
 

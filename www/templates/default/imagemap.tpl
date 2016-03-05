@@ -6,7 +6,7 @@
             {if $images != false}<div class="image_grid">
             {foreach from=$images key=header item=img}
                 <div class="grid_block">
-                    <a href="{$base_url}/img.php?hash={$img.sha1_sum}"><img src="./usercontent/i/t/{$img.sha1_sum}/{$img.filename_url}.jpg" /></a><br/>
+                    <a href="{$base_url}/img.php?hash={$img.sha1_sum}"><img src="./usercontent/i/t/{$img.sha1_sum}/{$img.thumbnail}" /></a><br/>
                     <div class="block_desc">
                         <a style="float: left;" href="{$base_url}/img.php?hash={$img.sha1_sum}">{$img.filename}</a>
                         <div style="float: right;"><a href="{$base_url}/imagemap.php?hash={$img.sha1_sum}">topics</a> | <a href="{$base_url}/imagemap.php?hash={$img.sha1_sum}">related</a></div>
