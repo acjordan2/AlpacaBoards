@@ -139,7 +139,7 @@ Class Message
         }
 
         $sql = "SELECT Messages.$this->_column, Messages.message_id, Messages.revision_no, Messages.user_id, 
-            Messages.message, Messages.deleted, Users.username, $this->_table.title, 
+            Messages.message, Messages.deleted, Messages.type, Users.username, $this->_table.title, 
             (SELECT Messages.posted FROM Messages WHERE Messages.message_id = :message_id_post
                 AND Messages.revision_no = 0) as posted
         FROM Users

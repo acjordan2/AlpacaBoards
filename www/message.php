@@ -52,10 +52,9 @@ if ($auth === true) {
 
         try {
             $message = new Message($site, $message_id, $revision_no, $type);
-
             // Helps prevent enumerating messages easily since both the topic/link id
             // and the message ID need to be known
-            if ($message->getParentId() == $parent_id) {
+            if ($message->getParentId() == $parent_id && $parent_id > 0) {
 
                 $mod_message_delete = $authUser->checkPermissions("topic_delete_message");
 
