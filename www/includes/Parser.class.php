@@ -479,7 +479,10 @@ class Parser
         $html = str_replace("</html>", "", $html);
         $html = str_replace("<body>", "", $html);
         $html = str_replace("</body>", "", $html);
-        
+       
+        $html = preg_replace("/<\/quote><\/div><div/", "</div><br /><div", $html);
+        $html = preg_replace('/<quote msgid="(t|l),(\d+),(\d+)@(\d+)">/', "", $html);
+ 
         // Remove enclosing <p> put there by DomDocument
         // Fix for spoiler not hiding images when there
         // body starts with a text node
