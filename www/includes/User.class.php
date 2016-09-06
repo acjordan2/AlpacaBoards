@@ -187,7 +187,7 @@ class User
      * Authenticate a user using session cookies
      * @return boolean True if the user is authenticated
      */
-    public function authenticateWithCookie()
+    public function authenticateWithCookie($session_cookie)
     {
         $sql_authenticate = " SELECT Users.user_id, Users.username, 
             Users.email, Users.private_email, Users.instant_messaging, Users.account_created,
@@ -199,13 +199,12 @@ class User
             LEFT JOIN UploadLog ON Users.avatar=UploadLog.uploadlog_id
             LEFT JOIN UploadedImages ON UploadLog.image_id = UploadedImages.image_id
             INNER JOIN Sessions on Users.user_id=Sessions.user_id
-            WHERE Sessions.session_key1=:session_key1 AND Sessions.session_key2=:session_key2
+            WHERE Sessions.session_key1=:session_key1 
             AND Sessions.useragent=:useragent";
 
         $statement_authenticate = $this->_pdo_conn->prepare($sql_authenticate);
         $data_authenticate = array(
-            "session_key1" => $_COOKIE[Site::getConstant("AUTH_KEY1")],
-            "session_key2" => $_COOKIE[Site::getConstant("AUTH_KEY2")],
+            "session_key1" => $session_cookie, 
             "useragent" => $_SERVER['HTTP_USER_AGENT']
         );
 
@@ -217,25 +216,6 @@ class User
             $this->_updateActivity();
             return true;
         } else {
-            // Cookies are invalid, remove them
-            setcookie(
-                $name = Site::getConstant("AUTH_KEY1"),
-                $value = "",
-                $expire = -1,
-                $path = "/",
-                $domain = $this->_site->getDomain(),
-                $secure = $this->_site->isSSL(),
-                $httponly = true
-            );
-            setcookie(
-                $name = Site::getConstant("AUTH_KEY2"),
-                $value = "",
-                $expire = -1,
-                $path = "/",
-                $domain = $this->_site->getDomain(),
-                $secure = $this->_site->isSSL(),
-                $httponly = true
-            );
             return false;
         }
     }
@@ -268,10 +248,8 @@ class User
                 $this->_user_id = $user_info['user_id'];
                 // Create session cookies
                 $session_key1 = base64_encode(mcrypt_create_iv(48, MCRYPT_DEV_URANDOM));
-                $session_key2 = base64_encode(mcrypt_create_iv(48, MCRYPT_DEV_URANDOM));
 
                 $session_key1 = strtr($session_key1, '+/=', '-_,');
-                $session_key2 = strtr($session_key2, '+/=', '-_,');
 
                 setcookie(
                     $name = Site::getConstant("AUTH_KEY1"),
@@ -282,20 +260,11 @@ class User
                     $secure = $this->_site->isSSL(),
                     $httponly = true
                 );
-                setcookie(
-                    $name = Site::getConstant("AUTH_KEY2"),
-                    $value = $session_key2,
-                    $expire = 0,
-                    $path = "/",
-                    $domain = $this->_site->getDomain(),
-                    $secure = $this->_site->isSSL(),
-                    $httponly = true
-                );
                 
                 // Associate session with IP address and user agent
-                $sql_session = "INSERT INTO Sessions (user_id, session_key1, session_key2, created,
+                $sql_session = "INSERT INTO Sessions (user_id, session_key1, created,
                     last_active, ip, x_forwarded_for, useragent) VALUES (".$user_info['user_id'].", 
-                    '$session_key1', '$session_key2', ".time().", ".time().", :ip, :x_forwarded_for, 
+                    '$session_key1', ".time().", ".time().", :ip, :x_forwarded_for, 
                     :useragent)";
                 $statement_session = $this->_pdo_conn->prepare($sql_session);
                 $session_data = array(
@@ -366,9 +335,6 @@ class User
         if (is_null($session_key1)) {
             $session_key1 = $_COOKIE[Site::getConstant("AUTH_KEY1")];
         }
-        if (is_null($session_key2)) {
-            $session_key2 = $_COOKIE[Site::getConstant("AUTH_KEY2")];
-        }
 
         // Update user activtiy
         $sql_updateUserActivity = "UPDATE Users SET last_active = ".time().
@@ -430,14 +396,13 @@ class User
      */
     public function logout()
     {
-        if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")]) && isset($_COOKIE[Site::getConstant("AUTH_KEY2")])) {
+        if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")])) {
             // Remove session keys from the database
-            $sql_logout = "UPDATE Sessions SET session_key1=NULL, session_key2=NULL 
-                WHERE session_key1=:session_key1 AND session_key2=:session_key2";
+            $sql_logout = "UPDATE Sessions SET session_key1=NULL, session_key2=NULL
+                WHERE session_key1=:session_key1";
             $statement_logout = $this->_pdo_conn->prepare($sql_logout);
             $data_session = array(
                 "session_key1" => $_COOKIE[Site::getConstant("AUTH_KEY1")],
-                "session_key2" => $_COOKIE[Site::getConstant("AUTH_KEY2")]
             );
             $statement_logout->execute($data_session);
 
@@ -588,7 +553,7 @@ class User
         $statement = $this->_pdo_conn->prepare($sql);
         $statement->bindParam(":email", $email);
         $statement->execute();
-        $this->__email = $email;
+        $this->_email = $email;
     }
 
     /**
