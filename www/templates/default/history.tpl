@@ -11,11 +11,11 @@
 		<a href="//wiki.endoftheinter.net/index.php/Help:Rules">Help</a>
 	</div>
 {literal}
-	<script type="text/javascript">
+	<!--<script type="text/javascript">    
 		//<![CDATA[
 		    onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
 		//]]>
-	</script>
+	</script>-->
 {/literal}
 	<div class="userbar" id="search_bar" style="display: none;">
 		Search:

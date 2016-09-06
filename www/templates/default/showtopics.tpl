@@ -2,11 +2,11 @@
     <h1>{$board_title}</h1>
     {include file="userbar.tpl"}
 {literal}
-    <script type="text/javascript">
+    <!--<script type="text/javascript">
         //<![CDATA[
         //onDOMContentLoaded(function(){new PrivateMessageManager($("userbar_pms"), $("userbar_pms_count"), ["72057594037945962",0])})
         //]]>
-    </script>
+    </script>-->
     {/literal}
     <div class="infobar">
         {if $current_page > 1} <span><a href="{$base_url}/showtopics.php?{if isset($tag_url)}tags={$tag_url}&amp;{/if}page=1">First Page</a> |</span>{/if}
