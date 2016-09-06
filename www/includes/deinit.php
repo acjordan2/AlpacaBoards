@@ -28,7 +28,17 @@ $time = explode(' ', microtime());
 $load_time = round(($time[1] + $time[0]) - $start, 4);
 $smarty->assign("load_time", $load_time);
 $smarty->assign("page_title", $page_title);
+
+if (Site::getConstant("MINIFY") == true) {
+    ob_start('ob_postprocess');
+}
+
 $smarty->display($display);
+
+function ob_postprocess($buffer){
+    return str_replace(array("\n", "\t", "    "), "", $buffer);
+}
+
 exit();
 ?>
 

@@ -117,8 +117,8 @@ $smarty->assign("base_url", $base_url);
 $smarty->assign("base_image_url", BASE_IMAGE_URL);
 $smarty->assign("sm_labels", $GLOBAL['locale_labels']);
 
-if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")]) && isset($_COOKIE[Site::getConstant("AUTH_KEY2")])) {
-    $session_salt = $_COOKIE[Site::getConstant("AUTH_KEY1")].$_COOKIE[Site::getConstant("AUTH_KEY2")];
+if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")]))  {
+    $session_salt = $_COOKIE[Site::getConstant("AUTH_KEY1")];
 } else {
     $session_salt = null;
 }
@@ -134,8 +134,8 @@ $authUser = new User($site);
 
 $auth = false;
 
-if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")]) && isset($_COOKIE[Site::getConstant("AUTH_KEY2")])) {
-    $auth = $authUser->authenticateWithCookie();
+if (isset($_COOKIE[Site::getConstant("AUTH_KEY1")])) {
+    $auth = $authUser->authenticateWithCookie($_COOKIE[Site::getConstant("AUTH_KEY1")]);
 }
 if ($auth == true) {
     if (($site->getDomain() == null) && ($authUser->getAccessLevel() == 1) && !isset($_COOKIE['redirect'])) {

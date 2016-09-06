@@ -42,13 +42,14 @@ class Site {
 
     private $_base_url;
 
-    private $_use_short_handler = true;
+    private $_use_short_handler = false;
 
     private $_use_ssl;
 
     private static $_constants = array (
         "AUTH_KEY1" => "sessionid",
         "AUTH_KEY2" => "sessionkey",
+        "MINIFY" => false
     );
 
     public function __construct()
