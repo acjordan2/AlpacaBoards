@@ -43,7 +43,12 @@ if ((sizeof($request_uri) > 1 && !defined('SOMETHING_SCREWEY'))) {
     // Something screwey happened
     define("SOMETHING_SCREWEY", true);
     include "init.php";
-    $smarty->assign("base_url", "//".$site->getDomain().rtrim(array_shift(explode($script_name, $_SERVER['REQUEST_URI'])), "/"));
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+        && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == "https") {
+        $protocol = "https://";
+    } else
+        $protocol = "http://";
+    $smarty->assign("base_url", $protocol.$site->getDomain().rtrim(array_shift(explode($script_name, $_SERVER['REQUEST_URI'])), "/"));
     include("403.php");
 
 }
