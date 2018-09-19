@@ -167,7 +167,12 @@ class CSRFGuard
             $time_string = null;
         }
         // Generate random data for CSRF token
-        $r = mcrypt_create_iv(26, MCRYPT_DEV_URANDOM);
+        if (function_exists("mcrypt_create_iv")) {
+            $r = mcrypt_create_iv(26, MCRYPT_DEV_URANDOM);
+        } elseif (function_exists("random_bytes")) {
+            $r = random_bytes(26);
+        }
+
         $hmac = hash_hmac("sha256", $time_string.$r, $this->_site_key, true);
         
         // Append HMAC to random data, encode in websafe base64

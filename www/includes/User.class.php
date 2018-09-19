@@ -247,7 +247,11 @@ class User
 
                 $this->_user_id = $user_info['user_id'];
                 // Create session cookies
-                $session_key1 = base64_encode(mcrypt_create_iv(48, MCRYPT_DEV_URANDOM));
+                if (function_exists("mcrypt_create_iv")) {
+                    $session_key1 = base64_encode(mcrypt_create_iv(48, MCRYPT_DEV_URANDOM));
+                } elseif (function_exists("random_bytes")) {
+                    $session_key1 = base64_encode(random_bytes(48));
+                }
 
                 $session_key1 = strtr($session_key1, '+/=', '-_,');
 
