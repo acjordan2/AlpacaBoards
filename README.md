@@ -1,4 +1,4 @@
-Sper.gs Messaging Board
+Alpaca Messaging Board
 =======================
 
 ##REQUIREMENTS
